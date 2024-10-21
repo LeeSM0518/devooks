@@ -1,0 +1,51 @@
+server:
+  port: 8081
+
+spring:
+  r2dbc:
+    url: ${DATABASE_URL:r2dbc:postgresql://localhost:35432/devooksdb}
+    driver: postgresql
+    protocol: r2dbc
+    host: localhost
+    port: 35432
+    database: devooksdb
+    username: ${DATABASE_USERNAME:devooks}
+    password: ${DATABASE_PASSWORD:devooks}
+
+  codec:
+    max-in-memory-size: 500MB
+
+jwt:
+  secretKey:
+  accessTokenExpirationHour: 1
+  refreshTokenExpirationHour: 720
+
+naver:
+  oauthHost: https://nid.naver.com
+  profileHost: https://openapi.naver.com
+  tokenUrl: /oauth2.0/token
+  profileUrl: /v1/nid/me
+  clientId:
+  clientSecret:
+  state:
+
+kakao:
+  oauthHost: https://kauth.kakao.com
+  profileHost: https://kapi.kakao.com
+  tokenUrl: /oauth/token
+  profileUrl: /v2/user/me
+  clientId:
+  redirectUri:
+
+google:
+  oauthHost: https://oauth2.googleapis.com
+  profileHost: https://www.googleapis.com
+  tokenUrl: /token
+  profileUrl: /userinfo/v2/me
+  clientId:
+  clientSecret:
+  redirectUri:
+
+springdoc:
+  swagger-ui:
+    path: api-docs
