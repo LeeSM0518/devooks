@@ -8,7 +8,6 @@ on:
 env:
   CONTAINER_CONTEXT_PATH: 'docker'
   DOCKERFILE_PATH: 'docker/Dockerfile'
-  JAR_FILE_PATH: 'docker/*.jar'
 
 jobs:
   gradle-and-docker-build-test:
