@@ -17,4 +17,4 @@ jobs:
           disable-autolabeler: false
           config-name: release-drafter-configs/autolabeler-develop.yml
         env:
-          GITHUB_TOKEN: ${{ secrets.WOLKFLOW_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
