@@ -40,6 +40,7 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -131,6 +132,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
         assertThat(ebookInquiry.content).isEqualTo(createEbookInquiryRequest.content)
         assertThat(ebookInquiry.writerMemberId).isEqualTo(expectedMember1.id)
 
+        delay(100)
         val notification = notificationRepository.findAll().toList()[0]
         assertThat(notification.type).isEqualTo(NotificationType.INQUIRY)
         assertThat(notification.receiverId).isEqualTo(createEbookResponse.ebook.sellingMemberId)
