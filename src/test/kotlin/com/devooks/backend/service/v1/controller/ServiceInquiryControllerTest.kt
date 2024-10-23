@@ -276,7 +276,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             )
         )
 
-        val updatedServiceInquiry = webTestClient
+        webTestClient
             .patch()
             .uri("/api/v1/service-inquiries/${createdServiceInquiry.id}")
             .header(AUTHORIZATION, "Bearer $accessToken2")
