@@ -101,7 +101,7 @@ tasks.withType<Test> {
 
 tasks.register("copyJar", Copy::class) {
     dependsOn("bootJar")
-    val jarFile = "devooks-0.0.1.jar"
+    val jarFile = "devooks-backend.jar"
     from("build/libs")
     into(file("docker"))
     include(jarFile)

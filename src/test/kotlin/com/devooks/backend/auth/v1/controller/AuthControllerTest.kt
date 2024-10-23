@@ -158,7 +158,7 @@ internal class AuthControllerTest @Autowired constructor(
             .returnResult()
             .responseBody!!
 
-        val message = responseBody["message"] as Map<String, String>
+        val message = responseBody["message"] as Map<*, *>
         assertThat(message["oauthId"]).isEqualTo(oauthId)
     }
 

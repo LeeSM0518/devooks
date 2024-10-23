@@ -43,6 +43,7 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -136,6 +137,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         assertThat(ebookInquiryComment.content).isEqualTo(createEbookInquiryCommentRequest.content)
         assertThat(ebookInquiryComment.writerMemberId).isEqualTo(expectedMember1.id)
 
+        delay(100)
         val notification =
             notificationRepository.findAll().toList().find { it.type == NotificationType.INQUIRY_COMMENT }!!
         assertThat(notification.type).isEqualTo(NotificationType.INQUIRY_COMMENT)
@@ -163,7 +165,14 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
             .responseBody!!
             .comments[0]
 
-        assertThat(foundEbookInquiryComment).isEqualTo(ebookInquiryComment)
+        assertThat(foundEbookInquiryComment.id).isEqualTo(ebookInquiryComment.id)
+        assertThat(foundEbookInquiryComment.content).isEqualTo(ebookInquiryComment.content)
+        assertThat(foundEbookInquiryComment.inquiryId).isEqualTo(ebookInquiryComment.inquiryId)
+        assertThat(foundEbookInquiryComment.writerMemberId).isEqualTo(ebookInquiryComment.writerMemberId)
+        assertThat(foundEbookInquiryComment.writtenDate.toEpochMilli())
+            .isEqualTo(ebookInquiryComment.writtenDate.toEpochMilli())
+        assertThat(foundEbookInquiryComment.modifiedDate.toEpochMilli())
+            .isEqualTo(ebookInquiryComment.modifiedDate.toEpochMilli())
     }
 
     @Test
