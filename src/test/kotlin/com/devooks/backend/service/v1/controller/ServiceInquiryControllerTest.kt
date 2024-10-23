@@ -172,8 +172,8 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         assertThat(serviceInquiryView.imageList).containsAll(serviceInquiry.imageList)
         assertThat(serviceInquiryView.content).isEqualTo(serviceInquiry.content)
         assertThat(serviceInquiryView.inquiryProcessingStatus).isEqualTo(serviceInquiry.inquiryProcessingStatus)
-        assertThat(serviceInquiryView.createdDate).isEqualTo(serviceInquiry.createdDate)
-        assertThat(serviceInquiryView.modifiedDate).isEqualTo(serviceInquiry.modifiedDate)
+        assertThat(serviceInquiryView.createdDate.toEpochMilli()).isEqualTo(serviceInquiry.createdDate.toEpochMilli())
+        assertThat(serviceInquiryView.modifiedDate.toEpochMilli()).isEqualTo(serviceInquiry.modifiedDate.toEpochMilli())
         assertThat(serviceInquiryView.writerMemberId).isEqualTo(serviceInquiry.writerMemberId)
     }
 
@@ -276,7 +276,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             )
         )
 
-        val updatedServiceInquiry = webTestClient
+        webTestClient
             .patch()
             .uri("/api/v1/service-inquiries/${createdServiceInquiry.id}")
             .header(AUTHORIZATION, "Bearer $accessToken2")

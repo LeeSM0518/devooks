@@ -48,6 +48,7 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -139,6 +140,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
         assertThat(reviewComment.reviewId.toString()).isEqualTo(request.reviewId)
         assertThat(reviewComment.content).isEqualTo(request.content)
 
+        delay(100)
         val notification = notificationRepository.findAll().toList().find { it.receiverId == review.writerMemberId }!!
         assertThat(notification.type).isEqualTo(NotificationType.REVIEW_COMMENT)
         assertThat(notification.receiverId).isEqualTo(review.writerMemberId)
@@ -172,8 +174,8 @@ internal class ReviewCommentControllerTest @Autowired constructor(
         assertThat(response.id).isEqualTo(request.id)
         assertThat(response.content).isEqualTo(request.content)
         assertThat(response.reviewId).isEqualTo(request.reviewId)
-        assertThat(response.writtenDate).isEqualTo(request.writtenDate)
-        assertThat(response.modifiedDate).isEqualTo(request.modifiedDate)
+        assertThat(response.writtenDate.toEpochMilli()).isEqualTo(request.writtenDate.toEpochMilli())
+        assertThat(response.modifiedDate.toEpochMilli()).isEqualTo(request.modifiedDate.toEpochMilli())
         assertThat(response.writerMemberId).isEqualTo(request.writerMemberId)
     }
 

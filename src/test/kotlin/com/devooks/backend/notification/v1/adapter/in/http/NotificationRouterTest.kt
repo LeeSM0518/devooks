@@ -106,7 +106,7 @@ internal class NotificationRouterTest @Autowired constructor(
         assertThat(actual.type).isEqualTo(expectedNotification.type)
         assertThat(actual.receiverId).isEqualTo(expectedNotification.receiverId)
         assertThat(actual.checked).isEqualTo(expectedNotification.checked)
-        assertThat(actual.notifiedDate).isEqualTo(expectedNotification.notifiedDate)
+        assertThat(actual.notifiedDate.toEpochMilli()).isEqualTo(expectedNotification.notifiedDate.toEpochMilli())
     }
 
     @Test
