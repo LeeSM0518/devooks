@@ -10,7 +10,7 @@ env:
   DOCKERFILE_PATH: 'docker/Dockerfile'
   IMAGE_NAME: 'develop-devooks-backend'
   EC2_SSH_KEY: ${{ secrets.DEVELOP_EC2_SSH_PRIVATE_KEY }}
-  EC2_USER: ${{ secrets.DEVELOP_EC2_USER }}
+  EC2_USER: ${{ secrets.DEVELOP_EC2_SSH_USER }}
   EC2_HOST: ${{ secrets.DEVELOP_EC2_HOST }}
 
 jobs:
