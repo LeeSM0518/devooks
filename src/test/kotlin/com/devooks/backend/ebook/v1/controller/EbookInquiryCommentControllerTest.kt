@@ -163,7 +163,14 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
             .responseBody!!
             .comments[0]
 
-        assertThat(foundEbookInquiryComment).isEqualTo(ebookInquiryComment)
+        assertThat(foundEbookInquiryComment.id).isEqualTo(ebookInquiryComment.id)
+        assertThat(foundEbookInquiryComment.content).isEqualTo(ebookInquiryComment.content)
+        assertThat(foundEbookInquiryComment.inquiryId).isEqualTo(ebookInquiryComment.inquiryId)
+        assertThat(foundEbookInquiryComment.writerMemberId).isEqualTo(ebookInquiryComment.writerMemberId)
+        assertThat(foundEbookInquiryComment.writtenDate.toEpochMilli())
+            .isEqualTo(ebookInquiryComment.writtenDate.toEpochMilli())
+        assertThat(foundEbookInquiryComment.modifiedDate.toEpochMilli())
+            .isEqualTo(ebookInquiryComment.modifiedDate.toEpochMilli())
     }
 
     @Test

@@ -246,7 +246,8 @@ internal class TransactionControllerTest @Autowired constructor(
 
         val transaction = getBuyHistoriesResponse.transactionList[0]
         assertThat(transaction.id).isEqualTo(createTransactionResponse.transactionId)
-        assertThat(transaction.transactionDate).isEqualTo(createTransactionResponse.transactionDate)
+        assertThat(transaction.transactionDate.toEpochMilli())
+            .isEqualTo(createTransactionResponse.transactionDate.toEpochMilli())
         assertThat(transaction.price).isEqualTo(createEbookResponse.ebook.price)
         assertThat(transaction.ebookId).isEqualTo(createEbookResponse.ebook.id)
     }
@@ -268,7 +269,8 @@ internal class TransactionControllerTest @Autowired constructor(
 
         val transaction = getBuyHistoriesResponse.transactionList[0]
         assertThat(transaction.id).isEqualTo(createTransactionResponse.transactionId)
-        assertThat(transaction.transactionDate).isEqualTo(createTransactionResponse.transactionDate)
+        assertThat(transaction.transactionDate.toEpochMilli())
+            .isEqualTo(createTransactionResponse.transactionDate.toEpochMilli())
         assertThat(transaction.price).isEqualTo(createEbookResponse.ebook.price)
         assertThat(transaction.ebookId).isEqualTo(createEbookResponse.ebook.id)
     }
@@ -292,7 +294,8 @@ internal class TransactionControllerTest @Autowired constructor(
 
         val transaction = getSellHistoriesResponse.transactionList[0]
         assertThat(transaction.id).isEqualTo(createTransactionResponse.transactionId)
-        assertThat(transaction.transactionDate).isEqualTo(createTransactionResponse.transactionDate)
+        assertThat(transaction.transactionDate.toEpochMilli())
+            .isEqualTo(createTransactionResponse.transactionDate.toEpochMilli())
         assertThat(transaction.price).isEqualTo(createEbookResponse.ebook.price)
         assertThat(transaction.ebookId).isEqualTo(createEbookResponse.ebook.id)
     }

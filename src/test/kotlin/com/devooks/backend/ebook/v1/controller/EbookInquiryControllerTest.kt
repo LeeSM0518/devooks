@@ -157,7 +157,14 @@ internal class EbookInquiryControllerTest @Autowired constructor(
                 .responseBody!!
                 .ebookInquiryList[0]
 
-        assertThat(foundEbookInquiry).isEqualTo(createdEbookInquiry)
+        assertThat(foundEbookInquiry.id).isEqualTo(createdEbookInquiry.id)
+        assertThat(foundEbookInquiry.content).isEqualTo(createdEbookInquiry.content)
+        assertThat(foundEbookInquiry.ebookId).isEqualTo(createdEbookInquiry.ebookId)
+        assertThat(foundEbookInquiry.writerMemberId).isEqualTo(createdEbookInquiry.writerMemberId)
+        assertThat(foundEbookInquiry.writtenDate.toEpochMilli())
+            .isEqualTo(createdEbookInquiry.writtenDate.toEpochMilli())
+        assertThat(foundEbookInquiry.modifiedDate.toEpochMilli())
+            .isEqualTo(createdEbookInquiry.modifiedDate.toEpochMilli())
     }
 
     @Test

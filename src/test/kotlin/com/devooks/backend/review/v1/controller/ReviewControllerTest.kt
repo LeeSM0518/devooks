@@ -168,8 +168,8 @@ internal class ReviewControllerTest @Autowired constructor(
         assertThat(review.content).isEqualTo(createReviewResponse.content)
         assertThat(review.rating).isEqualTo(createReviewResponse.rating)
         assertThat(review.writerMemberId).isEqualTo(createReviewResponse.writerMemberId)
-        assertThat(review.writtenDate).isEqualTo(createReviewResponse.writtenDate)
-        assertThat(review.modifiedDate).isEqualTo(createReviewResponse.modifiedDate)
+        assertThat(review.writtenDate.toEpochMilli()).isEqualTo(createReviewResponse.writtenDate.toEpochMilli())
+        assertThat(review.modifiedDate.toEpochMilli()).isEqualTo(createReviewResponse.modifiedDate.toEpochMilli())
     }
 
     @Test
@@ -192,8 +192,8 @@ internal class ReviewControllerTest @Autowired constructor(
         assertThat(review.content).isEqualTo(createReviewResponse.content)
         assertThat(review.rating).isEqualTo(createReviewResponse.rating)
         assertThat(review.writerMemberId).isEqualTo(createReviewResponse.writerMemberId)
-        assertThat(review.writtenDate).isEqualTo(createReviewResponse.writtenDate)
-        assertThat(review.modifiedDate).isEqualTo(createReviewResponse.modifiedDate)
+        assertThat(review.writtenDate.toEpochMilli()).isEqualTo(createReviewResponse.writtenDate.toEpochMilli())
+        assertThat(review.modifiedDate.toEpochMilli()).isEqualTo(createReviewResponse.modifiedDate.toEpochMilli())
     }
 
     @Test
