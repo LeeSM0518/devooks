@@ -15,6 +15,7 @@ env:
   EC2_HOST: ${{ secrets.DEVELOP_EC2_HOST }}
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+  APPLICATION_YAML: ${{ secrets.APPLICATION_YAML }}
 
 jobs:
   build-and-deploy:
@@ -24,6 +25,11 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+
+      - name: Create application.yaml
+        run: |
+          touch ./src/main/resources/application.yml
+          echo "${{ env.APPLICATION_YAML }}" > ./src/main/resources/application.yml
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
