@@ -67,7 +67,7 @@ jobs:
         with:
           context: ${{ env.CONTAINER_CONTEXT_PATH }}
           file: ${{ env.DOCKERFILE_PATH }}
-          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-${{ env.CURRENT_DATE_TIME }}
+          tags: ${{ env.DOCKER_HUB_USERNAME}}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-${{ env.CURRENT_DATE_TIME }}
           push: true
 
       - name: Deploy to EC2
