@@ -8,10 +8,13 @@ on:
 env:
   CONTAINER_CONTEXT_PATH: 'docker'
   DOCKERFILE_PATH: 'docker/Dockerfile'
-  IMAGE_NAME: 'develop-devooks-backend'
+  IMAGE_NAME: 'devooks-backend'
+  IMAGE_TAG: 'develop'
   EC2_SSH_KEY: ${{ secrets.DEVELOP_EC2_SSH_PRIVATE_KEY }}
   EC2_USER: ${{ secrets.DEVELOP_EC2_SSH_USER }}
   EC2_HOST: ${{ secrets.DEVELOP_EC2_HOST }}
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
 jobs:
   build-and-deploy:
@@ -41,17 +44,31 @@ jobs:
           name: test-reports
           path: build/reports/tests/test
 
-      - name: Build the Docker image
-        run: docker build ${{ env.CONTAINER_CONTEXT_PATH }} --file ${{ env.DOCKERFILE_PATH }} --tag ${{ env.IMAGE_NAME }}:latest
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Save Docker image as tar file
-        run: docker save ${{ env.IMAGE_NAME }}:latest -o ${{ env.IMAGE_NAME }}.tar
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_PASSWORD }}
 
-      - name: Transfer Docker tar to EC2
+      - name: Get current date and time in custom format
         run: |
-          echo "$EC2_SSH_KEY" > ec2_key.pem
-          chmod 600 ec2_key.pem
-          scp -i ec2_key.pem -o StrictHostKeyChecking=no ${{ env.IMAGE_NAME }}.tar $EC2_USER@$EC2_HOST:/home/$EC2_USER/
+          CURRENT_DATE_TIME=$(date "+%Y%m%d%H%M%S")
+          echo "Current date and time is $CURRENT_DATE_TIME"
+          echo "CURRENT_DATE_TIME=$CURRENT_DATE_TIME" >> $GITHUB_ENV
+
+      - name: Use current date and time
+        run: echo "The date and time in custom format is ${{ env.CURRENT_DATE_TIME }}"
+
+      - name: Build and Push the Docker image and
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.CONTAINER_CONTEXT_PATH }}
+          file: ${{ env.DOCKERFILE_PATH }}
+          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-${{ env.CURRENT_DATE_TIME }}
+          push: true
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -60,4 +77,5 @@ jobs:
           username: ${{ env.EC2_USER }}
           key: ${{ env.EC2_SSH_KEY }}
           script: |
-            docker load -i /home/$EC2_USER/${{ env.IMAGE_NAME}}.tar
+            docker login -u "${{ env.DOCKER_HUB_USERNAME }}" -p "${{ env.DOCKER_HUB_PASSWORD }}"
+            docker pull ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-${{ env.CURRENT_DATE_TIME }}
