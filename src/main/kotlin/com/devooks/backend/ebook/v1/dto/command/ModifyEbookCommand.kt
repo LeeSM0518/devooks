@@ -5,7 +5,7 @@ import java.util.*
 class ModifyEbookCommand(
     val ebookId: UUID,
     val title: String?,
-    val relatedCategoryNameList: List<String>?,
+    val relatedCategoryIdList: List<UUID>?,
     val mainImageId: UUID?,
     val descriptionImageIdList: List<UUID>?,
     val introduction: String?,
@@ -16,5 +16,5 @@ class ModifyEbookCommand(
     val isChangedEbook: Boolean =
         title != null || mainImageId != null || introduction != null || tableOfContents != null || price != null
     val isChangedDescriptionImageList: Boolean = descriptionImageIdList != null
-    val isChangedRelatedCategoryNameList: Boolean = relatedCategoryNameList != null
+    val isChangedRelatedCategoryIdList: Boolean = relatedCategoryIdList != null
 }

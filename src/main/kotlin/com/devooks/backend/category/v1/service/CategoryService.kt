@@ -3,9 +3,10 @@ package com.devooks.backend.category.v1.service
 import com.devooks.backend.category.v1.domain.Category
 import com.devooks.backend.category.v1.domain.Category.Companion.toDomain
 import com.devooks.backend.category.v1.dto.GetCategoriesRequest
-import com.devooks.backend.category.v1.entity.CategoryEntity
+import com.devooks.backend.category.v1.error.CategoryError
 import com.devooks.backend.category.v1.repository.CategoryRepository
-import kotlinx.coroutines.flow.asFlow
+import java.util.*
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
@@ -21,15 +22,15 @@ class CategoryService(
                 name = request.keyword,
                 pageable = request.paging.value
             )
-            .map { Category(it.id!!, it.name) }
-            .toList()
-
-    suspend fun save(categoryNames: List<String>): List<Category> =
-        categoryNames
-            .asFlow()
-            .map { name -> name to categoryRepository.findByNameIsIgnoreCase(name) }
-            .map { (name, entity) -> entity ?: categoryRepository.save(CategoryEntity(name = name)) }
             .map { it.toDomain() }
             .toList()
+
+    suspend fun getAll(categoryIds: List<UUID>): List<Category> =
+        categoryRepository
+            .findAllById(categoryIds)
+            .takeIf { it.count() == categoryIds.size }
+            ?.map { it.toDomain() }
+            ?.toList()
+            ?: throw CategoryError.NOT_FOUND_CATEGORY_BY_ID.exception
 
 }

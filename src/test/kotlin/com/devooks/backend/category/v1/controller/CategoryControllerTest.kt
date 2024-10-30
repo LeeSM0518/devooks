@@ -1,20 +1,19 @@
 package com.devooks.backend.category.v1.controller
 
-import com.devooks.backend.auth.v1.domain.OauthType
 import com.devooks.backend.auth.v1.repository.OauthInfoRepository
 import com.devooks.backend.auth.v1.repository.RefreshTokenRepository
+import com.devooks.backend.category.v1.domain.Category.Companion.toDomain
+import com.devooks.backend.category.v1.dto.CategoryDto.Companion.toDto
 import com.devooks.backend.category.v1.dto.GetCategoriesResponse
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.config.IntegrationTest
-import com.devooks.backend.member.v1.dto.SignUpRequest
-import com.devooks.backend.member.v1.dto.SignUpResponse
 import com.devooks.backend.member.v1.repository.FavoriteCategoryRepository
 import com.devooks.backend.member.v1.repository.MemberInfoRepository
 import com.devooks.backend.member.v1.repository.MemberRepository
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
@@ -32,42 +31,21 @@ internal class CategoryControllerTest @Autowired constructor(
     private val refreshTokenRepository: RefreshTokenRepository,
 ) {
 
-    private val expectedCategory = "category"
-
-    @BeforeEach
-    fun setup(): Unit = runBlocking {
-        val request = SignUpRequest(
-            oauthId = "oauthId",
-            oauthType = OauthType.NAVER.name,
-            nickname = "nickname",
-            favoriteCategories = listOf(expectedCategory)
-        )
-
-        webTestClient
-            .post()
-            .uri("/api/v1/members/signup")
-            .contentType(APPLICATION_JSON)
-            .accept(APPLICATION_JSON)
-            .bodyValue(request)
-            .exchange()
-            .expectStatus().isOk
-            .expectBody<SignUpResponse>()
-            .returnResult()
-            .responseBody!!
-    }
-
     @AfterEach
     fun tearDown(): Unit = runBlocking {
         refreshTokenRepository.deleteAll()
         favoriteCategoryRepository.deleteAll()
         memberRepository.deleteAll()
         oauthInfoRepository.deleteAll()
-        categoryRepository.deleteAll()
         memberInfoRepository.deleteAll()
     }
 
     @Test
     fun `카테고리 목록을 조회할 수 있다`(): Unit = runBlocking {
+        // given
+        val foundCategories = categoryRepository.findAll().toList().map { it.toDomain().toDto() }
+
+        // when
         val categories = webTestClient
             .get()
             .uri("/api/v1/categories?page=1&count=10")
@@ -79,7 +57,8 @@ internal class CategoryControllerTest @Autowired constructor(
             .responseBody!!
             .categories
 
-        assertThat(categories[0].name).isEqualTo(expectedCategory)
+        // then
+        assertThat(foundCategories).containsAll(categories)
     }
 
 }

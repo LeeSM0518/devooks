@@ -1,5 +1,6 @@
 package com.devooks.backend.ebook.v1.error
 
+import com.devooks.backend.category.v1.error.CategoryError
 import com.devooks.backend.common.error.validateNotBlank
 import com.devooks.backend.common.error.validateNotEmpty
 import com.devooks.backend.common.error.validateNotNull
@@ -13,8 +14,9 @@ fun String?.validatePdfId(): UUID =
 fun String?.validateEbookTitle(): String =
     validateNotBlank(EbookError.REQUIRED_TITLE.exception)
 
-fun List<String>?.validateRelatedCategoryList(): List<String> =
+fun List<String>?.validateRelatedCategoryList(): List<UUID> =
     validateNotEmpty(EbookError.REQUIRED_RELATED_CATEGORY_LIST.exception)
+        .map { it.validateUUID(CategoryError.INVALID_CATEGORY_ID.exception) }
 
 fun Int?.validateEbookPrice(): Int =
     takeIf { it != null && it in 0..9_999_999 }

@@ -14,7 +14,7 @@ import java.util.*
 data class CreateEbookRequest(
     val pdfId: String?,
     val title: String?,
-    val relatedCategoryNameList: List<String>?,
+    val relatedCategoryIdList: List<String>?,
     val mainImageId: String?,
     val descriptionImageIdList: List<String>?,
     val price: Int?,
@@ -25,7 +25,7 @@ data class CreateEbookRequest(
         CreateEbookCommand(
             pdfId = pdfId.validatePdfId(),
             title = title.validateEbookTitle(),
-            relatedCategoryNameList = relatedCategoryNameList.validateRelatedCategoryList(),
+            relatedCategoryIdList = relatedCategoryIdList.validateRelatedCategoryList(),
             mainImageId = mainImageId.validateMainImageId(),
             descriptionImageIdList = descriptionImageIdList.validateDescriptionImageIdList(),
             price = price.validateEbookPrice(),

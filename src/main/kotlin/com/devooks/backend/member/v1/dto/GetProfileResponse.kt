@@ -1,6 +1,8 @@
 package com.devooks.backend.member.v1.dto
 
 import com.devooks.backend.category.v1.domain.Category
+import com.devooks.backend.category.v1.dto.CategoryDto
+import com.devooks.backend.category.v1.dto.CategoryDto.Companion.toDto
 import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.domain.MemberInfo
 import java.util.*
@@ -10,7 +12,7 @@ data class GetProfileResponse(
     val nickname: String,
     val profileImagePath: String,
     val profile: Profile,
-    val favoriteCategories: List<String>,
+    val favoriteCategories: List<CategoryDto>,
 ) {
 
     constructor(
@@ -27,7 +29,7 @@ data class GetProfileResponse(
             youtubeLink = memberInfo.youtubeLink,
             introduction = memberInfo.introduction
         ),
-        favoriteCategories = categories.map { it.name }
+        favoriteCategories = categories.map { it.toDto() }
     )
 
     data class Profile(

@@ -2,7 +2,6 @@ package com.devooks.backend.ebook.v1.service
 
 import com.devooks.backend.category.v1.domain.Category
 import com.devooks.backend.category.v1.domain.Category.Companion.toDomain
-import com.devooks.backend.category.v1.entity.CategoryEntity
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.ebook.v1.domain.Ebook
 import com.devooks.backend.ebook.v1.dto.command.ModifyEbookCommand
@@ -24,13 +23,9 @@ class RelatedCategoryService(
             .toList()
 
     suspend fun modify(command: ModifyEbookCommand, ebook: Ebook): List<Category> {
-        return if (command.isChangedRelatedCategoryNameList) {
-            val relatedCategoryNameList = command.relatedCategoryNameList!!
-            val categoryList = relatedCategoryNameList
-                .map { name -> name to categoryRepository.findByNameIsIgnoreCase(name) }
-                .map { (name, entity) -> entity ?: categoryRepository.save(CategoryEntity(name = name)) }
-                .map { it.toDomain() }
-                .toList()
+        return if (command.isChangedRelatedCategoryIdList) {
+            val categoryList =
+                categoryRepository.findAllById(command.relatedCategoryIdList!!).map { it.toDomain() }.toList()
             relatedCategoryRepository.deleteAllByEbookId(ebook.id)
             save(categoryList, ebook)
             categoryList

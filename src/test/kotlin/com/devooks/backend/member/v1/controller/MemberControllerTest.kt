@@ -9,7 +9,8 @@ import com.devooks.backend.auth.v1.error.AuthError
 import com.devooks.backend.auth.v1.repository.OauthInfoRepository
 import com.devooks.backend.auth.v1.repository.RefreshTokenRepository
 import com.devooks.backend.auth.v1.service.TokenService
-import com.devooks.backend.category.v1.entity.CategoryEntity
+import com.devooks.backend.category.v1.domain.Category.Companion.toDomain
+import com.devooks.backend.category.v1.dto.CategoryDto.Companion.toDto
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.common.error.CommonError
@@ -41,6 +42,7 @@ import java.time.Instant
 import java.util.*
 import kotlin.io.path.Path
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -87,18 +89,18 @@ internal class MemberControllerTest @Autowired constructor(
         favoriteCategoryRepository.deleteAll()
         memberRepository.deleteAll()
         oauthInfoRepository.deleteAll()
-        categoryRepository.deleteAll()
         memberInfoRepository.deleteAll()
     }
 
     @Test
     fun `회원가입 할 수 있다`(): Unit = runBlocking {
         // given
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val request = SignUpRequest(
             oauthId = "oauthId",
             oauthType = OauthType.NAVER.name,
             nickname = "nickname",
-            favoriteCategories = listOf("category")
+            favoriteCategoryIdList = listOf(categoryId)
         )
 
         // when
@@ -110,7 +112,7 @@ internal class MemberControllerTest @Autowired constructor(
         assertThat(response.member.profileImagePath).isEqualTo("")
 
         val category = categoryRepository.findAll().firstOrNull()!!
-        assertThat(category.name).isEqualTo(request.favoriteCategories!!.first())
+        assertThat(category.id.toString()).isEqualTo(request.favoriteCategoryIdList!!.first())
 
         val favoriteCategory = favoriteCategoryRepository.findAll().firstOrNull()!!
         assertThat(favoriteCategory.categoryId).isEqualTo(category.id)
@@ -239,11 +241,12 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `닉네임이 이미 존재할 경우 회원가입 실패`(): Unit = runBlocking {
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val request = SignUpRequest(
             oauthId = "oauthId",
             oauthType = "NAVER",
             nickname = "nickname",
-            favoriteCategories = listOf("category")
+            favoriteCategoryIdList = listOf(categoryId)
         )
         signUp(request)
 
@@ -264,11 +267,12 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `정지당한 회원일 경우 회원가입 실패`(): Unit = runBlocking {
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val request = SignUpRequest(
             oauthId = "oauthId",
             oauthType = "NAVER",
             nickname = "nickname",
-            favoriteCategories = listOf("category")
+            favoriteCategoryIdList = listOf(categoryId)
         )
         val signUpResponse = signUp(request)
         val foundMember = memberRepository.findById(signUpResponse.member.id)!!
@@ -291,11 +295,12 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `탈퇴한 회원일 경우 회원가입 실패`(): Unit = runBlocking {
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val request = SignUpRequest(
             oauthId = "oauthId",
             oauthType = "NAVER",
             nickname = "nickname",
-            favoriteCategories = listOf("category")
+            favoriteCategoryIdList = listOf(categoryId)
         )
         val signUpResponse = signUp(request)
         val foundMember = memberRepository.findById(signUpResponse.member.id)!!
@@ -318,11 +323,12 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `이미 존재하는 회원일 경우 회원가입 실패`(): Unit = runBlocking {
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val request = SignUpRequest(
             oauthId = "oauthId",
             oauthType = "NAVER",
             nickname = "nickname",
-            favoriteCategories = listOf("category")
+            favoriteCategoryIdList = listOf(categoryId)
         )
         signUp(request)
 
@@ -431,6 +437,7 @@ internal class MemberControllerTest @Autowired constructor(
     @Test
     fun `프로필을 수정할 수 있다`(): Unit = runBlocking {
         val (_, tokenGroup) = signUp()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val modifyProfileRequest =
             ModifyProfileRequest(
                 phoneNumber = "010-1234-1234",
@@ -438,49 +445,10 @@ internal class MemberControllerTest @Autowired constructor(
                 instagramLink = "www.instagram.com",
                 youtubeLink = "www.youtube.com",
                 introduction = "hello",
-                favoriteCategoryNames = listOf("category")
+                favoriteCategoryIdList = listOf(categoryId)
             )
 
         postModifyProfile(tokenGroup, modifyProfileRequest)
-    }
-
-    @Test
-    fun `존재하지 않는 카테고리로 관심 카테고리를 설정할 경우 카테고리가 새로 생성된다`(): Unit = runBlocking {
-        assertThat(categoryRepository.findAllByNameLikeIgnoreCase("category").firstOrNull()).isNull()
-
-        val (_, tokenGroup) = signUp()
-        val modifyProfileRequest =
-            ModifyProfileRequest(
-                phoneNumber = "010-1234-1234",
-                blogLink = "www.naver.com",
-                instagramLink = "www.instagram.com",
-                youtubeLink = "www.youtube.com",
-                introduction = "hello",
-                favoriteCategoryNames = listOf("category")
-            )
-
-        postModifyProfile(tokenGroup, modifyProfileRequest)
-        assertThat(categoryRepository.findAllByNameLikeIgnoreCase("category").firstOrNull()?.name)
-            .isEqualTo("category")
-    }
-
-    @Test
-    fun `이미 존재하는 카테고리로 관심 카테고리를 설정할 경우 카테고리가 생성되지 않는다`(): Unit = runBlocking {
-        categoryRepository.save(CategoryEntity(name = "category"))
-
-        val (_, tokenGroup) = signUp()
-        val modifyProfileRequest =
-            ModifyProfileRequest(
-                phoneNumber = "010-1234-1234",
-                blogLink = "www.naver.com",
-                instagramLink = "www.instagram.com",
-                youtubeLink = "www.youtube.com",
-                introduction = "hello",
-                favoriteCategoryNames = listOf("category")
-            )
-
-        postModifyProfile(tokenGroup, modifyProfileRequest)
-        assertThat(categoryRepository.count()).isOne()
     }
 
     @Test
@@ -497,10 +465,12 @@ internal class MemberControllerTest @Autowired constructor(
             .returnResult()
             .responseBody!!
 
+        val categoryDto = categoryRepository.findAll().toList()[0].toDomain().toDto()
+
         assertThat(response.memberId).isEqualTo(signUpResponse.member.id)
         assertThat(response.nickname).isEqualTo(signUpResponse.member.nickname)
         assertThat(response.profileImagePath).isEqualTo(signUpResponse.member.profileImagePath)
-        assertThat(response.favoriteCategories.firstOrNull()).isEqualTo("category")
+        assertThat(response.favoriteCategories.firstOrNull()).isEqualTo(categoryDto)
         assertThat(response.profile.blogLink).isEqualTo("")
         assertThat(response.profile.youtubeLink).isEqualTo("")
         assertThat(response.profile.introduction).isEqualTo("")
@@ -736,11 +706,12 @@ internal class MemberControllerTest @Autowired constructor(
     }
 
     private suspend fun signUp(): Pair<SignUpResponse, TokenGroup> {
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val signUpRequest = SignUpRequest(
             oauthId = "oauthId",
             oauthType = "NAVER",
             nickname = "nickname",
-            favoriteCategories = listOf("category")
+            favoriteCategoryIdList = listOf(categoryId)
         )
         val signUpResponse = signUp(signUpRequest)
         val member = memberRepository.findById(signUpResponse.member.id)!!.toDomain()
@@ -778,13 +749,13 @@ internal class MemberControllerTest @Autowired constructor(
             .responseBody!!
 
         val memberInfo = response.memberInfo
-        val favoriteCategories = response.favoriteCategories.map { it.name }
+        val favoriteCategories = response.favoriteCategories.map { it.id.toString() }
 
         assertThat(memberInfo.phoneNumber).isEqualTo(modifyProfileRequest.phoneNumber)
         assertThat(memberInfo.blogLink).isEqualTo(modifyProfileRequest.blogLink)
         assertThat(memberInfo.instagramLink).isEqualTo(modifyProfileRequest.instagramLink)
         assertThat(memberInfo.youtubeLink).isEqualTo(modifyProfileRequest.youtubeLink)
         assertThat(memberInfo.introduction).isEqualTo(modifyProfileRequest.introduction)
-        assertIterableEquals(favoriteCategories, modifyProfileRequest.favoriteCategoryNames)
+        assertIterableEquals(favoriteCategories, modifyProfileRequest.favoriteCategoryIdList)
     }
 }

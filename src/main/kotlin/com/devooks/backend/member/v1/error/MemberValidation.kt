@@ -1,8 +1,8 @@
 package com.devooks.backend.member.v1.error
 
-import com.devooks.backend.common.error.validateUUID
 import com.devooks.backend.common.error.validateNotBlank
 import com.devooks.backend.common.error.validateNotNull
+import com.devooks.backend.common.error.validateUUID
 import java.util.*
 
 private val phoneRegex = Regex("^[0-9]{2,3}-[0-9]{3,4}-[0-9]{3,4}$")
@@ -14,8 +14,9 @@ fun String?.validateNickname(): String =
                 ?: throw MemberError.INVALID_NICKNAME.exception
         }
 
-fun List<String>?.validateFavoriteCategories(): List<String> =
+fun List<String>?.validateFavoriteCategoryIdList(): List<UUID> =
     validateNotNull(MemberError.REQUIRED_FAVORITE_CATEGORIES.exception)
+        .map { it.validateUUID(MemberError.INVALID_FAVORITE_CATEGORIES.exception) }
 
 fun String?.validateRealName(): String =
     validateNotBlank(MemberError.REQUIRED_REAL_NAME.exception)
@@ -54,18 +55,6 @@ fun String?.validateIntroduction(): String =
     validateNotNull(MemberError.REQUIRED_INTRODUCTION_LINK.exception)
         .takeIf { it.isNotBlank() }
         ?: ""
-
-fun List<String>?.validateFavoriteCategoryNames(): List<String> =
-    validateNotNull(MemberError.REQUIRED_FAVORITE_CATEGORIES.exception)
-        .mapNotNull { category ->
-            category
-                .ifBlank { null }
-                .also {
-                    it?.takeIf { it.length in 1..20 }
-                        ?: throw MemberError.INVALID_FAVORITE_CATEGORIES.exception
-                }
-        }
-        .distinct()
 
 fun String?.validateWithdrawalReason(): String =
     validateNotBlank(MemberError.REQUIRED_WITHDRAWAL_REASON.exception)
