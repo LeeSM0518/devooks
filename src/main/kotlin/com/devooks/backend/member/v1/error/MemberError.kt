@@ -20,7 +20,7 @@ enum class MemberError(val exception: GeneralException) {
     REQUIRED_INSTAGRAM_LINK(GeneralException("MEMBER-400-10", BAD_REQUEST, "인스타그램 링크가 반드시 필요합니다.")),
     REQUIRED_YOUTUBE_LINK(GeneralException("MEMBER-400-11", BAD_REQUEST, "유튜브 링크가 반드시 필요합니다.")),
     REQUIRED_INTRODUCTION_LINK(GeneralException("MEMBER-400-12", BAD_REQUEST, "소개글이 반드시 필요합니다.")),
-    INVALID_FAVORITE_CATEGORIES(GeneralException("MEMBER-400-13", BAD_REQUEST, "카테고리는 20자 이하만 가능합니다.")),
+    INVALID_FAVORITE_CATEGORIES(GeneralException("MEMBER-400-13", BAD_REQUEST, "잘못된 형식의 카테고리 식별자 입니다.")),
     REQUIRED_WITHDRAWAL_REASON(GeneralException("MEMBER-400-14", BAD_REQUEST, "탈퇴 이유가 반드시 필요합니다.")),
     INVALID_MEMBER_ID(GeneralException("MEMBER-400-15", BAD_REQUEST, "잘못된 형식의 회원 식별자 입니다.")),
 

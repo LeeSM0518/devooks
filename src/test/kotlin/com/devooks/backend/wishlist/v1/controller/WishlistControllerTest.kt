@@ -4,6 +4,7 @@ import com.devooks.backend.BackendApplication.Companion.STATIC_ROOT_PATH
 import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.DescriptionImageDto
@@ -35,6 +36,7 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -62,6 +64,7 @@ internal class WishlistControllerTest @Autowired constructor(
     private val ebookImageRepository: EbookImageRepository,
     private val ebookRepository: EbookRepository,
     private val wishlistRepository: WishlistRepository,
+    private val categoryRepository: CategoryRepository,
 ) {
     lateinit var expectedMember: Member
 
@@ -182,9 +185,11 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val wishlist = webTestClient
             .get()
-            .uri("/api/v1/wishlist?page=1&count=10&" +
-                    "categoryIds=${createEbookResponse.ebook.relatedCategoryNameList[0].id}&" +
-                    "categoryIds=${UUID.randomUUID()}")
+            .uri(
+                "/api/v1/wishlist?page=1&count=10&" +
+                        "categoryIds=${createEbookResponse.ebook.relatedCategoryList[0].id}&" +
+                        "categoryIds=${UUID.randomUUID()}"
+            )
             .header(AUTHORIZATION, "Bearer $accessToken")
             .accept(APPLICATION_JSON)
             .exchange()
@@ -290,11 +295,12 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
 
         val request = CreateEbookRequest(
             pdfId = pdf.id.toString(),
             title = "title",
-            relatedCategoryNameList = listOf("category"),
+            relatedCategoryIdList = listOf(categoryId),
             mainImageId = mainImage.id.toString(),
             descriptionImageIdList = descriptionImageList.map { it.id.toString() },
             10000,

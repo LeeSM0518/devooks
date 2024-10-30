@@ -18,7 +18,7 @@ data class ModifyEbookRequest(
 ) {
     data class Ebook(
         val title: String? = null,
-        val relatedCategoryNameList: List<String>? = null,
+        val relatedCategoryIdList: List<String>? = null,
         val mainImageId: String? = null,
         val descriptionImageIdList: List<String>? = null,
         val introduction: String? = null,
@@ -28,7 +28,7 @@ data class ModifyEbookRequest(
 
     data class IsChanged(
         val title: Boolean? = false,
-        val relatedCategoryNameList: Boolean? = false,
+        val relatedCategoryIdList: Boolean? = false,
         val mainImage: Boolean? = false,
         val descriptionImageList: Boolean? = false,
         val introduction: Boolean? = false,
@@ -42,7 +42,7 @@ data class ModifyEbookRequest(
                 ModifyEbookCommand(
                     ebookId.validateEbookId(),
                     if (isChanged.title == true) ebook.title.validateEbookTitle() else null,
-                    if (isChanged.relatedCategoryNameList == true) ebook.relatedCategoryNameList.validateRelatedCategoryList() else null,
+                    if (isChanged.relatedCategoryIdList == true) ebook.relatedCategoryIdList.validateRelatedCategoryList() else null,
                     if (isChanged.mainImage == true) ebook.mainImageId.validateMainImageId() else null,
                     if (isChanged.descriptionImageList == true) ebook.descriptionImageIdList.validateDescriptionImageIdList() else null,
                     if (isChanged.introduction == true) ebook.introduction.validateEbookIntroduction() else null,

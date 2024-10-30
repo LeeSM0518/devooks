@@ -92,7 +92,7 @@ class MemberController(
         val command = request.toCommand()
         val member = memberService.signUp(command)
         memberInfoService.create(member)
-        val categories = categoryService.save(command.favoriteCategoryNames)
+        val categories = categoryService.getAll(command.favoriteCategoryIdList)
         favoriteCategoryService.save(categories, member.id)
         val tokenGroup = tokenService.createTokenGroup(member)
         return SignUpResponse(
@@ -154,7 +154,7 @@ class MemberController(
         val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyProfileCommand = request.toCommand()
         val memberInfo: MemberInfo = memberInfoService.updateProfile(command, requesterId)
-        val categories: List<Category> = categoryService.save(command.favoriteCategoryNames)
+        val categories: List<Category> = categoryService.getAll(command.favoriteCategoryIdList)
         favoriteCategoryService.deleteByMemberId(requesterId)
         favoriteCategoryService.save(categories, requesterId)
         return ModifyProfileResponse(memberInfo, categories)

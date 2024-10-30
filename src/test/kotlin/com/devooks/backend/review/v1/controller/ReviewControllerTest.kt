@@ -4,6 +4,7 @@ import com.devooks.backend.BackendApplication.Companion.STATIC_ROOT_PATH
 import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.DescriptionImageDto
@@ -75,6 +76,7 @@ internal class ReviewControllerTest @Autowired constructor(
     private val transactionRepository: TransactionRepository,
     private val reviewRepository: ReviewRepository,
     private val notificationRepository: NotificationRepository,
+    private val categoryRepository: CategoryRepository,
 ) {
     lateinit var expectedMember1: Member
     lateinit var expectedMember2: Member
@@ -469,11 +471,12 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
 
         val request = CreateEbookRequest(
             pdfId = pdf.id.toString(),
             title = "title",
-            relatedCategoryNameList = listOf("category"),
+            relatedCategoryIdList = listOf(categoryId),
             mainImageId = mainImage.id.toString(),
             descriptionImageIdList = descriptionImageList.map { it.id.toString() },
             10000,

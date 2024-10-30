@@ -4,6 +4,7 @@ import com.devooks.backend.BackendApplication.Companion.STATIC_ROOT_PATH
 import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.DescriptionImageDto
@@ -37,6 +38,7 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -64,6 +66,7 @@ internal class TransactionControllerTest @Autowired constructor(
     private val ebookRepository: EbookRepository,
     private val ebookImageRepository: EbookImageRepository,
     private val transactionRepository: TransactionRepository,
+    private val categoryRepository: CategoryRepository,
 ) {
     lateinit var expectedMember1: Member
     lateinit var expectedMember2: Member
@@ -336,11 +339,12 @@ internal class TransactionControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
 
         val request = CreateEbookRequest(
             pdfId = pdf.id.toString(),
             title = "title",
-            relatedCategoryNameList = listOf("category"),
+            relatedCategoryIdList = listOf(categoryId),
             mainImageId = mainImage.id.toString(),
             descriptionImageIdList = descriptionImageList.map { it.id.toString() },
             10000,

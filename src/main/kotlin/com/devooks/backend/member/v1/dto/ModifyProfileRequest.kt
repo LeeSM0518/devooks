@@ -1,7 +1,7 @@
 package com.devooks.backend.member.v1.dto
 
 import com.devooks.backend.member.v1.error.validateBlogLink
-import com.devooks.backend.member.v1.error.validateFavoriteCategoryNames
+import com.devooks.backend.member.v1.error.validateFavoriteCategoryIdList
 import com.devooks.backend.member.v1.error.validateInstagramLink
 import com.devooks.backend.member.v1.error.validateIntroduction
 import com.devooks.backend.member.v1.error.validatePhoneNumber
@@ -13,7 +13,7 @@ data class ModifyProfileRequest(
     val instagramLink: String?,
     val youtubeLink: String?,
     val introduction: String?,
-    val favoriteCategoryNames: List<String>?,
+    val favoriteCategoryIdList: List<String>?,
 ) {
     fun toCommand(): ModifyProfileCommand =
         ModifyProfileCommand(
@@ -22,6 +22,6 @@ data class ModifyProfileRequest(
             instagramLink = instagramLink.validateInstagramLink(),
             youtubeLink = youtubeLink.validateYoutubeLink(),
             introduction = introduction.validateIntroduction(),
-            favoriteCategoryNames = favoriteCategoryNames.validateFavoriteCategoryNames()
+            favoriteCategoryIdList = favoriteCategoryIdList.validateFavoriteCategoryIdList()
         )
 }

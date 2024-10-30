@@ -131,7 +131,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(response.ebook.introduction).isEqualTo(request.introduction)
         assertThat(response.ebook.price).isEqualTo(request.price)
         assertThat(response.ebook.tableOfContents).isEqualTo(request.tableOfContents)
-        assertThat(response.ebook.relatedCategoryNameList[0].name).isEqualTo(request.relatedCategoryNameList!![0])
+        assertThat(response.ebook.relatedCategoryList[0].id.toString()).isEqualTo(request.relatedCategoryIdList!![0])
 
         val mainImageId = response.ebook.mainImageId
         assertThat(mainImageId).isEqualTo(ebookEntity.mainImageId)
@@ -170,7 +170,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
     }
 
     @Test
@@ -267,7 +267,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
     }
 
     @Test
@@ -291,7 +291,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
     }
 
     @Test
@@ -315,7 +315,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
     }
 
     @Test
@@ -341,7 +341,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
     }
 
     @Test
@@ -365,7 +365,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
     }
 
     @Test
@@ -408,7 +408,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isEqualTo(createReviewResponse.review.rating.toDouble())
         assertThat(ebookView.review.count).isOne()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
     }
 
     @Test
@@ -448,7 +448,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
     }
 
     @Test
@@ -488,7 +488,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookDetailView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookDetailView.review.rating).isZero()
         assertThat(ebookDetailView.review.count).isZero()
-        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
         assertThat(ebookDetailView.price).isEqualTo(response.ebook.price)
         assertThat(ebookDetailView.createdDate.toEpochMilli()).isEqualTo(response.ebook.createdDate.toEpochMilli())
         assertThat(ebookDetailView.modifiedDate.toEpochMilli()).isEqualTo(response.ebook.modifiedDate.toEpochMilli())
@@ -559,7 +559,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookDetailView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookDetailView.review.rating).isZero()
         assertThat(ebookDetailView.review.count).isZero()
-        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
         assertThat(ebookDetailView.price).isEqualTo(response.ebook.price)
         assertThat(ebookDetailView.createdDate.toEpochMilli()).isEqualTo(response.ebook.createdDate.toEpochMilli())
         assertThat(ebookDetailView.modifiedDate.toEpochMilli()).isEqualTo(response.ebook.modifiedDate.toEpochMilli())
@@ -612,7 +612,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookDetailView.wishlistId).isNull()
         assertThat(ebookDetailView.review.rating).isEqualTo(createReviewResponse.review.rating.toDouble())
         assertThat(ebookDetailView.review.count).isOne()
-        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
         assertThat(ebookDetailView.price).isEqualTo(response.ebook.price)
         assertThat(ebookDetailView.createdDate.toEpochMilli()).isEqualTo(response.ebook.createdDate.toEpochMilli())
         assertThat(ebookDetailView.modifiedDate.toEpochMilli()).isEqualTo(response.ebook.modifiedDate.toEpochMilli())
@@ -645,7 +645,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookDetailView.wishlistId).isNull()
         assertThat(ebookDetailView.review.rating).isZero()
         assertThat(ebookDetailView.review.count).isZero()
-        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryNameList[0].name)
+        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
         assertThat(ebookDetailView.price).isEqualTo(response.ebook.price)
         assertThat(ebookDetailView.createdDate.toEpochMilli()).isEqualTo(response.ebook.createdDate.toEpochMilli())
         assertThat(ebookDetailView.modifiedDate.toEpochMilli()).isEqualTo(response.ebook.modifiedDate.toEpochMilli())
@@ -668,11 +668,12 @@ internal class EbookControllerTest @Autowired constructor(
 
         val newMainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val newDescriptionImages = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
+        val categoryId = categoryRepository.findAll().toList()[1].id!!.toString()
 
         val modifyEbookRequest = ModifyEbookRequest(
             ebook = ModifyEbookRequest.Ebook(
                 title = "title2",
-                relatedCategoryNameList = listOf("category2"),
+                relatedCategoryIdList = listOf(categoryId),
                 mainImageId = newMainImage.id.toString(),
                 descriptionImageIdList =
                 newDescriptionImages
@@ -684,7 +685,7 @@ internal class EbookControllerTest @Autowired constructor(
             ),
             isChanged = ModifyEbookRequest.IsChanged(
                 title = true,
-                relatedCategoryNameList = true,
+                relatedCategoryIdList = true,
                 mainImage = true,
                 descriptionImageList = true,
                 introduction = true,
@@ -714,7 +715,8 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(updatedEbook.id).isEqualTo(response.ebook.id)
         assertThat(updatedEbook.mainImageId).isEqualTo(updatedEbookEntity.mainImageId)
         assertThat(updatedEbook.title).isEqualTo(modifyEbookRequest.ebook!!.title)
-        assertThat(updatedEbook.relatedCategoryNameList.map { it.name }).containsAll(modifyEbookRequest.ebook!!.relatedCategoryNameList!!)
+        assertThat(updatedEbook.relatedCategoryList.map { it.id.toString() })
+            .containsAll(modifyEbookRequest.ebook!!.relatedCategoryIdList!!)
         assertThat(updatedEbook.price).isEqualTo(modifyEbookRequest.ebook!!.price)
         assertThat(updatedEbook.descriptionImageList).containsAll(descriptionImageRepository)
         assertThat(updatedEbook.introduction).isEqualTo(modifyEbookRequest.ebook!!.introduction)
@@ -733,6 +735,8 @@ internal class EbookControllerTest @Autowired constructor(
         val newMainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val newDescriptionImages = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
 
+        val categoryId = categoryRepository.findAll().toList()[1].id.toString()
+
         webTestClient
             .delete()
             .uri("/api/v1/ebooks/${response.ebook.id}")
@@ -744,7 +748,7 @@ internal class EbookControllerTest @Autowired constructor(
         val modifyEbookRequest = ModifyEbookRequest(
             ebook = ModifyEbookRequest.Ebook(
                 title = "title2",
-                relatedCategoryNameList = listOf("category2"),
+                relatedCategoryIdList = listOf(categoryId),
                 mainImageId = newMainImage.id.toString(),
                 descriptionImageIdList =
                 newDescriptionImages
@@ -756,7 +760,7 @@ internal class EbookControllerTest @Autowired constructor(
             ),
             isChanged = ModifyEbookRequest.IsChanged(
                 title = true,
-                relatedCategoryNameList = true,
+                relatedCategoryIdList = true,
                 mainImage = true,
                 descriptionImageList = true,
                 introduction = true,
@@ -925,11 +929,12 @@ internal class EbookControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
 
         val request = CreateEbookRequest(
             pdfId = pdf.id.toString(),
             title = "title",
-            relatedCategoryNameList = listOf("category"),
+            relatedCategoryIdList = listOf(categoryId),
             mainImageId = mainImage.id.toString(),
             descriptionImageIdList = descriptionImageList.map { it.id.toString() },
             10000,
@@ -1026,17 +1031,19 @@ internal class EbookControllerTest @Autowired constructor(
         val imageBytes = Files.readAllBytes(imagePath)
         val imageBase64Raw = Base64.getEncoder().encodeToString(imageBytes)
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
 
-        val request = CreateEbookRequest(
+        val createEbookRequest = CreateEbookRequest(
             pdfId = pdf.id.toString(),
             title = "title",
-            relatedCategoryNameList = listOf("category"),
+            relatedCategoryIdList = listOf(categoryId),
             mainImageId = mainImage.id.toString(),
             descriptionImageIdList = listOf(),
             10000,
             "introduction",
             "tableOfContent"
         )
+        val request = createEbookRequest
         val response = webTestClient
             .post()
             .uri("/api/v1/ebooks")

@@ -66,7 +66,7 @@ class EbookController(
         ebookImageService.save(listOf(command.mainImageId), ebook)
         val descriptionImageList: List<EbookImage> =
             ebookImageService.save(command.descriptionImageIdList, ebook)
-        val categoryList: List<Category> = categoryService.save(command.relatedCategoryNameList)
+        val categoryList: List<Category> = categoryService.getAll(command.relatedCategoryIdList)
         relatedCategoryService.save(categoryList, ebook)
         return CreateEbookResponse(EbookResponse(ebook, descriptionImageList, categoryList))
     }
