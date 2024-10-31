@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS member_info
     introduction   TEXT    NOT NULL,
     phone_number   VARCHAR NOT NULL,
     member_id      uuid    NOT NULL UNIQUE,
+    email          VARCHAR NOT NULL,
     CONSTRAINT fk_member_id FOREIGN KEY (member_id) REFERENCES member_info (member_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 

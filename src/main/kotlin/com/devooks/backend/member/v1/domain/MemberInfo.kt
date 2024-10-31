@@ -14,6 +14,7 @@ class MemberInfo(
     val accountNumber: String,
     val introduction: String,
     val phoneNumber: String,
+    val email: String,
 ) {
     companion object {
         fun MemberInfoEntity.toDomain(): MemberInfo =
@@ -28,6 +29,7 @@ class MemberInfo(
                 accountNumber = this.accountNumber,
                 introduction = this.introduction,
                 phoneNumber = this.phoneNumber,
+                email = this.email,
             )
     }
 }

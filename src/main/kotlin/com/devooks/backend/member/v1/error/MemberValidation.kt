@@ -6,6 +6,7 @@ import com.devooks.backend.common.error.validateUUID
 import java.util.*
 
 private val phoneRegex = Regex("^[0-9]{2,3}-[0-9]{3,4}-[0-9]{3,4}$")
+val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
 
 fun String?.validateNickname(): String =
     validateNotBlank(MemberError.REQUIRED_NICKNAME.exception)
@@ -28,36 +29,27 @@ fun String?.validateAccountNumber(): String =
     validateNotBlank(MemberError.REQUIRED_ACCOUNT_NUMBER.exception)
 
 fun String?.validatePhoneNumber(): String =
-    validateNotNull(MemberError.REQUIRED_PHONE_NUMBER.exception)
-        .takeIf { it.isNotBlank() }
-        ?.also {
-            it.takeIf { phoneRegex.matches(it) }
-                ?: throw MemberError.INVALID_PHONE_NUMBER.exception
-        }
-        ?: ""
+    validateNotBlank(MemberError.REQUIRED_PHONE_NUMBER.exception)
+        .also { it.takeIf { phoneRegex.matches(it) } ?: throw MemberError.INVALID_PHONE_NUMBER.exception }
 
 fun String?.validateBlogLink(): String =
-    validateNotNull(MemberError.REQUIRED_BLOG_LINK.exception)
-        .takeIf { it.isNotBlank() }
-        ?: ""
+    validateNotBlank(MemberError.REQUIRED_BLOG_LINK.exception)
 
 fun String?.validateInstagramLink(): String =
-    validateNotNull(MemberError.REQUIRED_INSTAGRAM_LINK.exception)
-        .takeIf { it.isNotBlank() }
-        ?: ""
+    validateNotBlank(MemberError.REQUIRED_INSTAGRAM_LINK.exception)
 
 fun String?.validateYoutubeLink(): String =
-    validateNotNull(MemberError.REQUIRED_YOUTUBE_LINK.exception)
-        .takeIf { it.isNotBlank() }
-        ?: ""
+    validateNotBlank(MemberError.REQUIRED_YOUTUBE_LINK.exception)
 
 fun String?.validateIntroduction(): String =
-    validateNotNull(MemberError.REQUIRED_INTRODUCTION_LINK.exception)
-        .takeIf { it.isNotBlank() }
-        ?: ""
+    validateNotBlank(MemberError.REQUIRED_INTRODUCTION_LINK.exception)
 
 fun String?.validateWithdrawalReason(): String =
     validateNotBlank(MemberError.REQUIRED_WITHDRAWAL_REASON.exception)
 
 fun String?.validateMemberId(): UUID =
     validateUUID(MemberError.INVALID_MEMBER_ID.exception)
+
+fun String?.validateEmail(): String =
+    validateNotBlank(MemberError.REQUIRED_EMAIL.exception)
+        .also { it.takeIf { emailRegex.matches(it) } ?: throw MemberError.INVALID_EMAIL.exception }

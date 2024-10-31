@@ -154,9 +154,11 @@ class MemberController(
         val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyProfileCommand = request.toCommand()
         val memberInfo: MemberInfo = memberInfoService.updateProfile(command, requesterId)
-        val categories: List<Category> = categoryService.getAll(command.favoriteCategoryIdList)
-        favoriteCategoryService.deleteByMemberId(requesterId)
-        favoriteCategoryService.save(categories, requesterId)
+        val categories = command.favoriteCategoryIdList?.let {
+            val categories: List<Category> = categoryService.getAll(it)
+            favoriteCategoryService.deleteByMemberId(requesterId)
+            favoriteCategoryService.save(categories, requesterId)
+        }.let { favoriteCategoryService.findByMemberId(requesterId) }
         return ModifyProfileResponse(memberInfo, categories)
     }
 

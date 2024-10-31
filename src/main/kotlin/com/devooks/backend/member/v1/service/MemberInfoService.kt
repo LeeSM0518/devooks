@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class MemberInfoService(
-    private val memberInfoRepository: MemberInfoRepository
+    private val memberInfoRepository: MemberInfoRepository,
 ) {
 
     suspend fun create(member: Member): MemberInfo {
@@ -44,14 +44,7 @@ class MemberInfoService(
         requesterId: UUID,
     ): MemberInfo {
         val memberInfo = findMemberInfoById(requesterId)
-        val updateMemberInfo = memberInfo
-            .copy(
-                phoneNumber = command.phoneNumber,
-                blogLink = command.blogLink,
-                instagramLink = command.instagramLink,
-                youtubeLink = command.youtubeLink,
-                introduction = command.introduction
-            )
+        val updateMemberInfo = memberInfo.update(command)
         return memberInfoRepository.save(updateMemberInfo).toDomain()
     }
 

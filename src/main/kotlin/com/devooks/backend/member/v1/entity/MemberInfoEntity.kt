@@ -1,5 +1,6 @@
 package com.devooks.backend.member.v1.entity
 
+import com.devooks.backend.member.v1.dto.ModifyProfileCommand
 import java.util.*
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Persistable
@@ -21,8 +22,19 @@ data class MemberInfoEntity(
     val accountNumber: String = "",
     val introduction: String = "",
     val phoneNumber: String = "",
+    val email: String = "",
 ) : Persistable<UUID> {
     override fun getId(): UUID? = id
 
     override fun isNew(): Boolean = id == null
+
+    fun update(command: ModifyProfileCommand) =
+        copy(
+            phoneNumber = command.phoneNumber ?: this.phoneNumber,
+            blogLink = command.blogLink ?: this.blogLink,
+            instagramLink = command.instagramLink ?: this.instagramLink,
+            youtubeLink = command.youtubeLink ?: this.youtubeLink,
+            introduction = command.introduction ?: this.introduction,
+            email = command.email ?: this.email,
+        )
 }

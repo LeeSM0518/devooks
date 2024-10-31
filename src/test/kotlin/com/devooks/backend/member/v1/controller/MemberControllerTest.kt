@@ -445,7 +445,8 @@ internal class MemberControllerTest @Autowired constructor(
                 instagramLink = "www.instagram.com",
                 youtubeLink = "www.youtube.com",
                 introduction = "hello",
-                favoriteCategoryIdList = listOf(categoryId)
+                favoriteCategoryIdList = listOf(categoryId),
+                email = "asd@naver.com"
             )
 
         postModifyProfile(tokenGroup, modifyProfileRequest)
@@ -756,6 +757,7 @@ internal class MemberControllerTest @Autowired constructor(
         assertThat(memberInfo.instagramLink).isEqualTo(modifyProfileRequest.instagramLink)
         assertThat(memberInfo.youtubeLink).isEqualTo(modifyProfileRequest.youtubeLink)
         assertThat(memberInfo.introduction).isEqualTo(modifyProfileRequest.introduction)
+        assertThat(memberInfo.email).isEqualTo(modifyProfileRequest.email)
         assertIterableEquals(favoriteCategories, modifyProfileRequest.favoriteCategoryIdList)
     }
 }
