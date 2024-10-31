@@ -1,6 +1,7 @@
 package com.devooks.backend.member.v1.dto
 
 import com.devooks.backend.member.v1.error.validateBlogLink
+import com.devooks.backend.member.v1.error.validateEmail
 import com.devooks.backend.member.v1.error.validateFavoriteCategoryIdList
 import com.devooks.backend.member.v1.error.validateInstagramLink
 import com.devooks.backend.member.v1.error.validateIntroduction
@@ -14,14 +15,16 @@ data class ModifyProfileRequest(
     val youtubeLink: String?,
     val introduction: String?,
     val favoriteCategoryIdList: List<String>?,
+    val email: String?,
 ) {
     fun toCommand(): ModifyProfileCommand =
         ModifyProfileCommand(
-            phoneNumber = phoneNumber.validatePhoneNumber(),
-            blogLink = blogLink.validateBlogLink(),
-            instagramLink = instagramLink.validateInstagramLink(),
-            youtubeLink = youtubeLink.validateYoutubeLink(),
-            introduction = introduction.validateIntroduction(),
-            favoriteCategoryIdList = favoriteCategoryIdList.validateFavoriteCategoryIdList()
+            phoneNumber = phoneNumber?.validatePhoneNumber(),
+            blogLink = blogLink?.validateBlogLink(),
+            instagramLink = instagramLink?.validateInstagramLink(),
+            youtubeLink = youtubeLink?.validateYoutubeLink(),
+            introduction = introduction?.validateIntroduction(),
+            favoriteCategoryIdList = favoriteCategoryIdList?.validateFavoriteCategoryIdList(),
+            email = email?.validateEmail(),
         )
 }
