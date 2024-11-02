@@ -171,6 +171,8 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
         assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.writerName).isEqualTo(expectedMember1.nickname)
+        assertThat(ebookView.price).isEqualTo(response.ebook.price)
     }
 
     @Test
