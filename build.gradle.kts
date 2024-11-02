@@ -77,6 +77,9 @@ dependencies {
 
     // coroutines test
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC")
+
+    // email
+    implementation("org.springframework.boot:spring-boot-starter-mail")
 }
 
 val springCloudVersion by extra("2023.0.0")

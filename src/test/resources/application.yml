@@ -15,6 +15,17 @@ spring:
   codec:
     max-in-memory-size: 500MB
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: asd@gmail.com
+    password: asd
+    protocol: smtp
+    timeout: 10000
+    auth: true
+    tls: true
+    debug: true
+
 jwt:
   secretKey: testtesttesttesttesttesttesttesttesttesttesttesttesttesttest
   accessTokenExpirationHour: 1

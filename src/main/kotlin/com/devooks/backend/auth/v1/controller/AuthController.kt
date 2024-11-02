@@ -3,6 +3,9 @@ package com.devooks.backend.auth.v1.controller
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.domain.OauthInfo
 import com.devooks.backend.auth.v1.domain.TokenGroup
+import com.devooks.backend.auth.v1.dto.CheckEmailCommand
+import com.devooks.backend.auth.v1.dto.CheckEmailRequest
+import com.devooks.backend.auth.v1.dto.CheckEmailResponse
 import com.devooks.backend.auth.v1.dto.LoginCommand
 import com.devooks.backend.auth.v1.dto.LoginRequest
 import com.devooks.backend.auth.v1.dto.LoginResponse
@@ -12,6 +15,7 @@ import com.devooks.backend.auth.v1.dto.LogoutResponse
 import com.devooks.backend.auth.v1.dto.ReissueCommand
 import com.devooks.backend.auth.v1.dto.ReissueRequest
 import com.devooks.backend.auth.v1.dto.ReissueResponse
+import com.devooks.backend.auth.v1.service.MailService
 import com.devooks.backend.auth.v1.service.OauthService
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.member.v1.domain.Member
@@ -36,6 +40,7 @@ class AuthController(
     private val oauthService: OauthService,
     private val tokenService: TokenService,
     private val memberService: MemberService,
+    private val mailService: MailService,
 ) {
 
     @PostMapping("/login")
@@ -159,6 +164,16 @@ class AuthController(
         val command: ReissueCommand = request.toCommand()
         val tokenGroup: TokenGroup = tokenService.reissueTokenGroup(command.refreshToken)
         return ReissueResponse(tokenGroup)
+    }
+
+    @PostMapping("/check/email")
+    suspend fun checkEmail(
+        @RequestBody
+        request: CheckEmailRequest,
+    ): CheckEmailResponse {
+        val command: CheckEmailCommand = request.toCommand()
+        mailService.sendCheckMessage(command)
+        return CheckEmailResponse()
     }
 
 }
