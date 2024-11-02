@@ -24,4 +24,4 @@ services:
     volumes:
       - ./static:/app/static
     ports:
-      - "80:8081"
+      - "80:80"
