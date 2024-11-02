@@ -8,5 +8,7 @@ data class EbookView(
     val title: String,
     val wishlistId: UUID?,
     val review: ReviewView,
-    val relatedCategoryNameList: List<String>
+    val writerName: String,
+    val price: Int,
+    val relatedCategoryNameList: List<String>,
 )

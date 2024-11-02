@@ -40,12 +40,15 @@ class EbookQueryRepository(
                              e.created_date,
                              ${getWishlistId(command.requesterId, binding)} AS wishlist_id,
                              COALESCE(AVG(r.rating), 0) AS rating,
-                             COUNT(r.review_id)         AS count
+                             COUNT(r.review_id)         AS count,
+                             m.nickname                 AS writer_name,
+                             e.price
                       FROM ebook e
                                LEFT JOIN review r ON e.ebook_id = r.ebook_id
                                LEFT JOIN ebook_image ei ON e.ebook_id = ei.ebook_id
+                               LEFT JOIN member m ON e.selling_member_id = m.member_id
                       WHERE e.deleted_date IS NULL
-                      GROUP BY e.ebook_id, main_image_path, e.title, e.created_date
+                      GROUP BY e.ebook_id, main_image_path, e.title, e.created_date, m.nickname, e.price
                       ),
                  related_category_with_name AS (SELECT r.ebook_id
                                                      , ARRAY_AGG(c.category_id) AS category_id_list
@@ -60,7 +63,9 @@ class EbookQueryRepository(
                    e.title,
                    e.rating,
                    e.count,
-                   r.categroy_name_list AS related_category_name_list
+                   r.categroy_name_list AS related_category_name_list,
+                   e.writer_name,
+                   e.price
             FROM ebook_with_review e,
                  related_category_with_name r
             WHERE e.ebook_id = r.ebook_id
@@ -231,5 +236,7 @@ class EbookQueryRepository(
                 count = row.get("count", BigInteger::class.java)!!.toInt(),
             ),
             relatedCategoryNameList = row.get("related_category_name_list", Array<String>::class.java)!!.toList(),
+            writerName = row.get("writer_name", String::class.java)!!,
+            price = row.get("price", BigInteger::class.java)!!.toInt(),
         )
 }
