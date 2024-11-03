@@ -48,7 +48,7 @@ internal class CategoryControllerTest @Autowired constructor(
         // when
         val categories = webTestClient
             .get()
-            .uri("/api/v1/categories?page=1&count=10")
+            .uri("/api/v1/categories")
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
