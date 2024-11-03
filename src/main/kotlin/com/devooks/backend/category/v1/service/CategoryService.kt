@@ -2,7 +2,6 @@ package com.devooks.backend.category.v1.service
 
 import com.devooks.backend.category.v1.domain.Category
 import com.devooks.backend.category.v1.domain.Category.Companion.toDomain
-import com.devooks.backend.category.v1.dto.GetCategoriesRequest
 import com.devooks.backend.category.v1.error.CategoryError
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import java.util.*
@@ -16,12 +15,9 @@ class CategoryService(
     private val categoryRepository: CategoryRepository,
 ) {
 
-    suspend fun get(request: GetCategoriesRequest): List<Category> =
+    suspend fun getAll(): List<Category> =
         categoryRepository
-            .findAllByNameLikeIgnoreCase(
-                name = request.keyword,
-                pageable = request.paging.value
-            )
+            .findAll()
             .map { it.toDomain() }
             .toList()
 
