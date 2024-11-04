@@ -10,49 +10,43 @@ import com.devooks.backend.ebook.v1.error.validateMainImageId
 import com.devooks.backend.ebook.v1.error.validateRelatedCategoryList
 import com.devooks.backend.ebook.v1.error.validateTableOfContents
 import com.devooks.backend.wishlist.v1.error.validateEbookId
+import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
 data class ModifyEbookRequest(
+    @Schema(description = "수정할 내용 (값이 존재하지 않을 경우 수정하지 않음)")
     val ebook: Ebook?,
-    val isChanged: IsChanged?,
 ) {
     data class Ebook(
+        @Schema(description = "전자책 이름", required = false, nullable = true)
         val title: String? = null,
+        @Schema(description = "카테고리 식별자 목록", required = false, nullable = true)
         val relatedCategoryIdList: List<String>? = null,
+        @Schema(description = "메인 사진 식별자", required = false, nullable = true)
         val mainImageId: String? = null,
+        @Schema(description = "설명 사진 식별자 목록", required = false, nullable = true)
         val descriptionImageIdList: List<String>? = null,
+        @Schema(description = "소개", required = false, nullable = true)
         val introduction: String? = null,
+        @Schema(description = "목차", required = false, nullable = true)
         val tableOfContents: String? = null,
+        @Schema(description = "가격", required = false, nullable = true)
         val price: Int? = null,
     )
 
-    data class IsChanged(
-        val title: Boolean? = false,
-        val relatedCategoryIdList: Boolean? = false,
-        val mainImage: Boolean? = false,
-        val descriptionImageList: Boolean? = false,
-        val introduction: Boolean? = false,
-        val tableOfContents: Boolean? = false,
-        val price: Boolean? = false,
-    )
-
     fun toCommand(ebookId: String, requesterId: UUID): ModifyEbookCommand =
-        if (isChanged != null) {
-            if (ebook != null) {
-                ModifyEbookCommand(
-                    ebookId.validateEbookId(),
-                    if (isChanged.title == true) ebook.title.validateEbookTitle() else null,
-                    if (isChanged.relatedCategoryIdList == true) ebook.relatedCategoryIdList.validateRelatedCategoryList() else null,
-                    if (isChanged.mainImage == true) ebook.mainImageId.validateMainImageId() else null,
-                    if (isChanged.descriptionImageList == true) ebook.descriptionImageIdList.validateDescriptionImageIdList() else null,
-                    if (isChanged.introduction == true) ebook.introduction.validateEbookIntroduction() else null,
-                    if (isChanged.tableOfContents == true) ebook.tableOfContents.validateTableOfContents() else null,
-                    if (isChanged.price == true) ebook.price.validateEbookPrice() else null,
-                    requesterId
-                )
-            } else {
-                throw EbookError.REQUIRED_IS_CHANGED_FOR_MODIFY.exception
-            }
+        if (ebook != null) {
+            ModifyEbookCommand(
+                ebookId = ebookId.validateEbookId(),
+                title = ebook.title?.validateEbookTitle(),
+                relatedCategoryIdList = ebook.relatedCategoryIdList?.validateRelatedCategoryList(),
+                mainImageId = ebook.mainImageId?.validateMainImageId(),
+                descriptionImageIdList = ebook.descriptionImageIdList?.validateDescriptionImageIdList(),
+                introduction = ebook.introduction?.validateEbookIntroduction(),
+                tableOfContents = ebook.tableOfContents?.validateTableOfContents(),
+                price = ebook.price?.validateEbookPrice(),
+                requesterId = requesterId
+            )
         } else {
             throw EbookError.REQUIRED_EBOOK_FOR_MODIFY.exception
         }

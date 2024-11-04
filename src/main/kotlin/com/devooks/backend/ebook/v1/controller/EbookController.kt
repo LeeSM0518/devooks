@@ -4,6 +4,7 @@ import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.domain.Category
 import com.devooks.backend.category.v1.service.CategoryService
+import com.devooks.backend.ebook.v1.controller.docs.EbookControllerDocs
 import com.devooks.backend.ebook.v1.domain.Ebook
 import com.devooks.backend.ebook.v1.domain.EbookImage
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookCommand
@@ -48,11 +49,11 @@ class EbookController(
     private val categoryService: CategoryService,
     private val relatedCategoryService: RelatedCategoryService,
     private val tokenService: TokenService,
-) {
+): EbookControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createEbook(
+    override suspend fun createEbook(
         @RequestBody
         request: CreateEbookRequest,
         @RequestHeader(AUTHORIZATION)
@@ -72,7 +73,7 @@ class EbookController(
     }
 
     @GetMapping
-    suspend fun getEbooks(
+    override suspend fun getEbooks(
         @RequestParam(required = false, defaultValue = "")
         page: String,
         @RequestParam(required = false, defaultValue = "")
@@ -107,8 +108,8 @@ class EbookController(
     }
 
     @GetMapping("/{ebookId}")
-    suspend fun getDetailOfEbook(
-        @PathVariable("ebookId", required = false)
+    override suspend fun getDetailOfEbook(
+        @PathVariable("ebookId", required = true)
         ebookId: String,
         @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
         authorization: String,
@@ -122,12 +123,12 @@ class EbookController(
 
     @Transactional
     @PatchMapping("/{ebookId}")
-    suspend fun modifyEbook(
-        @PathVariable("ebookId", required = false)
+    override suspend fun modifyEbook(
+        @PathVariable("ebookId", required = true)
         ebookId: String,
         @RequestBody
         request: ModifyEbookRequest,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): ModifyEbookResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
@@ -141,10 +142,10 @@ class EbookController(
 
     @Transactional
     @DeleteMapping("/{ebookId}")
-    suspend fun deleteEbook(
-        @PathVariable("ebookId", required = false)
+    override suspend fun deleteEbook(
+        @PathVariable("ebookId", required = true)
         ebookId: String,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteEbookResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))

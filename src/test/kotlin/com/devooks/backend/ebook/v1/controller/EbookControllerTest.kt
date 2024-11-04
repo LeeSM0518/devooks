@@ -685,15 +685,6 @@ internal class EbookControllerTest @Autowired constructor(
                 tableOfContents = "tableOfContents2",
                 introduction = "introduction2"
             ),
-            isChanged = ModifyEbookRequest.IsChanged(
-                title = true,
-                relatedCategoryIdList = true,
-                mainImage = true,
-                descriptionImageList = true,
-                introduction = true,
-                tableOfContents = true,
-                price = true,
-            )
         )
 
         val updatedEbook = webTestClient
@@ -759,15 +750,6 @@ internal class EbookControllerTest @Autowired constructor(
                 price = 20000,
                 tableOfContents = "tableOfContents2",
                 introduction = "introduction2"
-            ),
-            isChanged = ModifyEbookRequest.IsChanged(
-                title = true,
-                relatedCategoryIdList = true,
-                mainImage = true,
-                descriptionImageList = true,
-                introduction = true,
-                tableOfContents = true,
-                price = true,
             )
         )
 
@@ -792,9 +774,6 @@ internal class EbookControllerTest @Autowired constructor(
         val modifyEbookRequest = ModifyEbookRequest(
             ebook = ModifyEbookRequest.Ebook(
                 title = "title2",
-            ),
-            isChanged = ModifyEbookRequest.IsChanged(
-                title = true,
             )
         )
 
@@ -829,10 +808,7 @@ internal class EbookControllerTest @Autowired constructor(
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
 
         val modifyEbookRequest = ModifyEbookRequest(
-            ebook = ModifyEbookRequest.Ebook(),
-            isChanged = ModifyEbookRequest.IsChanged(
-                title = true,
-            )
+            ebook = ModifyEbookRequest.Ebook(title = "")
         )
 
         webTestClient
@@ -853,9 +829,6 @@ internal class EbookControllerTest @Autowired constructor(
         val modifyEbookRequest = ModifyEbookRequest(
             ebook = ModifyEbookRequest.Ebook(
                 title = "title2",
-            ),
-            isChanged = ModifyEbookRequest.IsChanged(
-                title = true,
             )
         )
 
@@ -878,9 +851,6 @@ internal class EbookControllerTest @Autowired constructor(
         val modifyEbookRequest = ModifyEbookRequest(
             ebook = ModifyEbookRequest.Ebook(
                 title = "title2",
-            ),
-            isChanged = ModifyEbookRequest.IsChanged(
-                title = true,
             )
         )
 
