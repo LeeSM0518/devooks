@@ -8,10 +8,8 @@ import org.springframework.http.HttpStatus.NOT_FOUND
 
 enum class WishlistError(val exception: GeneralException) {
     // 400
-    REQUIRED_EBOOK_ID(GeneralException("WISHLIST-400-1", BAD_REQUEST, "전자책 식별자가 반드시 필요합니다.")),
-    INVALID_EBOOK_ID(GeneralException("WISHLIST-400-2", BAD_REQUEST, "잘못된 형식의 전자책 식별자 입니다.")),
-    INVALID_CATEGORY_ID(GeneralException("WISHLIST-400-3", BAD_REQUEST, "잘못된 형식의 카테고리 식별자 입니다.")),
-    INVALID_WISHLIST_ID(GeneralException("WISHLIST-400-4", BAD_REQUEST, "잘못된 형식의 찜 식별자 입니다.")),
+    INVALID_CATEGORY_ID(GeneralException("WISHLIST-400-1", BAD_REQUEST, "잘못된 형식의 카테고리 식별자 입니다.")),
+    INVALID_WISHLIST_ID(GeneralException("WISHLIST-400-2", BAD_REQUEST, "잘못된 형식의 찜 식별자 입니다.")),
 
     // 403
     FORBIDDEN_DELETE_WISHLIST(GeneralException("WISHLIST-403-1", FORBIDDEN, "자신의 찜만 삭제할 수 있습니다.")),
