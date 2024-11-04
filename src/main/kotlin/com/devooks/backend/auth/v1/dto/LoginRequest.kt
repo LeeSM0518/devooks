@@ -7,8 +7,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class LoginRequest(
     @Schema(description = "OAuth2 인증 코드", required = true, nullable = false)
     val authorizationCode: String?,
-    @Schema(description = "OAuth2 인증 유형", required = true, nullable = false, example = "NAVER")
-    val oauthType: String?
+    @Schema(
+        description = "OAuth2 인증 유형 (ex. NAVER, KAKAO, GOOGLE)",
+        required = true,
+        nullable = false,
+        example = "NAVER"
+    )
+    val oauthType: String?,
 ) {
     fun toCommand(): LoginCommand =
         LoginCommand(
