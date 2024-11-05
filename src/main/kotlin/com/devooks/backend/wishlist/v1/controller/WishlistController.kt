@@ -33,11 +33,11 @@ class WishlistController(
     private val wishlistService: WishlistService,
     private val ebookService: EbookService,
     private val tokenService: TokenService,
-) {
+): WishlistControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createWishlist(
+    override suspend fun createWishlist(
         @RequestBody
         request: CreateWishlistRequest,
         @RequestHeader(AUTHORIZATION)
@@ -51,7 +51,7 @@ class WishlistController(
     }
 
     @GetMapping
-    suspend fun getWishlist(
+    override suspend fun getWishlist(
         @RequestParam(required = false, defaultValue = "")
         categoryIds: List<String>,
         @RequestParam(required = false, defaultValue = "")
@@ -68,7 +68,7 @@ class WishlistController(
 
     @Transactional
     @DeleteMapping("/{wishlistId}")
-    suspend fun deleteWishlist(
+    override suspend fun deleteWishlist(
         @PathVariable
         wishlistId: String,
         @RequestHeader(AUTHORIZATION)

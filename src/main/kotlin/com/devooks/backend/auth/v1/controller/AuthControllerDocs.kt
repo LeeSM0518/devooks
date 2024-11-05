@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "인증 API")
+@Tag(name = "인증")
 interface AuthControllerDocs {
 
     @Operation(summary = "로그인")
