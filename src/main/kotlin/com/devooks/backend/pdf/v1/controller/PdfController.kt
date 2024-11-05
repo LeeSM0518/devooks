@@ -29,11 +29,11 @@ class PdfController(
     private val tokenService: TokenService,
     private val pdfService: PdfService,
     private val previewImageService: PreviewImageService,
-) {
+): PdfControllerDocs {
 
     @Transactional
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    suspend fun uploadPdf(
+    override suspend fun uploadPdf(
         @RequestPart("pdf")
         filePart: FilePart,
         @RequestHeader(AUTHORIZATION)
@@ -46,7 +46,7 @@ class PdfController(
     }
 
     @GetMapping("/{pdfId}/preview")
-    suspend fun getPreviewImageList(
+    override suspend fun getPreviewImageList(
         @PathVariable
         pdfId: UUID,
     ): GetPreviewImageListResponse {

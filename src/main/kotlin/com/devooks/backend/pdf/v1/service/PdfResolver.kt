@@ -43,8 +43,7 @@ class PdfResolver {
                 is GeneralException -> exception
                 else -> {
                     val generalException = PdfError.FAIL_SAVE_PDF_FILE.exception
-                    logger.error(generalException.message)
-                    logger.error(exception.stackTraceToString())
+                    logger.error(generalException.message, exception)
                     generalException
                 }
             }

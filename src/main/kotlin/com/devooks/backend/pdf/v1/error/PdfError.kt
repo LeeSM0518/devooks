@@ -21,6 +21,6 @@ enum class PdfError(val exception: GeneralException) {
 
     // 500
     FAIL_SAVE_PDF_FILE(GeneralException("PDF-500-1", INTERNAL_SERVER_ERROR, "PDF 파일 저장을 실패했습니다.")),
-    FAIL_SAVE_PREVIEW_IMAGE_FILES(GeneralException("PDF-500-2", INTERNAL_SERVER_ERROR, "미리보기 파일 저장을 실패했습니다.")),
-    FAIL_FIND_PREVIEW_IMAGE(GeneralException("PDF-500-3", INTERNAL_SERVER_ERROR, "미리보기 파일 조회를 실패했습니다.")),
+    FAIL_SAVE_PREVIEW_IMAGE_FILES(GeneralException("PDF-500-2", INTERNAL_SERVER_ERROR, "미리보기 사진 저장을 실패했습니다.")),
+    FAIL_FIND_PREVIEW_IMAGE(GeneralException("PDF-500-3", INTERNAL_SERVER_ERROR, "미리보기 사진 조회를 실패했습니다.")),
 }
