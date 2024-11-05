@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "전자책 API")
+@Tag(name = "전자책")
 interface EbookControllerDocs {
 
     @Operation(summary = "전자책 목록 조회")

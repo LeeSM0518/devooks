@@ -13,7 +13,7 @@ import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.codec.multipart.FilePart
 
-@Tag(name = "PDF API")
+@Tag(name = "PDF")
 interface PdfControllerDocs {
 
     @Operation(summary = "PDF 파일 업로드")

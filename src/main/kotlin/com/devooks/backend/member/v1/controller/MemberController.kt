@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "회원 API")
 @RestController
 @RequestMapping("/api/v1/members")
 class MemberController(
