@@ -9,7 +9,12 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class SignUpRequest(
     @Schema(description = "OAuth2 식별자", required = true, nullable = false)
     val oauthId: String?,
-    @Schema(description = "OAuth2 인증 유형", required = true, nullable = false, example = "NAVER")
+    @Schema(
+        description = "OAuth2 인증 유형 (ex. NAVER, KAKAO, GOOGLE)",
+        required = true,
+        nullable = false,
+        example = "NAVER"
+    )
     val oauthType: String?,
     @Schema(description = "닉네임", required = true, nullable = false)
     val nickname: String?,

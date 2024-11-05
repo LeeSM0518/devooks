@@ -21,7 +21,7 @@ class FavoriteCategoryService(
         categories
             .asFlow()
             .map { FavoriteCategoryEntity(favoriteMemberId = memberId, categoryId = it.id) }
-            .map { favoriteCategoryRepository.save(it) }
+            .let { favoriteCategoryRepository.saveAll(it) }
             .map { it.toDomain() }
             .toList()
 
