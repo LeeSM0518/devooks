@@ -27,11 +27,6 @@ import com.devooks.backend.member.v1.dto.WithdrawMemberResponse
 import com.devooks.backend.member.v1.service.FavoriteCategoryService
 import com.devooks.backend.member.v1.service.MemberInfoService
 import com.devooks.backend.member.v1.service.MemberService
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
@@ -54,38 +49,11 @@ class MemberController(
     private val categoryService: CategoryService,
     private val favoriteCategoryService: FavoriteCategoryService,
     private val tokenService: TokenService,
-) {
+): MemberControllerDocs {
 
-    @Operation(summary = "회원가입")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "OK"),
-            ApiResponse(
-                responseCode = "400",
-                description =
-                "- AUTH-400-1 : 인증 코드(authorizationCode)가 NULL이거나 빈 문자일 경우\n" +
-                        "- AUTH-400-2 : 인증 유형(oauthType)이 NAVER, KAKAO, GOOGLE 이 아닐 경우\n" +
-                        "- MEMBER-400-1 : 닉네임(nickname)이 2~12 글자가 아닐 경우\n" +
-                        "- MEMBER-400-2 : 관심 카테고리(favoriteCategories)가 NULL일 경우",
-                content = arrayOf(Content(schema = Schema(hidden = true)))
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description =
-                "- MEMBER-403-1 : 정지된 회원일 경우\n" +
-                        "- MEMBER-403-2 : 탈퇴한 회원일 경우",
-                content = arrayOf(Content(schema = Schema(hidden = true)))
-            ),
-            ApiResponse(
-                responseCode = "409",
-                description = "- MEMBER-409-1 : 닉네임이 이미 존재할 경우",
-                content = arrayOf(Content(schema = Schema(hidden = true)))
-            )
-        ]
-    )
     @Transactional
     @PostMapping("/signup")
-    suspend fun signUp(
+    override suspend fun signUp(
         @RequestBody
         request: SignUpRequest,
     ): SignUpResponse {
@@ -103,7 +71,7 @@ class MemberController(
 
     @Transactional
     @PatchMapping("/account")
-    suspend fun modifyAccountInfo(
+    override suspend fun modifyAccountInfo(
         @RequestBody
         request: ModifyAccountInfoRequest,
         @RequestHeader(AUTHORIZATION)
@@ -117,7 +85,7 @@ class MemberController(
 
     @Transactional
     @PatchMapping("/image")
-    suspend fun modifyProfileImage(
+    override suspend fun modifyProfileImage(
         @RequestBody
         request: ModifyProfileImageRequest,
         @RequestHeader(AUTHORIZATION)
@@ -131,7 +99,7 @@ class MemberController(
 
     @Transactional
     @PatchMapping("/nickname")
-    suspend fun modifyNickname(
+    override suspend fun modifyNickname(
         @RequestBody
         request: ModifyNicknameRequest,
         @RequestHeader(AUTHORIZATION)
@@ -145,7 +113,7 @@ class MemberController(
 
     @Transactional
     @PatchMapping("/profile")
-    suspend fun modifyProfile(
+    override suspend fun modifyProfile(
         @RequestBody
         request: ModifyProfileRequest,
         @RequestHeader(AUTHORIZATION)
@@ -163,8 +131,8 @@ class MemberController(
     }
 
     @GetMapping("/{memberId}/profile")
-    suspend fun getProfile(
-        @PathVariable
+    override suspend fun getProfile(
+        @PathVariable(required = true)
         memberId: UUID,
     ): GetProfileResponse {
         val member: Member = memberService.findById(memberId)
@@ -175,7 +143,7 @@ class MemberController(
 
     @Transactional
     @PatchMapping("/withdrawal")
-    suspend fun withdrawMember(
+    override suspend fun withdrawMember(
         @RequestBody
         request: WithdrawMemberRequest,
         @RequestHeader(AUTHORIZATION)
