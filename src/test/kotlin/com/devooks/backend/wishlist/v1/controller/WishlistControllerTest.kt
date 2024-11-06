@@ -27,7 +27,7 @@ import com.devooks.backend.pdf.v1.repository.PreviewImageRepository
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistRequest
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
 import com.devooks.backend.wishlist.v1.dto.GetWishlistResponse
-import com.devooks.backend.wishlist.v1.repository.WishlistRepository
+import com.devooks.backend.wishlist.v1.repository.WishlistCrudRepository
 import io.netty.handler.codec.http.HttpResponseStatus.CONFLICT
 import java.io.File
 import java.nio.file.Files
@@ -63,7 +63,7 @@ internal class WishlistControllerTest @Autowired constructor(
     private val previewImageRepository: PreviewImageRepository,
     private val ebookImageRepository: EbookImageRepository,
     private val ebookRepository: EbookRepository,
-    private val wishlistRepository: WishlistRepository,
+    private val wishlistCrudRepository: WishlistCrudRepository,
     private val categoryRepository: CategoryRepository,
 ) {
     lateinit var expectedMember: Member
@@ -75,7 +75,7 @@ internal class WishlistControllerTest @Autowired constructor(
 
     @AfterEach
     fun tearDown(): Unit = runBlocking {
-        wishlistRepository.deleteAll()
+        wishlistCrudRepository.deleteAll()
         ebookImageRepository.deleteAll()
         previewImageRepository.deleteAll()
         ebookRepository.deleteAll()
@@ -218,7 +218,7 @@ internal class WishlistControllerTest @Autowired constructor(
             .exchange()
             .expectStatus().isOk
 
-        assertThat(wishlistRepository.count()).isZero()
+        assertThat(wishlistCrudRepository.count()).isZero()
     }
 
     @Test

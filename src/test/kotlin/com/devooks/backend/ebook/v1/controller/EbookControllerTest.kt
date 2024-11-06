@@ -39,7 +39,7 @@ import com.devooks.backend.transaciton.v1.dto.CreateTransactionResponse
 import com.devooks.backend.transaciton.v1.repository.TransactionRepository
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistRequest
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
-import com.devooks.backend.wishlist.v1.repository.WishlistRepository
+import com.devooks.backend.wishlist.v1.repository.WishlistCrudRepository
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -79,7 +79,7 @@ internal class EbookControllerTest @Autowired constructor(
     private val categoryRepository: CategoryRepository,
     private val transactionRepository: TransactionRepository,
     private val reviewRepository: ReviewRepository,
-    private val wishlistRepository: WishlistRepository,
+    private val wishlistCrudRepository: WishlistCrudRepository,
     private val notificationRepository: NotificationRepository,
 ) {
     lateinit var expectedMember1: Member
@@ -93,7 +93,7 @@ internal class EbookControllerTest @Autowired constructor(
 
     @AfterEach
     fun tearDown(): Unit = runBlocking {
-        wishlistRepository.deleteAll()
+        wishlistCrudRepository.deleteAll()
         reviewRepository.deleteAll()
         transactionRepository.deleteAll()
         ebookImageRepository.deleteAll()

@@ -6,6 +6,6 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface WishlistRepository : CoroutineCrudRepository<WishlistEntity, UUID> {
+interface WishlistCrudRepository : CoroutineCrudRepository<WishlistEntity, UUID> {
     suspend fun findByMemberIdAndEbookId(memberId: UUID, ebookId: UUID): WishlistEntity?
 }
