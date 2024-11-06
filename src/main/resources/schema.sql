@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS member_info
     phone_number   VARCHAR NOT NULL,
     member_id      uuid    NOT NULL UNIQUE,
     email          VARCHAR NOT NULL,
-    CONSTRAINT fk_member_id FOREIGN KEY (member_id) REFERENCES member_info (member_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT member_info_fk_member_id FOREIGN KEY (member_id) REFERENCES member_info (member_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS oauth_info
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS oauth_info
     oauth_type      VARCHAR     NOT NULL,
     member_id       uuid UNIQUE NOT NULL,
     registered_date TIMESTAMP   NOT NULL DEFAULT NOW(),
-    CONSTRAINT fk_member_id FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT oauth_info_fk_member_id FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS refresh_token
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS refresh_token
     token            VARCHAR UNIQUE NOT NULL,
     registered_date  TIMESTAMP      NOT NULL,
     modified_date    TIMESTAMP      NOT NULL,
-    CONSTRAINT fk_member_id FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT refresh_token_fk_member_id FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS category
@@ -61,9 +61,9 @@ CREATE TABLE IF NOT EXISTS favorite_category
     favorite_category_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     favorite_member_id   uuid NOT NULL,
     category_id          uuid NOT NULL,
-    CONSTRAINT fk_member_id FOREIGN KEY (favorite_member_id)
+    CONSTRAINT favorite_category_fk_member_id FOREIGN KEY (favorite_member_id)
         REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_category_id FOREIGN KEY (category_id)
+    CONSTRAINT favorite_category_fk_category_id FOREIGN KEY (category_id)
         REFERENCES category (category_id)
 );
 
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS pdf
     page_count       INT            NOT NULL,
     created_date     TIMESTAMP      NOT NULL,
     upload_member_id uuid           NOT NULL,
-    CONSTRAINT fk_member_id FOREIGN KEY (upload_member_id) REFERENCES member (member_id)
+    CONSTRAINT pdf_fk_member_id FOREIGN KEY (upload_member_id) REFERENCES member (member_id)
 );
 
 CREATE TABLE IF NOT EXISTS preview_image
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS preview_image
     image_path       VARCHAR UNIQUE NOT NULL,
     preview_order    INT            NOT NULL,
     pdf_id           uuid           NOT NULL,
-    CONSTRAINT fk_pdf_id FOREIGN KEY (pdf_id) REFERENCES pdf (pdf_id)
+    CONSTRAINT preview_image_fk_pdf_id FOREIGN KEY (pdf_id) REFERENCES pdf (pdf_id)
 );
 
 CREATE TABLE IF NOT EXISTS ebook
@@ -99,8 +99,8 @@ CREATE TABLE IF NOT EXISTS ebook
     created_date      TIMESTAMP NOT NULL,
     modified_date     TIMESTAMP NOT NULL,
     deleted_date      TIMESTAMP,
-    CONSTRAINT fk_member_id FOREIGN KEY (selling_member_id) REFERENCES member (member_id),
-    CONSTRAINT fk_pdf_id FOREIGN KEY (pdf_id) REFERENCES pdf (pdf_id)
+    CONSTRAINT ebook_fk_member_id FOREIGN KEY (selling_member_id) REFERENCES member (member_id),
+    CONSTRAINT ebook_fk_pdf_id FOREIGN KEY (pdf_id) REFERENCES pdf (pdf_id)
 );
 
 CREATE TABLE IF NOT EXISTS ebook_image
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS ebook_image
     image_order      INT            NOT NULL,
     upload_member_id uuid           NOT NULL,
     ebook_id         uuid,
-    CONSTRAINT fk_ebook_id FOREIGN KEY (ebook_id) REFERENCES ebook (ebook_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT ebook_image_fk_ebook_id FOREIGN KEY (ebook_id) REFERENCES ebook (ebook_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS related_category
@@ -118,8 +118,8 @@ CREATE TABLE IF NOT EXISTS related_category
     related_category_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     ebook_id            uuid NOT NULL,
     category_id         uuid NOT NULL,
-    CONSTRAINT fk_ebook_id FOREIGN KEY (ebook_id) REFERENCES ebook (ebook_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_category_id FOREIGN KEY (category_id) REFERENCES category (category_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT related_category_fk_ebook_id FOREIGN KEY (ebook_id) REFERENCES ebook (ebook_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT related_category_fk_category_id FOREIGN KEY (category_id) REFERENCES category (category_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS wishlist
@@ -128,8 +128,8 @@ CREATE TABLE IF NOT EXISTS wishlist
     member_id    uuid      NOT NULL,
     ebook_id     uuid      NOT NULL,
     created_date TIMESTAMP NOT NULL,
-    CONSTRAINT fk_member_id FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_ebook_id FOREIGN KEY (ebook_id) REFERENCES ebook (ebook_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT wishlist_fk_member_id FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT wishlist_fk_ebook_id FOREIGN KEY (ebook_id) REFERENCES ebook (ebook_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS transaction
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS service_inquiry
     modified_date             TIMESTAMP NOT NULL,
     inquiry_processing_status VARCHAR   NOT NULL,
     writer_member_id          uuid      NOT NULL,
-    CONSTRAINT fk_member_id FOREIGN KEY (writer_member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT service_inquiry_fk_member_id FOREIGN KEY (writer_member_id) REFERENCES member (member_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS service_inquiry_image
@@ -202,7 +202,7 @@ CREATE TABLE IF NOT EXISTS service_inquiry_image
     image_order              INT            NOT NULL,
     upload_member_id         uuid           NOT NULL,
     service_inquiry_id       uuid,
-    CONSTRAINT fk_service_inquiry_id FOREIGN KEY (service_inquiry_id) REFERENCES service_inquiry (service_inquiry_id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT service_inquiry_image_fk_service_inquiry_id FOREIGN KEY (service_inquiry_id) REFERENCES service_inquiry (service_inquiry_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS notification
@@ -215,14 +215,3 @@ CREATE TABLE IF NOT EXISTS notification
     notified_date   TIMESTAMP NOT NULL,
     checked         BOOLEAN   NOT NULL
 );
-
-INSERT INTO category (name, registered_date, modified_date)
-VALUES ('IT/프로그래밍', NOW(), NOW()),
-       ('게임', NOW(), NOW()),
-       ('비즈니스', NOW(), NOW()),
-       ('하드웨어', NOW(), NOW()),
-       ('인공지능', NOW(), NOW()),
-       ('디자인', NOW(), NOW()),
-       ('금융/재테크', NOW(), NOW()),
-       ('교양', NOW(), NOW())
-ON CONFLICT (name) DO NOTHING;
