@@ -29,7 +29,7 @@ import com.devooks.backend.transaciton.v1.dto.CreateTransactionRequest
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionResponse
 import com.devooks.backend.transaciton.v1.dto.GetBuyHistoriesResponse
 import com.devooks.backend.transaciton.v1.dto.GetSellHistoriesResponse
-import com.devooks.backend.transaciton.v1.repository.TransactionRepository
+import com.devooks.backend.transaciton.v1.repository.TransactionCrudRepository
 import io.netty.handler.codec.http.HttpResponseStatus.CONFLICT
 import java.io.File
 import java.nio.file.Files
@@ -65,7 +65,7 @@ internal class TransactionControllerTest @Autowired constructor(
     private val previewImageRepository: PreviewImageRepository,
     private val ebookRepository: EbookRepository,
     private val ebookImageRepository: EbookImageRepository,
-    private val transactionRepository: TransactionRepository,
+    private val transactionCrudRepository: TransactionCrudRepository,
     private val categoryRepository: CategoryRepository,
 ) {
     lateinit var expectedMember1: Member
@@ -79,7 +79,7 @@ internal class TransactionControllerTest @Autowired constructor(
 
     @AfterEach
     fun tearDown(): Unit = runBlocking {
-        transactionRepository.deleteAll()
+        transactionCrudRepository.deleteAll()
         ebookImageRepository.deleteAll()
         previewImageRepository.deleteAll()
         ebookRepository.deleteAll()

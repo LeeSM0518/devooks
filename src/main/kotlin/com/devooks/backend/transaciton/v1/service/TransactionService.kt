@@ -7,13 +7,14 @@ import com.devooks.backend.transaciton.v1.dto.GetBuyHistoriesCommand
 import com.devooks.backend.transaciton.v1.dto.GetSellHistoriesCommand
 import com.devooks.backend.transaciton.v1.entity.TransactionEntity
 import com.devooks.backend.transaciton.v1.error.TransactionError
+import com.devooks.backend.transaciton.v1.repository.TransactionCrudRepository
 import com.devooks.backend.transaciton.v1.repository.TransactionQueryRepository
-import com.devooks.backend.transaciton.v1.repository.TransactionRepository
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 
 @Service
 class TransactionService(
-    private val transactionRepository: TransactionRepository,
+    private val transactionCrudRepository: TransactionCrudRepository,
     private val transactionQueryRepository: TransactionQueryRepository,
 ) {
     suspend fun create(command: CreateTransactionCommand): Transaction {
@@ -24,24 +25,24 @@ class TransactionService(
             paymentMethod = command.paymentMethod,
             buyerMemberId = command.requesterId
         )
-        return transactionRepository.save(entity).toDomain()
+        return transactionCrudRepository.save(entity).toDomain()
     }
 
     suspend fun get(command: GetBuyHistoriesCommand): List<Transaction> =
-        transactionQueryRepository.findBy(command)
+        transactionQueryRepository.findBy(command).toList()
 
     suspend fun get(command: GetSellHistoriesCommand): List<Transaction> =
-        transactionQueryRepository.findBy(command)
+        transactionQueryRepository.findBy(command).toList()
 
     suspend fun validate(command: CreateReviewCommand) {
-        transactionRepository
+        transactionCrudRepository
             .existsByEbookIdAndBuyerMemberId(command.ebookId, command.requesterId)
             .takeIf { it }
             ?: throw TransactionError.FORBIDDEN_REVIEW.exception
     }
 
     private suspend fun validateCreateCommand(command: CreateTransactionCommand) {
-        transactionRepository
+        transactionCrudRepository
             .existsByEbookIdAndBuyerMemberId(command.ebookId, command.requesterId)
             .takeIf { it.not() }
             ?: throw TransactionError.DUPLICATE_TRANSACTION.exception
