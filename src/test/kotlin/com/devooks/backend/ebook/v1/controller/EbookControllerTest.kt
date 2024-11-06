@@ -36,7 +36,7 @@ import com.devooks.backend.review.v1.repository.ReviewRepository
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionRequest
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionResponse
-import com.devooks.backend.transaciton.v1.repository.TransactionRepository
+import com.devooks.backend.transaciton.v1.repository.TransactionCrudRepository
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistRequest
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
 import com.devooks.backend.wishlist.v1.repository.WishlistCrudRepository
@@ -77,7 +77,7 @@ internal class EbookControllerTest @Autowired constructor(
     private val ebookRepository: EbookRepository,
     private val ebookImageRepository: EbookImageRepository,
     private val categoryRepository: CategoryRepository,
-    private val transactionRepository: TransactionRepository,
+    private val transactionCrudRepository: TransactionCrudRepository,
     private val reviewRepository: ReviewRepository,
     private val wishlistCrudRepository: WishlistCrudRepository,
     private val notificationRepository: NotificationRepository,
@@ -95,7 +95,7 @@ internal class EbookControllerTest @Autowired constructor(
     fun tearDown(): Unit = runBlocking {
         wishlistCrudRepository.deleteAll()
         reviewRepository.deleteAll()
-        transactionRepository.deleteAll()
+        transactionCrudRepository.deleteAll()
         ebookImageRepository.deleteAll()
         previewImageRepository.deleteAll()
         ebookRepository.deleteAll()

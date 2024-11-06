@@ -36,7 +36,7 @@ import com.devooks.backend.review.v1.repository.ReviewRepository
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionRequest
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionResponse
-import com.devooks.backend.transaciton.v1.repository.TransactionRepository
+import com.devooks.backend.transaciton.v1.repository.TransactionCrudRepository
 import io.netty.handler.codec.http.HttpResponseStatus.CONFLICT
 import java.io.File
 import java.nio.file.Files
@@ -73,7 +73,7 @@ internal class ReviewControllerTest @Autowired constructor(
     private val previewImageRepository: PreviewImageRepository,
     private val ebookRepository: EbookRepository,
     private val ebookImageRepository: EbookImageRepository,
-    private val transactionRepository: TransactionRepository,
+    private val transactionCrudRepository: TransactionCrudRepository,
     private val reviewRepository: ReviewRepository,
     private val notificationRepository: NotificationRepository,
     private val categoryRepository: CategoryRepository,
@@ -90,7 +90,7 @@ internal class ReviewControllerTest @Autowired constructor(
     @AfterEach
     fun tearDown(): Unit = runBlocking {
         reviewRepository.deleteAll()
-        transactionRepository.deleteAll()
+        transactionCrudRepository.deleteAll()
         ebookImageRepository.deleteAll()
         previewImageRepository.deleteAll()
         ebookRepository.deleteAll()

@@ -6,7 +6,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface TransactionRepository : CoroutineCrudRepository<TransactionEntity, UUID> {
+interface TransactionCrudRepository : CoroutineCrudRepository<TransactionEntity, UUID> {
 
     suspend fun existsByEbookIdAndBuyerMemberId(ebookId: UUID, buyerMemberId: UUID): Boolean
 }
