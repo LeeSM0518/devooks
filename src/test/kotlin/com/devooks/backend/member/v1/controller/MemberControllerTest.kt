@@ -471,7 +471,7 @@ internal class MemberControllerTest @Autowired constructor(
         assertThat(response.memberId).isEqualTo(signUpResponse.member.id)
         assertThat(response.nickname).isEqualTo(signUpResponse.member.nickname)
         assertThat(response.profileImagePath).isEqualTo(signUpResponse.member.profileImagePath)
-        assertThat(response.favoriteCategories.firstOrNull()).isEqualTo(categoryDto)
+        assertThat(response.favoriteCategoryList.firstOrNull()).isEqualTo(categoryDto)
         assertThat(response.profile.blogLink).isEqualTo("")
         assertThat(response.profile.youtubeLink).isEqualTo("")
         assertThat(response.profile.introduction).isEqualTo("")
@@ -750,7 +750,7 @@ internal class MemberControllerTest @Autowired constructor(
             .responseBody!!
 
         val memberInfo = response.memberInfo
-        val favoriteCategories = response.favoriteCategories.map { it.id.toString() }
+        val favoriteCategories = response.favoriteCategoryList.map { it.id.toString() }
 
         assertThat(memberInfo.phoneNumber).isEqualTo(modifyProfileRequest.phoneNumber)
         assertThat(memberInfo.blogLink).isEqualTo(modifyProfileRequest.blogLink)

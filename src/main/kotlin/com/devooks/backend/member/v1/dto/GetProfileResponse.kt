@@ -16,7 +16,7 @@ data class GetProfileResponse(
     @Schema(description = "프로필 사진 경로")
     val profileImagePath: String,
     val profile: Profile,
-    val favoriteCategories: List<CategoryDto>,
+    val favoriteCategoryList: List<CategoryDto>,
 ) {
 
     constructor(
@@ -33,7 +33,7 @@ data class GetProfileResponse(
             youtubeLink = memberInfo.youtubeLink,
             introduction = memberInfo.introduction
         ),
-        favoriteCategories = categories.map { it.toDto() }
+        favoriteCategoryList = categories.map { it.toDto() }
     )
 
     data class Profile(

@@ -5,5 +5,5 @@ import com.devooks.backend.member.v1.domain.MemberInfo
 
 data class ModifyProfileResponse(
     val memberInfo: MemberInfo,
-    val favoriteCategories: List<Category>,
+    val favoriteCategoryList: List<Category>,
 )
