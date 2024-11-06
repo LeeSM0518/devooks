@@ -19,8 +19,8 @@ import com.devooks.backend.service.v1.dto.response.CreateServiceInquiryResponse
 import com.devooks.backend.service.v1.dto.response.GetServiceInquiriesResponse
 import com.devooks.backend.service.v1.dto.response.ModifyServiceInquiryResponse
 import com.devooks.backend.service.v1.dto.response.SaveServiceInquiryImagesResponse
-import com.devooks.backend.service.v1.repository.ServiceInquiryImageRepository
-import com.devooks.backend.service.v1.repository.ServiceInquiryRepository
+import com.devooks.backend.service.v1.repository.ServiceInquiryCrudRepository
+import com.devooks.backend.service.v1.repository.ServiceInquiryImageCrudRepository
 import java.io.File
 import java.nio.file.Files
 import java.util.*
@@ -45,8 +45,8 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
     private val webTestClient: WebTestClient,
     private val tokenService: TokenService,
     private val memberRepository: MemberRepository,
-    private val serviceInquiryImageRepository: ServiceInquiryImageRepository,
-    private val serviceInquiryRepository: ServiceInquiryRepository,
+    private val serviceInquiryImageCrudRepository: ServiceInquiryImageCrudRepository,
+    private val serviceInquiryCrudRepository: ServiceInquiryCrudRepository,
 ) {
     lateinit var expectedMember1: Member
     lateinit var expectedMember2: Member
@@ -59,8 +59,8 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
 
     @AfterEach
     fun tearDown(): Unit = runBlocking {
-        serviceInquiryImageRepository.deleteAll()
-        serviceInquiryRepository.deleteAll()
+        serviceInquiryImageCrudRepository.deleteAll()
+        serviceInquiryCrudRepository.deleteAll()
         memberRepository.deleteAll()
     }
 
@@ -155,7 +155,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             .responseBody!!
             .serviceInquiry
 
-        val serviceInquiryView = webTestClient
+        val serviceInquiryDto = webTestClient
             .get()
             .uri("/api/v1/service-inquiries?page=1&count=10")
             .accept(APPLICATION_JSON)
@@ -167,14 +167,14 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             .responseBody!!
             .serviceInquiryList[0]
 
-        assertThat(serviceInquiryView.id).isEqualTo(serviceInquiry.id)
-        assertThat(serviceInquiryView.title).isEqualTo(serviceInquiry.title)
-        assertThat(serviceInquiryView.imageList).containsAll(serviceInquiry.imageList)
-        assertThat(serviceInquiryView.content).isEqualTo(serviceInquiry.content)
-        assertThat(serviceInquiryView.inquiryProcessingStatus).isEqualTo(serviceInquiry.inquiryProcessingStatus)
-        assertThat(serviceInquiryView.createdDate.toEpochMilli()).isEqualTo(serviceInquiry.createdDate.toEpochMilli())
-        assertThat(serviceInquiryView.modifiedDate.toEpochMilli()).isEqualTo(serviceInquiry.modifiedDate.toEpochMilli())
-        assertThat(serviceInquiryView.writerMemberId).isEqualTo(serviceInquiry.writerMemberId)
+        assertThat(serviceInquiryDto.id).isEqualTo(serviceInquiry.id)
+        assertThat(serviceInquiryDto.title).isEqualTo(serviceInquiry.title)
+        assertThat(serviceInquiryDto.imageList).containsAll(serviceInquiry.imageList)
+        assertThat(serviceInquiryDto.content).isEqualTo(serviceInquiry.content)
+        assertThat(serviceInquiryDto.inquiryProcessingStatus).isEqualTo(serviceInquiry.inquiryProcessingStatus)
+        assertThat(serviceInquiryDto.createdDate.toEpochMilli()).isEqualTo(serviceInquiry.createdDate.toEpochMilli())
+        assertThat(serviceInquiryDto.modifiedDate.toEpochMilli()).isEqualTo(serviceInquiry.modifiedDate.toEpochMilli())
+        assertThat(serviceInquiryDto.writerMemberId).isEqualTo(serviceInquiry.writerMemberId)
     }
 
     @Test

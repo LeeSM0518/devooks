@@ -1,75 +1,57 @@
 package com.devooks.backend.service.v1.repository
 
-import com.devooks.backend.service.v1.domain.InquiryProcessingStatus.Companion.toInquiryProcessingStatus
-import com.devooks.backend.service.v1.dto.ServiceInquiryImageDto
-import com.devooks.backend.service.v1.dto.ServiceInquiryView
+import com.devooks.backend.common.config.database.JooqR2dbcRepository
+import com.devooks.backend.jooq.tables.references.SERVICE_INQUIRY
+import com.devooks.backend.jooq.tables.references.SERVICE_INQUIRY_IMAGE
+import com.devooks.backend.service.v1.repository.row.ServiceInquiryRow
 import com.devooks.backend.service.v1.dto.command.GetServiceInquiriesCommand
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.r2dbc.spi.Readable
-import java.time.Instant
-import java.util.*
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import org.springframework.r2dbc.core.DatabaseClient
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import org.jooq.impl.DSL
+import org.jooq.impl.DSL.key
 import org.springframework.stereotype.Repository
 
 @Repository
-class ServiceInquiryQueryRepository(
-    private val databaseClient: DatabaseClient,
-) {
-    private val objectMapper: ObjectMapper = ObjectMapper()
+class ServiceInquiryQueryRepository : JooqR2dbcRepository() {
 
-    suspend fun findBy(command: GetServiceInquiriesCommand): List<ServiceInquiryView> {
-        val binding = mutableMapOf<String, Any>()
-        binding["memberId"] = command.requesterId
-        val query = """
-            SELECT service_inquiry_id                                   AS id,
-                   title,
-                   content,
-                   created_date,
-                   modified_date,
-                   inquiry_processing_status,
-                   writer_member_id,
-                   (SELECT ARRAY_TO_JSON(ARRAY_AGG(ROW_TO_JSON(si.*)))
-                    FROM service_inquiry_image si
-                    WHERE s.service_inquiry_id = si.service_inquiry_id) AS image_list
-            FROM service_inquiry s
-            WHERE writer_member_id = :memberId
-            ORDER BY s.created_date DESC
-            OFFSET ${command.offset} LIMIT ${command.limit}
-        """.trimIndent()
-
-        return databaseClient
-            .sql(query)
-            .bindValues(binding)
-            .map { row -> mapToServiceInquiryView(row) }
-            .all()
-            .asFlow()
-            .toList()
-    }
-
-    private fun mapToServiceInquiryView(row: Readable) =
-        ServiceInquiryView(
-            id = row.get("id", UUID::class.java)!!,
-            title = row.get("title", String::class.java)!!,
-            content = row.get("content", String::class.java)!!,
-            createdDate = row.get("created_date", Instant::class.java)!!,
-            modifiedDate = row.get("modified_date", Instant::class.java)!!,
-            inquiryProcessingStatus = row.get("inquiry_processing_status", String::class.java)!!
-                .toInquiryProcessingStatus(),
-            writerMemberId = row.get("writer_member_id", UUID::class.java)!!,
-            imageList = row.get("image_list", String::class.java)?.let {
-                val imageList = objectMapper.readValue<List<Map<String, String>>>(it)
-                imageList.map { image ->
-                    ServiceInquiryImageDto(
-                        id = UUID.fromString(image["service_inquiry_image_id"]!!),
-                        imagePath = image["image_path"]!!,
-                        order = image["image_order"]!!.toInt()
-                    )
-                }
-            } ?: listOf()
-        )
-
+    suspend fun findBy(command: GetServiceInquiriesCommand): Flow<ServiceInquiryRow> =
+        query {
+            val inquiry = SERVICE_INQUIRY
+            val image = SERVICE_INQUIRY_IMAGE
+            select(
+                inquiry.SERVICE_INQUIRY_ID.`as`("id"),
+                inquiry.TITLE,
+                inquiry.CONTENT,
+                inquiry.CREATED_DATE,
+                inquiry.MODIFIED_DATE,
+                inquiry.INQUIRY_PROCESSING_STATUS,
+                inquiry.WRITER_MEMBER_ID,
+                DSL.coalesce(
+                    DSL.jsonArrayAgg(
+                        DSL.jsonObject(
+                            key("id").value(image.SERVICE_INQUIRY_IMAGE_ID),
+                            key("image_path").value(image.IMAGE_PATH),
+                            key("order").value(image.IMAGE_ORDER),
+                        )
+                    ),
+                    DSL.inline("[]")
+                ).`as`("image_json_data")
+            ).from(
+                inquiry.join(image).on(image.SERVICE_INQUIRY_ID.eq(inquiry.SERVICE_INQUIRY_ID))
+            ).where(
+                inquiry.WRITER_MEMBER_ID.eq(command.requesterId)
+            ).groupBy(
+                inquiry.SERVICE_INQUIRY_ID.`as`("id"),
+                inquiry.TITLE,
+                inquiry.CONTENT,
+                inquiry.CREATED_DATE,
+                inquiry.MODIFIED_DATE,
+                inquiry.INQUIRY_PROCESSING_STATUS,
+                inquiry.WRITER_MEMBER_ID,
+            ).orderBy(inquiry.CREATED_DATE.desc())
+                .offset(command.offset).limit(command.limit)
+        }.map {
+            it.into(ServiceInquiryRow::class.java)
+        }
 
 }

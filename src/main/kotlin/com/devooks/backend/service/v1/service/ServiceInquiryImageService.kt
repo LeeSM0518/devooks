@@ -8,7 +8,7 @@ import com.devooks.backend.service.v1.domain.ServiceInquiryImage
 import com.devooks.backend.service.v1.dto.command.ModifyServiceInquiryCommand
 import com.devooks.backend.service.v1.entity.ServiceInquiryImageEntity
 import com.devooks.backend.service.v1.error.ServiceInquiryError
-import com.devooks.backend.service.v1.repository.ServiceInquiryImageRepository
+import com.devooks.backend.service.v1.repository.ServiceInquiryImageCrudRepository
 import java.util.*
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.count
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class ServiceInquiryImageService(
-    private val serviceInquiryImageRepository: ServiceInquiryImageRepository,
+    private val serviceInquiryImageCrudRepository: ServiceInquiryImageCrudRepository,
 ) {
 
     suspend fun save(
@@ -35,7 +35,7 @@ class ServiceInquiryImageService(
                     uploadMemberId = requesterId
                 )
             }
-            .let { serviceInquiryImageRepository.saveAll(it) }
+            .let { serviceInquiryImageCrudRepository.saveAll(it) }
             .map { it.toDomain() }
             .toList()
 
@@ -43,7 +43,7 @@ class ServiceInquiryImageService(
         imageIdList: List<UUID>,
         serviceInquiry: ServiceInquiry,
     ): List<ServiceInquiryImage> =
-        serviceInquiryImageRepository
+        serviceInquiryImageCrudRepository
             .findAllById(imageIdList)
             .takeIf { imageList ->
                 imageList.filter { image ->
@@ -51,7 +51,7 @@ class ServiceInquiryImageService(
                 }.count() == 0
             }
             ?.map { it.copy(serviceInquiryId = serviceInquiry.id) }
-            ?.let { serviceInquiryImageRepository.saveAll(it) }
+            ?.let { serviceInquiryImageCrudRepository.saveAll(it) }
             ?.map { it.toDomain() }
             ?.toList()
             ?: throw ServiceInquiryError.FORBIDDEN_REGISTER_SERVICE_INQUIRY_TO_IMAGE.exception
@@ -61,7 +61,7 @@ class ServiceInquiryImageService(
         serviceInquiry: ServiceInquiry,
     ): List<ServiceInquiryImage> {
         val serviceInquiryImageList =
-            serviceInquiryImageRepository
+            serviceInquiryImageCrudRepository
                 .findAllByServiceInquiryId(command.serviceInquiryId)
 
         val changedServiceInquiryImageList =
@@ -79,7 +79,7 @@ class ServiceInquiryImageService(
                 val newImageList = changeImageIdList.filter { change -> existImageList.none { it.id == change } }
                 val newServiceInquiryImageList = save(newImageList, serviceInquiry)
 
-                serviceInquiryImageRepository.deleteAll(deletedImageList)
+                serviceInquiryImageCrudRepository.deleteAll(deletedImageList)
 
                 newServiceInquiryImageList.plus(existImageList.map { it.toDomain() })
             } else {
