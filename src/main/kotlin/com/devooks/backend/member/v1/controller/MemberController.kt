@@ -4,6 +4,7 @@ import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.domain.Category
 import com.devooks.backend.category.v1.service.CategoryService
+import com.devooks.backend.member.v1.domain.FavoriteCategory
 import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.domain.MemberInfo
 import com.devooks.backend.member.v1.dto.GetProfileResponse
@@ -27,7 +28,6 @@ import com.devooks.backend.member.v1.dto.WithdrawMemberResponse
 import com.devooks.backend.member.v1.service.FavoriteCategoryService
 import com.devooks.backend.member.v1.service.MemberInfoService
 import com.devooks.backend.member.v1.service.MemberService
-import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -121,12 +121,12 @@ class MemberController(
         val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyProfileCommand = request.toCommand()
         val memberInfo: MemberInfo = memberInfoService.updateProfile(command, requesterId)
-        val categories = command.favoriteCategoryIdList?.let {
+        val categoryIdList = command.favoriteCategoryIdList?.let {
             val categories: List<Category> = categoryService.getAll(it)
             favoriteCategoryService.deleteByMemberId(requesterId)
             favoriteCategoryService.save(categories, requesterId)
-        }.let { favoriteCategoryService.findByMemberId(requesterId) }
-        return ModifyProfileResponse(memberInfo, categories)
+        }.let { favoriteCategoryService.findByMemberId(requesterId).map { it.categoryId } }
+        return ModifyProfileResponse(memberInfo, categoryIdList)
     }
 
     @GetMapping("/{memberId}/profile")
@@ -136,7 +136,7 @@ class MemberController(
     ): GetProfileResponse {
         val member: Member = memberService.findById(memberId)
         val memberInfo: MemberInfo = memberInfoService.findById(memberId)
-        val categories: List<Category> = favoriteCategoryService.findByMemberId(memberId)
+        val categories: List<FavoriteCategory> = favoriteCategoryService.findByMemberId(memberId)
         return GetProfileResponse(member, memberInfo, categories)
     }
 

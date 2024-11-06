@@ -1,8 +1,6 @@
 package com.devooks.backend.member.v1.dto
 
-import com.devooks.backend.category.v1.domain.Category
-import com.devooks.backend.category.v1.dto.CategoryDto
-import com.devooks.backend.category.v1.dto.CategoryDto.Companion.toDto
+import com.devooks.backend.member.v1.domain.FavoriteCategory
 import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.domain.MemberInfo
 import io.swagger.v3.oas.annotations.media.Schema
@@ -16,13 +14,14 @@ data class GetProfileResponse(
     @Schema(description = "프로필 사진 경로")
     val profileImagePath: String,
     val profile: Profile,
-    val favoriteCategoryList: List<CategoryDto>,
+    @Schema(description = "관심 카테고리 식별자 목록")
+    val favoriteCategoryIdList: List<UUID>,
 ) {
 
     constructor(
         member: Member,
         memberInfo: MemberInfo,
-        categories: List<Category>,
+        categories: List<FavoriteCategory>,
     ) : this(
         memberId = member.id,
         nickname = member.nickname,
@@ -33,7 +32,7 @@ data class GetProfileResponse(
             youtubeLink = memberInfo.youtubeLink,
             introduction = memberInfo.introduction
         ),
-        favoriteCategoryList = categories.map { it.toDto() }
+        favoriteCategoryIdList = categories.map { it.categoryId }
     )
 
     data class Profile(

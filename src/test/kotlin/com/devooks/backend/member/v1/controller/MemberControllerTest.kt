@@ -45,9 +45,9 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatList
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -466,12 +466,12 @@ internal class MemberControllerTest @Autowired constructor(
             .returnResult()
             .responseBody!!
 
-        val categoryDto = categoryRepository.findAll().toList()[0].toDomain().toDto()
+        val categoryDto = categoryRepository.findAll().toList()[0].toDomain().toDto().id
 
         assertThat(response.memberId).isEqualTo(signUpResponse.member.id)
         assertThat(response.nickname).isEqualTo(signUpResponse.member.nickname)
         assertThat(response.profileImagePath).isEqualTo(signUpResponse.member.profileImagePath)
-        assertThat(response.favoriteCategoryList.firstOrNull()).isEqualTo(categoryDto)
+        assertThat(response.favoriteCategoryIdList.firstOrNull()).isEqualTo(categoryDto)
         assertThat(response.profile.blogLink).isEqualTo("")
         assertThat(response.profile.youtubeLink).isEqualTo("")
         assertThat(response.profile.introduction).isEqualTo("")
@@ -750,7 +750,7 @@ internal class MemberControllerTest @Autowired constructor(
             .responseBody!!
 
         val memberInfo = response.memberInfo
-        val favoriteCategories = response.favoriteCategoryList.map { it.id.toString() }
+        val favoriteCategories = response.favoriteCategoryIdList.map { it.toString() }
 
         assertThat(memberInfo.phoneNumber).isEqualTo(modifyProfileRequest.phoneNumber)
         assertThat(memberInfo.blogLink).isEqualTo(modifyProfileRequest.blogLink)
@@ -758,6 +758,6 @@ internal class MemberControllerTest @Autowired constructor(
         assertThat(memberInfo.youtubeLink).isEqualTo(modifyProfileRequest.youtubeLink)
         assertThat(memberInfo.introduction).isEqualTo(modifyProfileRequest.introduction)
         assertThat(memberInfo.email).isEqualTo(modifyProfileRequest.email)
-        assertIterableEquals(favoriteCategories, modifyProfileRequest.favoriteCategoryIdList)
+        assertThatList(favoriteCategories).isEqualTo(modifyProfileRequest.favoriteCategoryIdList)
     }
 }
