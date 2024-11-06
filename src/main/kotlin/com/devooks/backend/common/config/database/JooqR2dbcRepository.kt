@@ -7,10 +7,13 @@ import kotlinx.coroutines.withContext
 import org.jooq.DSLContext
 import org.jooq.Publisher
 import org.jooq.Record
+import org.springframework.beans.factory.annotation.Autowired
 
-open class JooqR2dbcRepository(
-    private val dslContext: DSLContext
-) {
+open class JooqR2dbcRepository {
+
+    @Autowired
+    private lateinit var dslContext: DSLContext
+
     suspend fun <R : Record> query(execute: DSLContext.() -> Publisher<R>): Flow<R> =
         withContext(Dispatchers.IO) {
             execute(dslContext)

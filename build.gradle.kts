@@ -175,7 +175,7 @@ jooq {
                         // basedir = "${projectDir}"
                         // or append `${projectDir}` to the beginning of the relative path.
                         // see: https://github.com/jOOQ/jOOQ/issues/15944
-                        directory = "${projectDir}/build/generated/jooq/main"  // default (can be omitted)
+                        directory = "${projectDir}/build/generated/jooq"  // default (can be omitted)
                     }
                     strategy {
                         name = "org.jooq.codegen.DefaultGeneratorStrategy"
@@ -196,6 +196,7 @@ dependencyManagement {
 
 
 tasks.withType<KotlinCompile> {
+    dependsOn("jooqCodegenMain")
     kotlinOptions {
         freeCompilerArgs += "-Xjsr305=strict"
         jvmTarget = "17"
