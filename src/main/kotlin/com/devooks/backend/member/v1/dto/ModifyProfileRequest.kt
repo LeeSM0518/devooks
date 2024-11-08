@@ -5,11 +5,14 @@ import com.devooks.backend.member.v1.error.validateEmail
 import com.devooks.backend.member.v1.error.validateFavoriteCategoryIdList
 import com.devooks.backend.member.v1.error.validateInstagramLink
 import com.devooks.backend.member.v1.error.validateIntroduction
+import com.devooks.backend.member.v1.error.validateNickname
 import com.devooks.backend.member.v1.error.validatePhoneNumber
 import com.devooks.backend.member.v1.error.validateYoutubeLink
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ModifyProfileRequest(
+    @Schema(description = "닉네임", required = false, nullable = true)
+    val nickname: String?,
     @Schema(description = "전화번호 (ex. 010-1234-1234)", required = false, nullable = true)
     val phoneNumber: String?,
     @Schema(description = "블로그 링크", required = false, nullable = true)
@@ -27,6 +30,7 @@ data class ModifyProfileRequest(
 ) {
     fun toCommand(): ModifyProfileCommand =
         ModifyProfileCommand(
+            nickname = nickname?.validateNickname(),
             phoneNumber = phoneNumber?.validatePhoneNumber(),
             blogLink = blogLink?.validateBlogLink(),
             instagramLink = instagramLink?.validateInstagramLink(),

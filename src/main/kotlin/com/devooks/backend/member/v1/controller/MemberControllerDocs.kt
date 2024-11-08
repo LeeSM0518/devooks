@@ -4,8 +4,6 @@ import com.devooks.backend.common.exception.ErrorResponse
 import com.devooks.backend.member.v1.dto.GetProfileResponse
 import com.devooks.backend.member.v1.dto.ModifyAccountInfoRequest
 import com.devooks.backend.member.v1.dto.ModifyAccountInfoResponse
-import com.devooks.backend.member.v1.dto.ModifyNicknameRequest
-import com.devooks.backend.member.v1.dto.ModifyNicknameResponse
 import com.devooks.backend.member.v1.dto.ModifyProfileImageRequest
 import com.devooks.backend.member.v1.dto.ModifyProfileImageResponse
 import com.devooks.backend.member.v1.dto.ModifyProfileRequest
@@ -135,7 +133,7 @@ interface MemberControllerDocs {
                 content = [
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = ModifyProfileResponse::class)
+                        schema = Schema(implementation = ModifyProfileImageResponse::class)
                     )
                 ]
             ),
@@ -184,61 +182,6 @@ interface MemberControllerDocs {
         authorization: String,
     ): ModifyProfileImageResponse
 
-    @Operation(summary = "닉네임 수정")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "OK",
-                content = [
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = ModifyNicknameResponse::class)
-                    )
-                ]
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description =
-                "- MEMBER-400-1 : 닉네임이 반드시 필요합니다.\n" +
-                        "- MEMBER-400-3 : 닉네임은 2자 이상 12자 이하만 가능합니다.",
-                content = arrayOf(
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = ErrorResponse::class)
-                    )
-                )
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description =
-                "- MEMBER-404-3 : 회원을 찾을 수 없습니다.",
-                content = arrayOf(
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = ErrorResponse::class)
-                    )
-                )
-            ),
-            ApiResponse(
-                responseCode = "409",
-                description =
-                "- MEMBER-409-1 : 닉네임이 이미 존재합니다.",
-                content = arrayOf(
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = ErrorResponse::class)
-                    )
-                )
-            ),
-        ]
-    )
-    suspend fun modifyNickname(
-        request: ModifyNicknameRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
-        authorization: String,
-    ): ModifyNicknameResponse
-
     @Operation(summary = "프로필 수정")
     @ApiResponses(
         value = [
@@ -248,7 +191,7 @@ interface MemberControllerDocs {
                 content = [
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = ModifyNicknameResponse::class)
+                        schema = Schema(implementation = ModifyProfileResponse::class)
                     )
                 ]
             ),
@@ -291,7 +234,8 @@ interface MemberControllerDocs {
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK",
+                description = "OK, 액세스 토큰이 존재하지 않을 경우 " +
+                        "개인정보(bank, accountNumber, introduction, phoneNumber, email)를 null로 반환",
                 content = [
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -327,6 +271,8 @@ interface MemberControllerDocs {
     suspend fun getProfile(
         @Schema(description = "회원 식별자", required = true, nullable = false)
         memberId: UUID,
+        @Schema(description = "액세스 토큰", required = false, nullable = true)
+        authorization: String,
     ): GetProfileResponse
 
     @Operation(summary = "회원 탈퇴")

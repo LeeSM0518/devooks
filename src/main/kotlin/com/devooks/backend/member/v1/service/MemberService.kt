@@ -9,7 +9,7 @@ import com.devooks.backend.auth.v1.repository.OauthInfoRepository
 import com.devooks.backend.common.utils.saveImage
 import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.domain.Member.Companion.toDomain
-import com.devooks.backend.member.v1.dto.ModifyNicknameCommand
+import com.devooks.backend.member.v1.dto.ModifyProfileCommand
 import com.devooks.backend.member.v1.dto.ModifyProfileImageCommand
 import com.devooks.backend.member.v1.dto.SignUpCommand
 import com.devooks.backend.member.v1.dto.WithdrawMemberCommand
@@ -72,13 +72,16 @@ class MemberService(
     }
 
     suspend fun updateNickname(
-        command: ModifyNicknameCommand,
+        command: ModifyProfileCommand,
         requesterId: UUID,
     ): Member {
-        validateNickname(command.nickname)
-        val member = findMemberById(requesterId)
-        val updatedMember = member.copy(nickname = command.nickname)
-        return memberRepository.save(updatedMember).toDomain()
+        val foundMember = findMemberById(requesterId)
+        val updatedMember = command.nickname?.let {
+            validateNickname(it)
+            val updatedMember = foundMember.copy(nickname = it)
+            memberRepository.save(updatedMember)
+        } ?: foundMember
+        return updatedMember.toDomain()
     }
 
     suspend fun findById(memberId: UUID): Member = findMemberById(memberId).toDomain()

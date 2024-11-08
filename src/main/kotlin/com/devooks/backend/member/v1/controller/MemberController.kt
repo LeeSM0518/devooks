@@ -4,16 +4,12 @@ import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.domain.Category
 import com.devooks.backend.category.v1.service.CategoryService
-import com.devooks.backend.member.v1.domain.FavoriteCategory
 import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.domain.MemberInfo
 import com.devooks.backend.member.v1.dto.GetProfileResponse
 import com.devooks.backend.member.v1.dto.ModifyAccountInfoCommand
 import com.devooks.backend.member.v1.dto.ModifyAccountInfoRequest
 import com.devooks.backend.member.v1.dto.ModifyAccountInfoResponse
-import com.devooks.backend.member.v1.dto.ModifyNicknameCommand
-import com.devooks.backend.member.v1.dto.ModifyNicknameRequest
-import com.devooks.backend.member.v1.dto.ModifyNicknameResponse
 import com.devooks.backend.member.v1.dto.ModifyProfileCommand
 import com.devooks.backend.member.v1.dto.ModifyProfileImageCommand
 import com.devooks.backend.member.v1.dto.ModifyProfileImageRequest
@@ -97,47 +93,43 @@ class MemberController(
     }
 
     @Transactional
-    @PatchMapping("/nickname")
-    override suspend fun modifyNickname(
-        @RequestBody
-        request: ModifyNicknameRequest,
-        @RequestHeader(AUTHORIZATION)
-        authorization: String,
-    ): ModifyNicknameResponse {
-        val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))
-        val command: ModifyNicknameCommand = request.toCommand()
-        val member: Member = memberService.updateNickname(command, requesterId)
-        return ModifyNicknameResponse(member)
-    }
-
-    @Transactional
     @PatchMapping("/profile")
     override suspend fun modifyProfile(
         @RequestBody
         request: ModifyProfileRequest,
-        @RequestHeader(AUTHORIZATION)
+        @RequestHeader(AUTHORIZATION, required = true)
         authorization: String,
     ): ModifyProfileResponse {
         val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyProfileCommand = request.toCommand()
+        val member: Member = memberService.updateNickname(command, requesterId)
         val memberInfo: MemberInfo = memberInfoService.updateProfile(command, requesterId)
-        val categoryIdList = command.favoriteCategoryIdList?.let {
+        val categoryList = command.favoriteCategoryIdList?.let {
             val categories: List<Category> = categoryService.getAll(it)
             favoriteCategoryService.deleteByMemberId(requesterId)
             favoriteCategoryService.save(categories, requesterId)
-        }.let { favoriteCategoryService.findByMemberId(requesterId).map { it.categoryId } }
-        return ModifyProfileResponse(memberInfo, categoryIdList)
+        }.let {
+            val categoryIds = favoriteCategoryService.findByMemberId(requesterId).map { it.categoryId }
+            categoryService.getAll(categoryIds)
+        }
+        return ModifyProfileResponse(member, memberInfo, categoryList, requesterId)
     }
 
     @GetMapping("/{memberId}/profile")
     override suspend fun getProfile(
         @PathVariable(required = true)
         memberId: UUID,
+        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        authorization: String,
     ): GetProfileResponse {
+        val requesterId = authorization
+            .takeIf { it.isNotEmpty() }
+            ?.let { tokenService.getMemberId(Authorization(authorization)) }
         val member: Member = memberService.findById(memberId)
         val memberInfo: MemberInfo = memberInfoService.findById(memberId)
-        val categories: List<FavoriteCategory> = favoriteCategoryService.findByMemberId(memberId)
-        return GetProfileResponse(member, memberInfo, categories)
+        val categoryIdList: List<UUID> = favoriteCategoryService.findByMemberId(memberId).map { it.categoryId }
+        val categoryList = categoryService.getAll(categoryIdList)
+        return GetProfileResponse(member, memberInfo, categoryList, requesterId)
     }
 
     @Transactional

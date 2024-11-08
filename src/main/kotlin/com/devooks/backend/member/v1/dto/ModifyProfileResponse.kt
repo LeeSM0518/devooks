@@ -1,11 +1,25 @@
 package com.devooks.backend.member.v1.dto
 
+import com.devooks.backend.category.v1.domain.Category
+import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.domain.MemberInfo
-import io.swagger.v3.oas.annotations.media.Schema
+import com.devooks.backend.member.v1.dto.MemberProfile.Companion.toMemberProfile
 import java.util.*
 
 data class ModifyProfileResponse(
-    val memberInfo: MemberInfo,
-    @Schema(description = "관심 카테고리 식별자 목록")
-    val favoriteCategoryIdList: List<UUID>,
-)
+    val profile: MemberProfile,
+) {
+    constructor(
+        member: Member,
+        memberInfo: MemberInfo,
+        categoryList: List<Category>,
+        authorizedMemberId: UUID? = null,
+    ) : this(
+        profile = toMemberProfile(
+            member = member,
+            memberInfo = memberInfo,
+            categoryList = categoryList,
+            authorizedMemberId = authorizedMemberId
+        )
+    )
+}
