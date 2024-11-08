@@ -17,14 +17,11 @@ import com.devooks.backend.common.error.CommonError
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.fixture.ErrorResponse
 import com.devooks.backend.fixture.ErrorResponse.Companion.patchForBadRequest
-import com.devooks.backend.fixture.ErrorResponse.Companion.patchForConflict
 import com.devooks.backend.fixture.ErrorResponse.Companion.postForBadRequest
 import com.devooks.backend.member.v1.domain.Member.Companion.toDomain
 import com.devooks.backend.member.v1.dto.GetProfileResponse
 import com.devooks.backend.member.v1.dto.ModifyAccountInfoRequest
 import com.devooks.backend.member.v1.dto.ModifyAccountInfoResponse
-import com.devooks.backend.member.v1.dto.ModifyNicknameRequest
-import com.devooks.backend.member.v1.dto.ModifyNicknameResponse
 import com.devooks.backend.member.v1.dto.ModifyProfileImageRequest
 import com.devooks.backend.member.v1.dto.ModifyProfileImageResponse
 import com.devooks.backend.member.v1.dto.ModifyProfileRequest
@@ -410,36 +407,12 @@ internal class MemberControllerTest @Autowired constructor(
     }
 
     @Test
-    fun `닉네임을 수정할 수 있다`(): Unit = runBlocking {
-        val (signUpResponse, tokenGroup) = signUp()
-        val modifyNicknameRequest = ModifyNicknameRequest(
-            nickname = "test"
-        )
-
-        val response = webTestClient
-            .patch()
-            .uri("/api/v1/members/nickname")
-            .header(AUTHORIZATION, "Bearer ${tokenGroup.accessToken}")
-            .contentType(APPLICATION_JSON)
-            .accept(APPLICATION_JSON)
-            .bodyValue(modifyNicknameRequest)
-            .exchange()
-            .expectStatus().isOk
-            .expectBody<ModifyNicknameResponse>()
-            .returnResult()
-            .responseBody!!
-
-        val member = response.member
-        assertThat(member.id).isEqualTo(signUpResponse.member.id)
-        assertThat(member.nickname).isEqualTo(modifyNicknameRequest.nickname)
-    }
-
-    @Test
     fun `프로필을 수정할 수 있다`(): Unit = runBlocking {
         val (_, tokenGroup) = signUp()
         val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val modifyProfileRequest =
             ModifyProfileRequest(
+                nickname = "newNickname",
                 phoneNumber = "010-1234-1234",
                 blogLink = "www.naver.com",
                 instagramLink = "www.instagram.com",
@@ -467,15 +440,56 @@ internal class MemberControllerTest @Autowired constructor(
             .responseBody!!
 
         val categoryDto = categoryRepository.findAll().toList()[0].toDomain().toDto().id
+        val foundMemberInfo = memberInfoRepository.findByMemberId(signUpResponse.member.id)!!
 
-        assertThat(response.memberId).isEqualTo(signUpResponse.member.id)
-        assertThat(response.nickname).isEqualTo(signUpResponse.member.nickname)
-        assertThat(response.profileImagePath).isEqualTo(signUpResponse.member.profileImagePath)
-        assertThat(response.favoriteCategoryIdList.firstOrNull()).isEqualTo(categoryDto)
-        assertThat(response.profile.blogLink).isEqualTo("")
-        assertThat(response.profile.youtubeLink).isEqualTo("")
-        assertThat(response.profile.introduction).isEqualTo("")
-        assertThat(response.profile.instagramLink).isEqualTo("")
+        assertThat(response.profile.id).isEqualTo(signUpResponse.member.id)
+        assertThat(response.profile.nickname).isEqualTo(signUpResponse.member.nickname)
+        assertThat(response.profile.profileImagePath).isEqualTo(signUpResponse.member.profileImagePath)
+        assertThat(response.profile.favoriteCategoryList.first().id).isEqualTo(categoryDto)
+        assertThat(response.profile.blogLink).isEqualTo(foundMemberInfo.blogLink)
+        assertThat(response.profile.youtubeLink).isEqualTo(foundMemberInfo.youtubeLink)
+        assertThat(response.profile.introduction).isEqualTo(foundMemberInfo.introduction)
+        assertThat(response.profile.instagramLink).isEqualTo(foundMemberInfo.instagramLink)
+        assertThat(response.profile.realName).isNull()
+        assertThat(response.profile.bank).isNull()
+        assertThat(response.profile.accountNumber).isNull()
+        assertThat(response.profile.phoneNumber).isNull()
+        assertThat(response.profile.email).isNull()
+    }
+
+    @Test
+    fun `자신의 프로필을 조회할 경우 개인 정보를 확인할 수 있다`(): Unit = runBlocking {
+        val (signUpResponse, _) = signUp()
+        val member = memberRepository.findById(signUpResponse.member.id)!!.toDomain()
+        val tokenGroup = tokenService.createTokenGroup(member)
+
+        val response = webTestClient
+            .get()
+            .uri("/api/v1/members/${signUpResponse.member.id}/profile")
+            .accept(APPLICATION_JSON)
+            .header(AUTHORIZATION, "Bearer ${tokenGroup.accessToken}")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<GetProfileResponse>()
+            .returnResult()
+            .responseBody!!
+
+        val categoryDto = categoryRepository.findAll().toList()[0].toDomain().toDto().id
+        val foundMemberInfo = memberInfoRepository.findByMemberId(signUpResponse.member.id)!!
+
+        assertThat(response.profile.id).isEqualTo(signUpResponse.member.id)
+        assertThat(response.profile.nickname).isEqualTo(signUpResponse.member.nickname)
+        assertThat(response.profile.profileImagePath).isEqualTo(signUpResponse.member.profileImagePath)
+        assertThat(response.profile.favoriteCategoryList.first().id).isEqualTo(categoryDto)
+        assertThat(response.profile.blogLink).isEqualTo(foundMemberInfo.blogLink)
+        assertThat(response.profile.youtubeLink).isEqualTo(foundMemberInfo.youtubeLink)
+        assertThat(response.profile.introduction).isEqualTo(foundMemberInfo.introduction)
+        assertThat(response.profile.instagramLink).isEqualTo(foundMemberInfo.instagramLink)
+        assertThat(response.profile.realName).isEqualTo(foundMemberInfo.realName)
+        assertThat(response.profile.bank).isEqualTo(foundMemberInfo.bank)
+        assertThat(response.profile.accountNumber).isEqualTo(foundMemberInfo.accountNumber)
+        assertThat(response.profile.phoneNumber).isEqualTo(foundMemberInfo.phoneNumber)
+        assertThat(response.profile.email).isEqualTo(foundMemberInfo.email)
     }
 
     @Test
@@ -504,36 +518,6 @@ internal class MemberControllerTest @Autowired constructor(
 
         val member = memberRepository.findById(response.member.id)
         assertThat(member!!.withdrawalDate).isNotNull()
-    }
-
-    @Test
-    fun `닉네임 수정시 nickname 이 비어 있을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "nickname" : ""
-                }
-            """.trimIndent()
-        val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/nickname", request, tokenGroup.accessToken)
-
-        response.isEqualTo(MemberError.REQUIRED_NICKNAME.exception)
-    }
-
-    @Test
-    fun `닉네임 수정시 nickname 이 이미 존재할 경우 예외가 발생한다`(): Unit = runBlocking {
-        val (_, tokenGroup) = signUp()
-        val request = """
-                {
-                  "nickname" : "nickname"
-                }
-            """.trimIndent()
-        val response =
-            webTestClient
-                .patchForConflict("/api/v1/members/nickname", request, tokenGroup.accessToken)
-
-        response.isEqualTo(MemberError.DUPLICATE_NICKNAME.exception)
     }
 
     @Test
@@ -749,9 +733,10 @@ internal class MemberControllerTest @Autowired constructor(
             .returnResult()
             .responseBody!!
 
-        val memberInfo = response.memberInfo
-        val favoriteCategories = response.favoriteCategoryIdList.map { it.toString() }
+        val memberInfo = response.profile
+        val favoriteCategories = response.profile.favoriteCategoryList.map { it.id.toString() }
 
+        assertThat(memberInfo.nickname).isEqualTo(modifyProfileRequest.nickname)
         assertThat(memberInfo.phoneNumber).isEqualTo(modifyProfileRequest.phoneNumber)
         assertThat(memberInfo.blogLink).isEqualTo(modifyProfileRequest.blogLink)
         assertThat(memberInfo.instagramLink).isEqualTo(modifyProfileRequest.instagramLink)
