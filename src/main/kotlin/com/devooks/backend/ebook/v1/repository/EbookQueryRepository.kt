@@ -45,10 +45,10 @@ class EbookQueryRepository(
                              e.price
                       FROM ebook e
                                LEFT JOIN review r ON e.ebook_id = r.ebook_id
-                               LEFT JOIN ebook_image ei ON e.ebook_id = ei.ebook_id
+                               LEFT JOIN ebook_image ei ON e.ebook_id = ei.ebook_id AND ei.image_type = 'MAIN'
                                LEFT JOIN member m ON e.selling_member_id = m.member_id
                       WHERE e.deleted_date IS NULL
-                      GROUP BY e.ebook_id, main_image_path, e.title, e.created_date, m.nickname, e.price
+                      GROUP BY e.ebook_id, main_image_path, e.title, e.created_date, m.nickname, e.price, e.selling_member_id
                       ),
                  related_category_with_name AS (SELECT r.ebook_id
                                                      , ARRAY_AGG(c.category_id) AS category_id_list
