@@ -5,7 +5,8 @@ import com.devooks.backend.common.domain.Image.Companion.validateByteSize
 import com.devooks.backend.common.domain.ImageExtension.Companion.validateImageExtension
 import com.devooks.backend.common.error.CommonError
 import com.devooks.backend.common.error.validateNotBlank
-import com.devooks.backend.ebook.v1.dto.command.SaveMainImageCommand
+import com.devooks.backend.ebook.v1.domain.EbookImageType.MAIN
+import com.devooks.backend.ebook.v1.dto.command.SaveImagesCommand
 import com.devooks.backend.ebook.v1.error.EbookError
 import java.util.*
 
@@ -28,8 +29,9 @@ data class SaveMainImageRequest(
     }
 
     fun toCommand(requesterId: UUID) =
-        SaveMainImageCommand(
-            image = image?.toCommand() ?: throw EbookError.REQUIRED_MAIN_IMAGE.exception,
-            requesterId = requesterId
+        SaveImagesCommand(
+            imageList = listOf(image?.toCommand() ?: throw EbookError.REQUIRED_MAIN_IMAGE.exception),
+            requesterId = requesterId,
+            imageType = MAIN
         )
 }
