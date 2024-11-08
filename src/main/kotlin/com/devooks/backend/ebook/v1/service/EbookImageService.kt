@@ -1,16 +1,21 @@
 package com.devooks.backend.ebook.v1.service
 
 import com.devooks.backend.BackendApplication.Companion.DESCRIPTION_IMAGE_ROOT_PATH
+import com.devooks.backend.BackendApplication.Companion.MAIN_IMAGE_ROOT_PATH
 import com.devooks.backend.common.domain.Image
 import com.devooks.backend.common.utils.saveImage
 import com.devooks.backend.ebook.v1.domain.Ebook
 import com.devooks.backend.ebook.v1.domain.EbookImage
+import com.devooks.backend.ebook.v1.domain.EbookImageType
+import com.devooks.backend.ebook.v1.domain.EbookImageType.DESCRIPTION
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.ModifyEbookCommand
+import com.devooks.backend.ebook.v1.dto.command.SaveImagesCommand
 import com.devooks.backend.ebook.v1.entity.EbookImageEntity
 import com.devooks.backend.ebook.v1.error.EbookError
 import com.devooks.backend.ebook.v1.repository.EbookImageRepository
 import java.util.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.filter
@@ -23,28 +28,26 @@ class EbookImageService(
     private val ebookImageRepository: EbookImageRepository,
 ) {
 
-    suspend fun save(imageList: List<Image>, requesterId: UUID): List<EbookImage> =
-        imageList
+    suspend fun save(command: SaveImagesCommand): List<EbookImage> =
+        command
+            .imageList
             .asFlow()
             .map {
                 EbookImageEntity(
-                    imagePath = saveImage(it, DESCRIPTION_IMAGE_ROOT_PATH),
+                    imagePath = saveImage(command.imageType, it),
                     imageOrder = it.order,
-                    uploadMemberId = requesterId,
+                    uploadMemberId = command.requesterId,
+                    imageType = command.imageType,
                 )
             }
             .let { ebookImageRepository.saveAll(it) }
             .map { it.toDomain() }
             .toList()
 
-    suspend fun save(descriptionImageIdList: List<UUID>, ebook: Ebook): List<EbookImage> =
+    suspend fun save(imageIdList: List<UUID>, ebook: Ebook): List<EbookImage> =
         ebookImageRepository
-            .findAllById(descriptionImageIdList)
-            .takeIf { ebookImageList ->
-                ebookImageList.filter { ebookImage ->
-                    ebookImage.uploadMemberId != ebook.sellingMemberId
-                }.count() == 0
-            }
+            .findAllById(imageIdList)
+            .takeIf { ebookImageList -> validateEbookImageList(ebookImageList, ebook) }
             ?.map { it.copy(ebookId = ebook.id) }
             ?.let { ebookImageRepository.saveAll(it) }
             ?.map { it.toDomain() }
@@ -56,13 +59,13 @@ class EbookImageService(
         if (mainImageId != null) {
             val mainImage = findById(mainImageId)
             ebookImageRepository.deleteById(mainImageId)
-            ebookImageRepository.save(mainImage.copy(id = null, ebookId = command.ebookId))
+            ebookImageRepository.save(mainImage.create(ebookId = command.ebookId))
         }
     }
 
     suspend fun modifyDescriptionImageList(command: ModifyEbookCommand, ebook: Ebook): List<EbookImage> {
         val descriptionImageList = ebookImageRepository
-            .findAllByEbookId(command.ebookId)
+            .findAllByEbookIdAndImageType(command.ebookId, DESCRIPTION)
             .filter { image -> image.id!! != ebook.mainImageId }
 
         val ebookImageList =
@@ -98,6 +101,26 @@ class EbookImageService(
             .takeIf { it.toList().size == command.descriptionImageIdList.size }
             ?: throw EbookError.NOT_FOUND_DESCRIPTION_IMAGE.exception
     }
+
+    private suspend fun saveImage(
+        imageType: EbookImageType,
+        image: Image,
+    ): String {
+        val rootPath = when (imageType) {
+            EbookImageType.MAIN -> MAIN_IMAGE_ROOT_PATH
+            DESCRIPTION -> DESCRIPTION_IMAGE_ROOT_PATH
+        }
+        val savedImagePath = saveImage(image, rootPath)
+        return savedImagePath
+    }
+
+    private suspend fun validateEbookImageList(
+        ebookImageList: Flow<EbookImageEntity>,
+        ebook: Ebook,
+    ): Boolean =
+        ebookImageList.filter { ebookImage ->
+            ebookImage.uploadMemberId != ebook.sellingMemberId
+        }.count() == 0
 
     private suspend fun findById(imageId: UUID): EbookImageEntity =
         ebookImageRepository

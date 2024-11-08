@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS ebook_image
     image_path       VARCHAR UNIQUE NOT NULL,
     image_order      INT            NOT NULL,
     upload_member_id uuid           NOT NULL,
+    image_type       VARCHAR        NOT NULL,
     ebook_id         uuid,
     CONSTRAINT ebook_image_fk_ebook_id FOREIGN KEY (ebook_id) REFERENCES ebook (ebook_id) ON DELETE CASCADE ON UPDATE CASCADE
 );

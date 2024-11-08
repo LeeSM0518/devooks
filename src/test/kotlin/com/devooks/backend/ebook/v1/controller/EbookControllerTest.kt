@@ -7,6 +7,7 @@ import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
+import com.devooks.backend.ebook.v1.domain.EbookImageType.DESCRIPTION
 import com.devooks.backend.ebook.v1.dto.DescriptionImageDto
 import com.devooks.backend.ebook.v1.dto.DescriptionImageDto.Companion.toDto
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
@@ -703,7 +704,9 @@ internal class EbookControllerTest @Autowired constructor(
 
         val updatedEbookEntity = ebookRepository.findById(updatedEbook.id)!!
         val descriptionImageRepository =
-            ebookImageRepository.findAllByEbookId(updatedEbook.id).map { it.toDomain().toDto() }
+            ebookImageRepository
+                .findAllByEbookIdAndImageType(updatedEbook.id, DESCRIPTION)
+                .map { it.toDomain().toDto() }
                 .filter { it.id != response.ebook.mainImageId }
         assertThat(updatedEbook.id).isEqualTo(response.ebook.id)
         assertThat(updatedEbook.mainImageId).isEqualTo(updatedEbookEntity.mainImageId)
@@ -793,7 +796,9 @@ internal class EbookControllerTest @Autowired constructor(
 
         val updatedEbookEntity = ebookRepository.findById(updatedEbook.id)!!
         val descriptionImageList =
-            ebookImageRepository.findAllByEbookId(updatedEbook.id).map { it.toDomain().toDto() }
+            ebookImageRepository
+                .findAllByEbookIdAndImageType(updatedEbook.id, DESCRIPTION)
+                .map { it.toDomain().toDto() }
                 .filter { it.id != response.ebook.mainImageId }
         assertThat(updatedEbook.id).isEqualTo(response.ebook.id)
         assertThat(updatedEbook.mainImageId).isEqualTo(updatedEbookEntity.mainImageId)

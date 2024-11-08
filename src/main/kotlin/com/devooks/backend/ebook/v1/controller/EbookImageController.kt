@@ -3,8 +3,7 @@ package com.devooks.backend.ebook.v1.controller
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.ebook.v1.domain.EbookImage
-import com.devooks.backend.ebook.v1.dto.command.SaveDescriptionImagesCommand
-import com.devooks.backend.ebook.v1.dto.command.SaveMainImageCommand
+import com.devooks.backend.ebook.v1.dto.command.SaveImagesCommand
 import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveMainImageRequest
 import com.devooks.backend.ebook.v1.dto.response.SaveDescriptionImagesResponse
@@ -31,12 +30,12 @@ class EbookImageController(
     suspend fun saveDescriptionImages(
         @RequestBody
         request: SaveDescriptionImagesRequest,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        @RequestHeader(AUTHORIZATION, required = true)
         authorization: String,
     ): SaveDescriptionImagesResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
-        val command: SaveDescriptionImagesCommand = request.toCommand(requesterId)
-        val descriptionImageList: List<EbookImage> = ebookImageService.save(command.imageList, requesterId)
+        val command: SaveImagesCommand = request.toCommand(requesterId)
+        val descriptionImageList: List<EbookImage> = ebookImageService.save(command)
         return descriptionImageList.toSaveDescriptionImagesResponse()
     }
 
@@ -45,12 +44,12 @@ class EbookImageController(
     suspend fun saveMainImage(
         @RequestBody
         request: SaveMainImageRequest,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        @RequestHeader(AUTHORIZATION, required = true)
         authorization: String,
     ): SaveMainImageResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
-        val command: SaveMainImageCommand = request.toCommand(requesterId)
-        val mainImage: EbookImage = ebookImageService.save(listOf(command.image), requesterId).first()
+        val command: SaveImagesCommand = request.toCommand(requesterId)
+        val mainImage: EbookImage = ebookImageService.save(command).first()
         return mainImage.toSaveMainImageResponse()
     }
 }
