@@ -52,7 +52,6 @@ class EbookQueryRepository(
                       ),
                  related_category_with_name AS (SELECT r.ebook_id
                                                      , ARRAY_AGG(c.category_id) AS category_id_list
-                                                     , ARRAY_AGG(c.name)        AS categroy_name_list
                                                 FROM related_category r
                                                    , category c
                                                 WHERE c.category_id = r.category_id
@@ -63,7 +62,7 @@ class EbookQueryRepository(
                    e.title,
                    e.rating,
                    e.count,
-                   r.categroy_name_list AS related_category_name_list,
+                   r.category_id_list AS related_category_id_list,
                    e.writer_name,
                    e.price
             FROM ebook_with_review e,
@@ -122,7 +121,7 @@ class EbookQueryRepository(
         val binding = mutableMapOf<String, Any>()
         binding["ebookId"] = command.ebookId
         val query = """
-                WITH related_category_name AS (SELECT r.ebook_id, ARRAY_AGG(c.name) AS category_name_list
+                WITH related_category_name AS (SELECT r.ebook_id, ARRAY_AGG(c.category_id) AS category_id_list
                                    FROM related_category r,
                                         category c
                                    WHERE r.category_id = c.category_id
@@ -155,7 +154,7 @@ class EbookQueryRepository(
                        e.table_of_contents,
                        e.rating,
                        e.count,
-                       r.category_name_list,
+                       r.category_id_list,
                        (SELECT ARRAY_TO_JSON(ARRAY_AGG(ROW_TO_JSON(ei.*)))
                         FROM ebook_image ei
                         WHERE e.ebook_id = :ebookId and e.main_image_id != ei.ebook_image_id)
@@ -206,7 +205,7 @@ class EbookQueryRepository(
             pdfId = row.get("pdf_id", UUID::class.java)!!,
             introduction = row.get("introduction", String::class.java)!!,
             tableOfContents = row.get("table_of_contents", String::class.java)!!,
-            relatedCategoryNameList = row.get("category_name_list", Array<String>::class.java)!!.toList(),
+            relatedCategoryIdList = row.get("category_id_list", Array<UUID>::class.java)!!.toList(),
             descriptionImagePathList = row.get("description_image_path_list", String::class.java)?.let {
                 val imagePathList = objectMapper.readValue<List<Map<String, String>>>(it)
                 imagePathList.map { imagePath ->
@@ -235,7 +234,7 @@ class EbookQueryRepository(
                 rating = row.get("rating", BigDecimal::class.java)!!.toDouble(),
                 count = row.get("count", BigInteger::class.java)!!.toInt(),
             ),
-            relatedCategoryNameList = row.get("related_category_name_list", Array<String>::class.java)!!.toList(),
+            relatedCategoryIdList = row.get("related_category_id_list", Array<UUID>::class.java)!!.toList(),
             writerName = row.get("writer_name", String::class.java)!!,
             price = row.get("price", BigInteger::class.java)!!.toInt(),
         )

@@ -18,6 +18,6 @@ data class EbookView(
     val writerName: String,
     @Schema(description = "가격")
     val price: Int,
-    @Schema(description = "관련 카테고리 이름 목록")
-    val relatedCategoryNameList: List<String>,
+    @Schema(description = "관련 카테고리 식별자 목록")
+    val relatedCategoryIdList: List<UUID>,
 )
