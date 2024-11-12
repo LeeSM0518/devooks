@@ -174,7 +174,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
         assertThat(ebookView.writerName).isEqualTo(expectedMember1.nickname)
         assertThat(ebookView.price).isEqualTo(response.ebook.price)
     }
@@ -273,7 +273,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
     }
 
     @Test
@@ -297,7 +297,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
     }
 
     @Test
@@ -321,7 +321,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
     }
 
     @Test
@@ -347,7 +347,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
     }
 
     @Test
@@ -371,7 +371,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
     }
 
     @Test
@@ -414,7 +414,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isEqualTo(createReviewResponse.review.rating.toDouble())
         assertThat(ebookView.review.count).isOne()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
     }
 
     @Test
@@ -454,7 +454,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookView.review.rating).isZero()
         assertThat(ebookView.review.count).isZero()
-        assertThat(ebookView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
     }
 
     @Test
@@ -494,7 +494,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookDetailView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookDetailView.review.rating).isZero()
         assertThat(ebookDetailView.review.count).isZero()
-        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookDetailView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
         assertThat(ebookDetailView.price).isEqualTo(response.ebook.price)
         assertThat(ebookDetailView.createdDate.toEpochMilli()).isEqualTo(response.ebook.createdDate.toEpochMilli())
         assertThat(ebookDetailView.modifiedDate.toEpochMilli()).isEqualTo(response.ebook.modifiedDate.toEpochMilli())
@@ -565,7 +565,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookDetailView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookDetailView.review.rating).isZero()
         assertThat(ebookDetailView.review.count).isZero()
-        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookDetailView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
         assertThat(ebookDetailView.price).isEqualTo(response.ebook.price)
         assertThat(ebookDetailView.createdDate.toEpochMilli()).isEqualTo(response.ebook.createdDate.toEpochMilli())
         assertThat(ebookDetailView.modifiedDate.toEpochMilli()).isEqualTo(response.ebook.modifiedDate.toEpochMilli())
@@ -618,7 +618,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookDetailView.wishlistId).isNull()
         assertThat(ebookDetailView.review.rating).isEqualTo(createReviewResponse.review.rating.toDouble())
         assertThat(ebookDetailView.review.count).isOne()
-        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookDetailView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
         assertThat(ebookDetailView.price).isEqualTo(response.ebook.price)
         assertThat(ebookDetailView.createdDate.toEpochMilli()).isEqualTo(response.ebook.createdDate.toEpochMilli())
         assertThat(ebookDetailView.modifiedDate.toEpochMilli()).isEqualTo(response.ebook.modifiedDate.toEpochMilli())
@@ -651,7 +651,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(ebookDetailView.wishlistId).isNull()
         assertThat(ebookDetailView.review.rating).isZero()
         assertThat(ebookDetailView.review.count).isZero()
-        assertThat(ebookDetailView.relatedCategoryNameList).contains(response.ebook.relatedCategoryList[0].name)
+        assertThat(ebookDetailView.relatedCategoryIdList).contains(response.ebook.relatedCategoryList[0].id)
         assertThat(ebookDetailView.price).isEqualTo(response.ebook.price)
         assertThat(ebookDetailView.createdDate.toEpochMilli()).isEqualTo(response.ebook.createdDate.toEpochMilli())
         assertThat(ebookDetailView.modifiedDate.toEpochMilli()).isEqualTo(response.ebook.modifiedDate.toEpochMilli())

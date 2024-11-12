@@ -17,8 +17,8 @@ data class EbookDetailView(
     val title: String,
     @Schema(description = "리뷰 정보")
     val review: ReviewView,
-    @Schema(description = "관련 카테고리 이름 목록")
-    val relatedCategoryNameList: List<String>,
+    @Schema(description = "관련 카테고리 식별자 목록")
+    val relatedCategoryIdList: List<UUID>,
     @Schema(description = "작성자 이름")
     val sellingMemberId: UUID,
     @Schema(description = "생성 날짜")
