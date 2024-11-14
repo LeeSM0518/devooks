@@ -11,7 +11,7 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
     ports:
-      - "35432:5432"
+      - "5432:5432"
   devooks-application:
     image: devooks-backend-app:latest
     build:
@@ -24,4 +24,4 @@ services:
     volumes:
       - ./static:/app/static
     ports:
-      - "80:8081"
+      - "80:80"

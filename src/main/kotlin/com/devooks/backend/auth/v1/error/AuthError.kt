@@ -35,6 +35,7 @@ enum class AuthError(val exception: GeneralException) {
     FAILED_CREATE_ACCESS_TOKEN(GeneralException("AUTH-500-1", INTERNAL_SERVER_ERROR, "액세스 토큰 생성을 실패했습니다.")),
     FAILED_CREATE_REFRESH_TOKEN(GeneralException("AUTH-500-2", INTERNAL_SERVER_ERROR, "리프래시 토큰 생성을 실패했습니다.")),
     FAILED_VALIDATE_TOKEN(GeneralException("AUTH-500-3", INTERNAL_SERVER_ERROR, "토큰 검증을 실패했습니다.")),
+    FAILED_SEND_EMAIL(GeneralException("AUTH-500-4", INTERNAL_SERVER_ERROR, "이메일 전송을 실패했습니다.")),
     ;
 
     override fun toString(): String {

@@ -15,6 +15,7 @@ import com.devooks.backend.auth.v1.error.AuthError
 import com.devooks.backend.auth.v1.repository.OauthInfoRepository
 import com.devooks.backend.auth.v1.repository.RefreshTokenRepository
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.fixture.ErrorResponse
 import com.devooks.backend.fixture.ErrorResponse.Companion.postForBadRequest
@@ -26,6 +27,7 @@ import com.devooks.backend.member.v1.entity.MemberEntity
 import com.devooks.backend.member.v1.error.MemberError
 import com.devooks.backend.member.v1.repository.MemberRepository
 import java.time.Instant
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -46,6 +48,7 @@ internal class AuthControllerTest @Autowired constructor(
     private val memberRepository: MemberRepository,
     private val naverOauthProperties: NaverOauthProperties,
     private val oauthInfoRepository: OauthInfoRepository,
+    private val categoryRepository: CategoryRepository,
     private val tokenService: TokenService,
 ) {
 
@@ -60,7 +63,13 @@ internal class AuthControllerTest @Autowired constructor(
 
     @BeforeEach
     fun setUp(): Unit = runBlocking {
-        signUpRequest = SignUpRequest("oauthId", OauthType.NAVER.name, "nickname", listOf())
+        val categoryEntity = categoryRepository.findAll().toList()[0]
+        signUpRequest = SignUpRequest(
+            oauthId = "oauthId",
+            oauthType = OauthType.NAVER.name,
+            nickname = "nickname",
+            favoriteCategoryIdList = listOf(categoryEntity.id!!.toString())
+        )
         val responseMember = webTestClient
             .post()
             .uri("/api/v1/members/signup")

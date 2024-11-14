@@ -43,6 +43,11 @@ class R2dbcConfiguration(
         ConnectionFactoryInitializer()
             .apply {
                 setConnectionFactory(connectionFactory())
-                setDatabasePopulator(ResourceDatabasePopulator(ClassPathResource("schema.sql")))
+                setDatabasePopulator(
+                    ResourceDatabasePopulator(
+                        ClassPathResource("schema.sql"),
+                        ClassPathResource("data.sql")
+                    )
+                )
             }
 }

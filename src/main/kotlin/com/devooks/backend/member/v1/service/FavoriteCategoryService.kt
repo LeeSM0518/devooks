@@ -1,7 +1,6 @@
 package com.devooks.backend.member.v1.service
 
 import com.devooks.backend.category.v1.domain.Category
-import com.devooks.backend.category.v1.domain.Category.Companion.toDomain
 import com.devooks.backend.member.v1.domain.FavoriteCategory
 import com.devooks.backend.member.v1.domain.FavoriteCategory.Companion.toDomain
 import com.devooks.backend.member.v1.entity.FavoriteCategoryEntity
@@ -21,7 +20,7 @@ class FavoriteCategoryService(
         categories
             .asFlow()
             .map { FavoriteCategoryEntity(favoriteMemberId = memberId, categoryId = it.id) }
-            .map { favoriteCategoryRepository.save(it) }
+            .let { favoriteCategoryRepository.saveAll(it) }
             .map { it.toDomain() }
             .toList()
 
@@ -29,7 +28,7 @@ class FavoriteCategoryService(
         favoriteCategoryRepository.deleteAllByFavoriteMemberId(memberId)
     }
 
-    suspend fun findByMemberId(memberId: UUID): List<Category> =
+    suspend fun findByMemberId(memberId: UUID): List<FavoriteCategory> =
         favoriteCategoryRepository
             .findAllByFavoriteMemberId(memberId)
             .map { it.toDomain() }

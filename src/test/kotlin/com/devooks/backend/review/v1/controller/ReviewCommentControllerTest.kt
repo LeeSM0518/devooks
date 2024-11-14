@@ -4,6 +4,7 @@ import com.devooks.backend.BackendApplication.Companion.STATIC_ROOT_PATH
 import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.DescriptionImageDto
@@ -39,7 +40,7 @@ import com.devooks.backend.review.v1.repository.ReviewRepository
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionRequest
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionResponse
-import com.devooks.backend.transaciton.v1.repository.TransactionRepository
+import com.devooks.backend.transaciton.v1.repository.TransactionCrudRepository
 import io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN
 import java.io.File
 import java.nio.file.Files
@@ -76,10 +77,11 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     private val previewImageRepository: PreviewImageRepository,
     private val ebookRepository: EbookRepository,
     private val ebookImageRepository: EbookImageRepository,
-    private val transactionRepository: TransactionRepository,
+    private val transactionCrudRepository: TransactionCrudRepository,
     private val reviewRepository: ReviewRepository,
     private val reviewCommentRepository: ReviewCommentRepository,
     private val notificationRepository: NotificationRepository,
+    private val categoryRepository: CategoryRepository,
 ) {
     lateinit var expectedMember1: Member
     lateinit var expectedMember2: Member
@@ -94,7 +96,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     fun tearDown(): Unit = runBlocking {
         reviewCommentRepository.deleteAll()
         reviewRepository.deleteAll()
-        transactionRepository.deleteAll()
+        transactionCrudRepository.deleteAll()
         ebookImageRepository.deleteAll()
         previewImageRepository.deleteAll()
         ebookRepository.deleteAll()
@@ -360,10 +362,11 @@ internal class ReviewCommentControllerTest @Autowired constructor(
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
 
+        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
         val request = CreateEbookRequest(
             pdfId = pdf.id.toString(),
             title = "title",
-            relatedCategoryNameList = listOf("category"),
+            relatedCategoryIdList = listOf(categoryId),
             mainImageId = mainImage.id.toString(),
             descriptionImageIdList = descriptionImageList.map { it.id.toString() },
             10000,
@@ -450,40 +453,6 @@ internal class ReviewCommentControllerTest @Autowired constructor(
             .responseBody!!
             .mainImage
         return mainImage
-    }
-
-    suspend fun postCreateEbookWithNoneDescriptionImageList(): Pair<CreateEbookRequest, CreateEbookResponse> {
-        val tokenGroup = tokenService.createTokenGroup(expectedMember1)
-        val accessToken = tokenGroup.accessToken
-        val pdf = postUploadPdfFile(accessToken)
-        val imagePath = Path(javaClass.classLoader.getResource("test.jpg")!!.path)
-        val imageBytes = Files.readAllBytes(imagePath)
-        val imageBase64Raw = Base64.getEncoder().encodeToString(imageBytes)
-        val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
-
-        val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
-            title = "title",
-            relatedCategoryNameList = listOf("category"),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = null,
-            10000,
-            "introduction",
-            "tableOfContent"
-        )
-        val response = webTestClient
-            .post()
-            .uri("/api/v1/ebooks")
-            .header(AUTHORIZATION, "Bearer $accessToken")
-            .contentType(APPLICATION_JSON)
-            .accept(APPLICATION_JSON)
-            .bodyValue(request)
-            .exchange()
-            .expectStatus().isOk
-            .expectBody<CreateEbookResponse>()
-            .returnResult()
-            .responseBody!!
-        return Pair(request, response)
     }
 
 

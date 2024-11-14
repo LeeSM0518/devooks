@@ -1,6 +1,7 @@
 package com.devooks.backend.ebook.v1.entity
 
 import com.devooks.backend.ebook.v1.domain.EbookImage
+import com.devooks.backend.ebook.v1.domain.EbookImageType
 import java.util.*
 import kotlin.io.path.Path
 import org.springframework.data.annotation.Id
@@ -17,11 +18,14 @@ data class EbookImageEntity(
     val imagePath: String,
     val imageOrder: Int,
     val uploadMemberId: UUID,
+    val imageType: EbookImageType,
     val ebookId: UUID? = null,
 ) : Persistable<UUID> {
     override fun getId(): UUID? = id
 
     override fun isNew(): Boolean = id == null
+
+    fun create(ebookId: UUID) = copy(id = null, ebookId = ebookId)
 
     fun toDomain() =
         EbookImage(

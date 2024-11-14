@@ -6,4 +6,4 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface ServiceInquiryRepository : CoroutineCrudRepository<ServiceInquiryEntity, UUID>
+interface ServiceInquiryCrudRepository : CoroutineCrudRepository<ServiceInquiryEntity, UUID>

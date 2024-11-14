@@ -36,7 +36,6 @@ internal class FavoriteCategoryServiceTest @Autowired constructor(
     fun tearDown(): Unit = runBlocking {
         favoriteCategoryRepository.deleteAll()
         memberRepository.deleteAll()
-        categoryRepository.deleteAll()
     }
 
     @Test

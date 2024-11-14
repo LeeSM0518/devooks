@@ -6,6 +6,6 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface ServiceInquiryImageRepository : CoroutineCrudRepository<ServiceInquiryImageEntity, UUID> {
+interface ServiceInquiryImageCrudRepository : CoroutineCrudRepository<ServiceInquiryImageEntity, UUID> {
     suspend fun findAllByServiceInquiryId(serviceInquiryId: UUID): List<ServiceInquiryImageEntity>
 }
