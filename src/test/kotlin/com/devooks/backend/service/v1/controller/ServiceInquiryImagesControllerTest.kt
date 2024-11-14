@@ -11,7 +11,7 @@ import com.devooks.backend.member.v1.entity.MemberEntity
 import com.devooks.backend.member.v1.repository.MemberRepository
 import com.devooks.backend.service.v1.dto.request.SaveServiceInquiryImagesRequest
 import com.devooks.backend.service.v1.dto.response.SaveServiceInquiryImagesResponse
-import com.devooks.backend.service.v1.repository.ServiceInquiryImageRepository
+import com.devooks.backend.service.v1.repository.ServiceInquiryImageCrudRepository
 import java.io.File
 import java.nio.file.Files
 import java.util.*
@@ -36,7 +36,7 @@ internal class ServiceInquiryImagesControllerTest @Autowired constructor(
     private val webTestClient: WebTestClient,
     private val tokenService: TokenService,
     private val memberRepository: MemberRepository,
-    private val serviceInquiryImageRepository: ServiceInquiryImageRepository,
+    private val serviceInquiryImageCrudRepository: ServiceInquiryImageCrudRepository,
 ) {
     lateinit var expectedMember: Member
 
@@ -47,7 +47,7 @@ internal class ServiceInquiryImagesControllerTest @Autowired constructor(
 
     @AfterEach
     fun tearDown(): Unit = runBlocking {
-        serviceInquiryImageRepository.deleteAll()
+        serviceInquiryImageCrudRepository.deleteAll()
         memberRepository.deleteAll()
     }
 
