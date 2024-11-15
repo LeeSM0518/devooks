@@ -12,6 +12,7 @@ import com.devooks.backend.review.v1.repository.ReviewQueryRepository
 import com.devooks.backend.review.v1.repository.ReviewRepository
 import java.time.Instant
 import java.util.*
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 
 @Service
@@ -31,7 +32,7 @@ class ReviewService(
     }
 
     suspend fun get(command: GetReviewsCommand): List<Review> =
-        reviewQueryRepository.findBy(command)
+        reviewQueryRepository.findBy(command).toList()
 
     suspend fun modify(command: ModifyReviewCommand): Review =
         findById(command.reviewId)
