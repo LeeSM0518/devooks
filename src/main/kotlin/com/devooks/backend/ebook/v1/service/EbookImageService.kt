@@ -8,6 +8,7 @@ import com.devooks.backend.ebook.v1.domain.Ebook
 import com.devooks.backend.ebook.v1.domain.EbookImage
 import com.devooks.backend.ebook.v1.domain.EbookImageType
 import com.devooks.backend.ebook.v1.domain.EbookImageType.DESCRIPTION
+import com.devooks.backend.ebook.v1.domain.EbookImageType.MAIN
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.ModifyEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.SaveImagesCommand
@@ -54,12 +55,14 @@ class EbookImageService(
             ?.toList()
             ?: throw EbookError.FORBIDDEN_REGISTER_EBOOK_TO_IMAGE.exception
 
-    suspend fun modifyMainImage(command: ModifyEbookCommand) {
+    suspend fun modifyMainImage(command: ModifyEbookCommand): EbookImage {
         val mainImageId = command.mainImageId
-        if (mainImageId != null) {
+        return if (mainImageId != null) {
             val mainImage = findById(mainImageId)
             ebookImageRepository.deleteById(mainImageId)
-            ebookImageRepository.save(mainImage.create(ebookId = command.ebookId))
+            ebookImageRepository.save(mainImage.create(ebookId = command.ebookId)).toDomain()
+        } else {
+            ebookImageRepository.findAllByEbookIdAndImageType(command.ebookId, MAIN).first().toDomain()
         }
     }
 

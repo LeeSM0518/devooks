@@ -49,7 +49,7 @@ class EbookController(
     private val categoryService: CategoryService,
     private val relatedCategoryService: RelatedCategoryService,
     private val tokenService: TokenService,
-): EbookControllerDocs {
+) : EbookControllerDocs {
 
     @Transactional
     @PostMapping
@@ -64,12 +64,13 @@ class EbookController(
         pdfService.validate(command)
         ebookImageService.validate(command)
         val ebook: Ebook = ebookService.create(command)
-        ebookImageService.save(listOf(command.mainImageId), ebook)
+        val mainImage =
+            ebookImageService.save(listOf(command.mainImageId), ebook).first()
         val descriptionImageList: List<EbookImage> =
             ebookImageService.save(command.descriptionImageIdList, ebook)
         val categoryList: List<Category> = categoryService.getAll(command.relatedCategoryIdList)
         relatedCategoryService.save(categoryList, ebook)
-        return CreateEbookResponse(EbookResponse(ebook, descriptionImageList, categoryList))
+        return CreateEbookResponse(EbookResponse(ebook, mainImage, descriptionImageList, categoryList))
     }
 
     @GetMapping
@@ -133,11 +134,11 @@ class EbookController(
     ): ModifyEbookResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyEbookCommand = request.toCommand(ebookId, requesterId)
-        ebookImageService.modifyMainImage(command)
+        val mainImage = ebookImageService.modifyMainImage(command)
         val ebook: Ebook = ebookService.modify(command)
         val descriptionImageList: List<EbookImage> = ebookImageService.modifyDescriptionImageList(command, ebook)
         val categoryList: List<Category> = relatedCategoryService.modify(command, ebook)
-        return ModifyEbookResponse(EbookResponse(ebook, descriptionImageList, categoryList))
+        return ModifyEbookResponse(EbookResponse(ebook, mainImage, descriptionImageList, categoryList))
     }
 
     @Transactional
