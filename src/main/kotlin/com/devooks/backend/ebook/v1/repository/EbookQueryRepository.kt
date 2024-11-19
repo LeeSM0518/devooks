@@ -70,12 +70,14 @@ class EbookQueryRepository : JooqR2dbcRepository() {
                 WISHLIST.WISHLIST_ID,
                 DSL.coalesce(DSL.avg(REVIEW.RATING), 0.0).`as`("review_rating"),
                 DSL.count(REVIEW.REVIEW_ID).`as`("review_count"),
-                MEMBER.MEMBER_ID,
-                MEMBER.NICKNAME,
-                MEMBER.PROFILE_IMAGE_PATH,
+                MEMBER.MEMBER_ID.`as`("seller_member_id"),
+                MEMBER.NICKNAME.`as`("seller_nickname"),
+                MEMBER.PROFILE_IMAGE_PATH.`as`("seller_profile_image_path"),
                 EBOOK.PRICE,
                 relatedCategorySubQuery.field("related_category_id_list", SQLDataType.UUID.arrayDataType)!!
-                    .`as`("related_category_id_list")
+                    .`as`("related_category_id_list"),
+                EBOOK.CREATED_DATE,
+                EBOOK.MODIFIED_DATE
             ).from(
                 EBOOK
                     .join(MEMBER).on(EBOOK.SELLING_MEMBER_ID.eq(MEMBER.MEMBER_ID))
@@ -93,13 +95,16 @@ class EbookQueryRepository : JooqR2dbcRepository() {
                 buildConditionsToGetEbooks(command)
             ).groupBy(
                 EBOOK.EBOOK_ID,
-                EBOOK_IMAGE.EBOOK_IMAGE_ID,
+                mainImageSubQuery.field(EBOOK_IMAGE.EBOOK_IMAGE_ID),
+                mainImageSubQuery.field(EBOOK_IMAGE.IMAGE_PATH),
+                mainImageSubQuery.field(EBOOK_IMAGE.IMAGE_ORDER),
                 MEMBER.MEMBER_ID,
-                field("related_category_id_list", SQLDataType.UUID.arrayDataType)
+                field("related_category_id_list", SQLDataType.UUID.arrayDataType),
+                WISHLIST.WISHLIST_ID
             ).run {
                 when (command.orderBy) {
                     EbookOrder.LATEST -> orderBy(EBOOK.CREATED_DATE.desc())
-                    EbookOrder.REVIEW -> orderBy(field("rating", Double::class.java)!!.desc())
+                    EbookOrder.REVIEW -> orderBy(DSL.field("review_rating", Double::class.java).desc())
                 }
             }.offset(command.offset).limit(command.limit)
         }.map {
@@ -211,7 +216,8 @@ class EbookQueryRepository : JooqR2dbcRepository() {
                 mainImageSubQuery.field(EBOOK_IMAGE.IMAGE_ORDER),
                 MEMBER.MEMBER_ID,
                 MEMBER.NICKNAME,
-                MEMBER.PROFILE_IMAGE_PATH
+                MEMBER.PROFILE_IMAGE_PATH,
+                REVIEW.REVIEW_ID,
             )
         }.map {
             it.into(EbookDetailRow::class.java)
@@ -219,6 +225,8 @@ class EbookQueryRepository : JooqR2dbcRepository() {
 
     private fun buildConditionsToGetEbooks(command: GetEbookCommand): List<Condition> {
         val conditions = mutableListOf<Condition>()
+
+        conditions.add(EBOOK.DELETED_DATE.isNull)
 
         command.title?.also {
             conditions.add(EBOOK.TITLE.likeIgnoreCase(it))
@@ -234,7 +242,7 @@ class EbookQueryRepository : JooqR2dbcRepository() {
 
         command.categoryIdList?.also {
             conditions.add(
-                DSL.field("category_id_list", SQLDataType.UUID.arrayDataType)
+                field("category_id_list", SQLDataType.UUID.arrayDataType)
                     .contains(it.toTypedArray())
             )
         }
