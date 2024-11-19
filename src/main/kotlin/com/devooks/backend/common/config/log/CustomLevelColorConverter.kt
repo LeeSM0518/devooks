@@ -6,7 +6,7 @@ import ch.qos.logback.core.pattern.color.ForegroundCompositeConverterBase
 
 class CustomLevelColorConverter : ForegroundCompositeConverterBase<ILoggingEvent>() {
 
-    override fun getForegroundColorCode(event: ILoggingEvent): String? =
+    override fun getForegroundColorCode(event: ILoggingEvent): String =
         when (event.level) {
             Level.ERROR -> RED
             Level.WARN -> YELLOW
