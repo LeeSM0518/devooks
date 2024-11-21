@@ -746,7 +746,6 @@ internal class EbookControllerTest @Autowired constructor(
     @Test
     fun `전자책을 수정할 수 있다`(): Unit = runBlocking {
         val (_, response) = postCreateEbook()
-        val originEbookEntity = ebookRepository.findById(response.ebook.id)!!
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val imagePath = Path(javaClass.classLoader.getResource("test.jpg")!!.path)
         val imageBytes = Files.readAllBytes(imagePath)
@@ -785,21 +784,17 @@ internal class EbookControllerTest @Autowired constructor(
             .responseBody!!
             .ebook
 
-        val updatedEbookEntity = ebookRepository.findById(updatedEbook.id)!!
-        val descriptionImageRepository =
-            ebookImageRepository
-                .findAllByEbookIdAndImageType(updatedEbook.id, DESCRIPTION)
-                .map { it.toDomain().toDto() }
         assertThat(updatedEbook.id).isEqualTo(response.ebook.id)
-        assertThat(updatedEbook.mainImage).isEqualTo(updatedEbookEntity.mainImageId)
+        assertThat(updatedEbook.mainImage.id).isEqualTo(newMainImage.id)
+        assertThat(updatedEbook.mainImage.imagePath).isEqualTo(newMainImage.imagePath)
         assertThat(updatedEbook.title).isEqualTo(modifyEbookRequest.ebook!!.title)
         assertThat(updatedEbook.relatedCategoryIdList.map { it.toString() })
             .containsAll(modifyEbookRequest.ebook!!.relatedCategoryIdList!!)
         assertThat(updatedEbook.price).isEqualTo(modifyEbookRequest.ebook!!.price)
-        assertThat(updatedEbook.descriptionImageList).containsAll(descriptionImageRepository)
+        val expected = modifyEbookRequest.ebook!!.descriptionImageIdList!!.map { UUID.fromString(it) }
+        assertThat(updatedEbook.descriptionImageList.map { it.id }).containsAll(expected)
         assertThat(updatedEbook.introduction).isEqualTo(modifyEbookRequest.ebook!!.introduction)
         assertThat(updatedEbook.tableOfContents).isEqualTo(modifyEbookRequest.ebook!!.tableOfContents)
-        assertThat(updatedEbook.mainImage).isNotEqualTo(originEbookEntity.mainImageId)
     }
 
     @Test

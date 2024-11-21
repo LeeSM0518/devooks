@@ -40,7 +40,7 @@ data class EbookDetailView(
     companion object {
         fun EbookDetailRow.toEbookDetailView() =
             EbookDetailView(
-                id = this.id,
+                id = this.ebookId,
                 mainImage = this.mainImage,
                 descriptionImageList = this.descriptionImageList,
                 wishlistId = this.wishlistId,
@@ -51,9 +51,9 @@ data class EbookDetailView(
                 ),
                 relatedCategoryIdList = this.relatedCategoryIdList,
                 seller = EbookSellerView(
-                    id = this.sellingMemberId,
-                    nickname = this.nickname,
-                    profileImagePath = this.profileImagePath ?: ""
+                    id = this.sellerMemberId,
+                    nickname = this.sellerNickname,
+                    profileImagePath = this.sellerProfileImagePath ?: ""
                 ),
                 createdDate = this.createdDate,
                 modifiedDate = this.modifiedDate,

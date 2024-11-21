@@ -7,7 +7,6 @@ import java.util.*
 
 data class EbookRow(
     val ebookId: UUID,
-    private val mainImageJsonData: LinkedHashMap<String, Any>,
     val title: String,
     val price: Int,
     val sellerMemberId: UUID,
@@ -19,6 +18,7 @@ data class EbookRow(
     val modifiedDate: Instant,
     val relatedCategoryIdList: List<UUID>,
     val wishlistId: UUID?,
+    private val mainImageJsonData: LinkedHashMap<String, Any>,
 ) {
     val mainImage: EbookImageDto = mainImageJsonData.toEbookImageDto()
 }

@@ -6,24 +6,24 @@ import java.time.Instant
 import java.util.*
 
 data class EbookDetailRow(
-    val id: UUID,
-    private val mainImageJsonData: LinkedHashMap<String, Any>,
-    private val descriptionImageJsonData: List<LinkedHashMap<String, Any>>,
-    val wishlistId: UUID?,
+    val ebookId: UUID,
     val title: String,
-    val introduction: String,
-    val tableOfContents: String,
+    val price: Int,
+    val sellerMemberId: UUID,
+    val sellerNickname: String,
+    val sellerProfileImagePath: String?,
     val reviewRating: Double,
     val reviewCount: Int,
-    val relatedCategoryIdList: List<UUID>,
-    val sellingMemberId: UUID,
-    val nickname: String,
-    val profileImagePath: String?,
     val createdDate: Instant,
     val modifiedDate: Instant,
-    val price: Int,
+    val relatedCategoryIdList: List<UUID>,
+    val wishlistId: UUID?,
+    val introduction: String,
+    val tableOfContents: String,
     val pdfId: UUID,
     val pageCount: Int,
+    private val mainImageJsonData: LinkedHashMap<String, Any>,
+    private val descriptionImageJsonData: List<LinkedHashMap<String, Any>>,
 ) {
     val mainImage: EbookImageDto = mainImageJsonData.toEbookImageDto()
 

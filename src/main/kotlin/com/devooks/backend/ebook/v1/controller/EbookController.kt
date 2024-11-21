@@ -135,7 +135,7 @@ class EbookController(
         val requesterId = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyEbookCommand = request.toCommand(ebookId, requesterId)
         val ebook: Ebook = ebookService.modify(command)
-        val mainImage = ebookImageService.modifyMainImage(command)
+        val mainImage = ebookImageService.modifyMainImage(command, ebook)
         val descriptionImageList: List<EbookImage> = ebookImageService.modifyDescriptionImageList(command, ebook)
         val categoryList: List<Category> = relatedCategoryService.modify(command, ebook)
         return ModifyEbookResponse(EbookResponse(ebook, mainImage, descriptionImageList, categoryList))
