@@ -1,60 +1,51 @@
 package com.devooks.backend.review.v1.repository
 
+import com.devooks.backend.common.config.database.JooqR2dbcRepository
+import com.devooks.backend.jooq.tables.Review.Companion.REVIEW
+import com.devooks.backend.jooq.tables.references.EBOOK
 import com.devooks.backend.review.v1.domain.Review
 import com.devooks.backend.review.v1.dto.GetReviewsCommand
-import io.r2dbc.spi.Readable
-import java.math.BigInteger
-import java.time.Instant
-import java.util.*
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import org.springframework.r2dbc.core.DatabaseClient
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import org.jooq.Condition
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 
 @Repository
-class ReviewQueryRepository(
-    private val databaseClient: DatabaseClient,
-) {
-    suspend fun findBy(command: GetReviewsCommand): List<Review> {
-        val binding = mutableMapOf<String, Any>()
-        val query = """
-            SELECT r.*
-            FROM review r, ebook e
-            WHERE r.ebook_id = e.ebook_id 
-            ${
-            command.ebookId?.let {
-                binding["ebookId"] = it
-                "AND r.ebook_id = :ebookId"
-            } ?: ""
-        } 
-            ${
-            command.memberId?.let {
-                binding["memberId"] = it
-                "AND e.selling_member_id = :memberId"
-            } ?: ""
+class ReviewQueryRepository : JooqR2dbcRepository() {
+
+    suspend fun findBy(command: GetReviewsCommand): Flow<Review> =
+        query {
+            select(
+                REVIEW.REVIEW_ID.`as`("id"),
+                REVIEW.RATING,
+                REVIEW.CONTENT,
+                REVIEW.EBOOK_ID,
+                REVIEW.WRITER_MEMBER_ID,
+                REVIEW.WRITTEN_DATE,
+                REVIEW.MODIFIED_DATE
+            ).from(
+                REVIEW
+                    .join(EBOOK).on(EBOOK.EBOOK_ID.eq(REVIEW.EBOOK_ID))
+            ).where(
+                buildConditions(command)
+            ).orderBy(
+                REVIEW.WRITTEN_DATE.desc(),
+            ).offset(command.offset).limit(command.limit)
+        }.map { it.into(Review::class.java) }
+
+    private fun buildConditions(command: GetReviewsCommand): Condition {
+        val conditions = mutableListOf<Condition>()
+
+        command.ebookId?.also {
+            conditions.add(REVIEW.EBOOK_ID.eq(it))
         }
-            ORDER BY r.written_date DESC
-            OFFSET ${command.offset} LIMIT ${command.limit};
-        """.trimIndent()
 
-        return databaseClient
-            .sql(query)
-            .bindValues(binding)
-            .map { row -> mapToDomain(row) }
-            .all()
-            .asFlow()
-            .toList()
+        command.memberId?.also {
+            conditions.add(EBOOK.SELLING_MEMBER_ID.eq(it))
+        }
+
+        return conditions.reduceOrNull { acc, condition -> acc.and(condition) } ?: DSL.noCondition()
     }
-
-    private fun mapToDomain(row: Readable) = Review(
-        id = row.get("review_id", UUID::class.java)!!,
-        rating = row.get("rating", BigInteger::class.java)!!.toInt(),
-        content = row.get("content", String::class.java)!!,
-        ebookId = row.get("ebook_id", UUID::class.java)!!,
-        writerMemberId = row.get("writer_member_id", UUID::class.java)!!,
-        writtenDate = row.get("written_date", Instant::class.java)!!,
-        modifiedDate = row.get("modified_date", Instant::class.java)!!,
-    )
-
 
 }

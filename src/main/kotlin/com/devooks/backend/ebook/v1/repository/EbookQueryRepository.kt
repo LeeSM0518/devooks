@@ -1,241 +1,223 @@
 package com.devooks.backend.ebook.v1.repository
 
+import com.devooks.backend.common.config.database.JooqR2dbcRepository
+import com.devooks.backend.ebook.v1.domain.EbookImageType
 import com.devooks.backend.ebook.v1.domain.EbookOrder
-import com.devooks.backend.ebook.v1.dto.DescriptionImageDto
-import com.devooks.backend.ebook.v1.dto.EbookDetailView
-import com.devooks.backend.ebook.v1.dto.EbookView
-import com.devooks.backend.ebook.v1.dto.ReviewView
 import com.devooks.backend.ebook.v1.dto.command.GetDetailOfEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.GetEbookCommand
-import com.devooks.backend.ebook.v1.error.EbookError
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.r2dbc.spi.Readable
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.time.Instant
+import com.devooks.backend.ebook.v1.repository.row.EbookDetailRow
+import com.devooks.backend.ebook.v1.repository.row.EbookRow
+import com.devooks.backend.jooq.tables.references.EBOOK
+import com.devooks.backend.jooq.tables.references.EBOOK_IMAGE
+import com.devooks.backend.jooq.tables.references.MEMBER
+import com.devooks.backend.jooq.tables.references.PDF
+import com.devooks.backend.jooq.tables.references.RELATED_CATEGORY
+import com.devooks.backend.jooq.tables.references.REVIEW
+import com.devooks.backend.jooq.tables.references.WISHLIST
 import java.util.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import org.springframework.r2dbc.core.DatabaseClient
+import kotlinx.coroutines.flow.map
+import org.jooq.Condition
+import org.jooq.DSLContext
+import org.jooq.impl.DSL
+import org.jooq.impl.DSL.field
+import org.jooq.impl.DSL.key
+import org.jooq.impl.SQLDataType
 import org.springframework.stereotype.Repository
 
 @Repository
-class EbookQueryRepository(
-    private val databaseClient: DatabaseClient,
-) {
-    private val objectMapper: ObjectMapper = ObjectMapper()
+class EbookQueryRepository : JooqR2dbcRepository() {
 
-    suspend fun findBy(command: GetEbookCommand): List<EbookView> {
-        val binding = mutableMapOf<String, Any>()
-        binding["offset"] = command.offset
-        binding["limit"] = command.limit
-        val query = """
-            WITH ebook_with_review AS
-                     (SELECT e.ebook_id,
-                             ei.image_path as main_image_path,
-                             e.title,
-                             e.selling_member_id,
-                             e.created_date,
-                             ${getWishlistId(command.requesterId, binding)} AS wishlist_id,
-                             COALESCE(AVG(r.rating), 0) AS rating,
-                             COUNT(r.review_id)         AS count,
-                             m.nickname                 AS writer_name,
-                             e.price
-                      FROM ebook e
-                               LEFT JOIN review r ON e.ebook_id = r.ebook_id
-                               LEFT JOIN ebook_image ei ON e.ebook_id = ei.ebook_id AND ei.image_type = 'MAIN'
-                               LEFT JOIN member m ON e.selling_member_id = m.member_id
-                      WHERE e.deleted_date IS NULL
-                      GROUP BY e.ebook_id, main_image_path, e.title, e.created_date, m.nickname, e.price, e.selling_member_id
-                      ),
-                 related_category_with_name AS (SELECT r.ebook_id
-                                                     , ARRAY_AGG(c.category_id) AS category_id_list
-                                                FROM related_category r
-                                                   , category c
-                                                WHERE c.category_id = r.category_id
-                                                GROUP BY r.ebook_id)
-            SELECT e.ebook_id,
-                   e.main_image_path,
-                   e.wishlist_id,
-                   e.title,
-                   e.rating,
-                   e.count,
-                   r.category_id_list AS related_category_id_list,
-                   e.writer_name,
-                   e.price
-            FROM ebook_with_review e,
-                 related_category_with_name r
-            WHERE e.ebook_id = r.ebook_id
-            ${
-            command.title?.let {
-                binding["title"] = it
-                "AND e.title ILIKE :title"
-            } ?: ""
-        }
-        ${
-            command.sellingMemberId?.let {
-                binding["sellingMemberId"] = it
-                "AND e.selling_member_id = :sellingMemberId"
-            } ?: ""
-        }
-        ${
-            command.ebookIdList?.let {
-                binding["ebookIdList"] = it
-                "AND e.ebook_id in (:ebookIdList)"
-            } ?: ""
-        }
-        ${
-            command.categoryIdList?.let {
-                binding["categoryIdList"] = it
-                "AND r.category_id_list @> ARRAY [:categoryIdList]::uuid[]"
-            } ?: ""
-        }
-        ${
-            command.orderBy.let {
-                when (it) {
-                    EbookOrder.LATEST -> {
-                        "ORDER BY e.created_date DESC"
-                    }
+    suspend fun findBy(command: GetEbookCommand): Flow<EbookRow> =
+        query {
+            val reviewSubQuery = getReviewSubQuery()
+            val mainImageSubQuery = getMainImageSubQuery()
+            val relatedCategorySubQuery = getRelatedCategorySubQuery()
 
-                    EbookOrder.REVIEW -> {
-                        "ORDER BY e.rating DESC"
-                    }
-                }
-            }
-        }
-            OFFSET :offset LIMIT :limit;
-        """.trimIndent()
-
-        return databaseClient
-            .sql(query)
-            .bindValues(binding)
-            .map { row -> mapToEbookView(row) }
-            .all()
-            .asFlow()
-            .toList()
-    }
-
-    suspend fun findBy(command: GetDetailOfEbookCommand): EbookDetailView {
-        val binding = mutableMapOf<String, Any>()
-        binding["ebookId"] = command.ebookId
-        val query = """
-                WITH related_category_name AS (SELECT r.ebook_id, ARRAY_AGG(c.category_id) AS category_id_list
-                                   FROM related_category r,
-                                        category c
-                                   WHERE r.category_id = c.category_id
-                                   GROUP BY r.ebook_id),
-                ebook_with_review AS (SELECT e.ebook_id,
-                                      e.title,
-                                      ei.image_path,
-                                      e.selling_member_id,
-                                      e.created_date,
-                                      e.modified_date,
-                                      e.price,
-                                      e.introduction,
-                                      e.table_of_contents,
-                                      e.pdf_id,
-                                      e.main_image_id,
-                                      COALESCE(AVG(r.rating), 0) AS rating,
-                                      COUNT(r.review_id)         AS count
-                               FROM ebook e
-                                        LEFT JOIN review r ON e.ebook_id = r.ebook_id
-                                        LEFT JOIN ebook_image ei ON e.main_image_id = ei.ebook_image_id
-                               GROUP BY e.ebook_id, ei.ebook_image_id)
-                SELECT e.ebook_id,
-                       e.title,
-                       e.image_path as main_image_path,
-                       e.selling_member_id,
-                       e.created_date,
-                       e.modified_date,
-                       e.price,
-                       e.introduction,
-                       e.table_of_contents,
-                       e.rating,
-                       e.count,
-                       r.category_id_list,
-                       (SELECT ARRAY_TO_JSON(ARRAY_AGG(ROW_TO_JSON(ei.*)))
-                        FROM ebook_image ei
-                        WHERE e.ebook_id = :ebookId and e.main_image_id != ei.ebook_image_id)
-                           AS description_image_path_list,
-                       ${getWishlistId(command.requesterId, binding)} AS wishlist_id,
-                       p.pdf_id,
-                       p.page_count
-                FROM ebook_with_review e,
-                     related_category_name r,
-                     pdf p
-                WHERE e.ebook_id = r.ebook_id
-                  AND e.pdf_id = p.pdf_id
-                  AND e.ebook_id = :ebookId;
-        """.trimIndent()
-
-        return databaseClient
-            .sql(query)
-            .bindValues(binding)
-            .map { row -> mapToEbookDetailView(row) }
-            .all()
-            .asFlow()
-            .firstOrNull()
-            ?: throw EbookError.NOT_FOUND_EBOOK.exception
-    }
-
-    private fun getWishlistId(
-        requesterId: UUID?,
-        binding: MutableMap<String, Any>,
-    ) = requesterId?.let {
-        binding["requesterId"] = it
-        """
-            (SELECT wishlist_id
-            FROM wishlist
-            WHERE wishlist.ebook_id = e.ebook_id
-              AND wishlist.member_id = :requesterId)
-        """.trimIndent()
-    } ?: "null"
-
-    private fun mapToEbookDetailView(row: Readable) =
-        EbookDetailView(
-            id = row.get("ebook_id", UUID::class.java)!!,
-            mainImagePath = row.get("main_image_path", String::class.java)!!,
-            title = row.get("title", String::class.java)!!,
-            sellingMemberId = row.get("selling_member_id", UUID::class.java)!!,
-            createdDate = row.get("created_date", Instant::class.java)!!,
-            modifiedDate = row.get("modified_date", Instant::class.java)!!,
-            price = row.get("price", BigInteger::class.java)!!.toInt(),
-            pdfId = row.get("pdf_id", UUID::class.java)!!,
-            introduction = row.get("introduction", String::class.java)!!,
-            tableOfContents = row.get("table_of_contents", String::class.java)!!,
-            relatedCategoryIdList = row.get("category_id_list", Array<UUID>::class.java)!!.toList(),
-            descriptionImagePathList = row.get("description_image_path_list", String::class.java)?.let {
-                val imagePathList = objectMapper.readValue<List<Map<String, String>>>(it)
-                imagePathList.map { imagePath ->
-                    DescriptionImageDto(
-                        id = UUID.fromString(imagePath["ebook_image_id"]!!),
-                        imagePath = imagePath["image_path"]!!,
-                        order = imagePath["image_order"]!!.toInt(),
+            select(
+                EBOOK.EBOOK_ID,
+                EBOOK.TITLE,
+                EBOOK.PRICE,
+                MEMBER.MEMBER_ID.`as`("seller_member_id"),
+                MEMBER.NICKNAME.`as`("seller_nickname"),
+                MEMBER.PROFILE_IMAGE_PATH.`as`("seller_profile_image_path"),
+                DSL.coalesce(reviewSubQuery.field("review_rating"), 0.0)
+                    .`as`("review_rating"),
+                DSL.coalesce(reviewSubQuery.field("review_count"), 0)
+                    .`as`("review_count"),
+                EBOOK.CREATED_DATE,
+                EBOOK.MODIFIED_DATE,
+                DSL.coalesce(
+                    relatedCategorySubQuery.field("related_category_id_list"),
+                    DSL.inline("{}")
+                ).`as`("related_category_id_list"),
+                WISHLIST.WISHLIST_ID,
+                mainImageSubQuery.field("main_image_json_data"),
+            ).from(
+                EBOOK
+                    .join(MEMBER).on(EBOOK.SELLING_MEMBER_ID.eq(MEMBER.MEMBER_ID))
+                    .leftJoin(reviewSubQuery).on(
+                        EBOOK.EBOOK_ID.eq(reviewSubQuery.field("ebook_id", UUID::class.java))
                     )
+                    .leftJoin(WISHLIST).on(
+                        EBOOK.EBOOK_ID.eq(WISHLIST.EBOOK_ID).and(WISHLIST.MEMBER_ID.eq(command.requesterId))
+                    )
+                    .leftJoin(mainImageSubQuery).on(
+                        EBOOK.EBOOK_ID.eq(mainImageSubQuery.field("ebook_id", UUID::class.java))
+                    )
+                    .leftJoin(relatedCategorySubQuery).on(
+                        EBOOK.EBOOK_ID.eq(relatedCategorySubQuery.field("ebook_id", UUID::class.java))
+                    )
+            ).where(
+                buildConditionsToGetEbooks(command)
+            ).run {
+                when (command.orderBy) {
+                    EbookOrder.LATEST -> orderBy(EBOOK.CREATED_DATE.desc())
+                    EbookOrder.REVIEW -> orderBy(DSL.field("review_rating", Double::class.java).desc())
                 }
-            },
-            pageCount = row.get("page_count", BigInteger::class.java)!!.toInt(),
-            review = ReviewView(
-                rating = row.get("rating", BigDecimal::class.java)!!.toDouble(),
-                count = row.get("count", BigInteger::class.java)!!.toInt(),
-            ),
-            wishlistId = row.get("wishlist_id", UUID::class.java)
-        )
+            }.offset(command.offset).limit(command.limit)
+        }.map {
+            it.into(EbookRow::class.java)
+        }
 
-    private fun mapToEbookView(row: Readable) =
-        EbookView(
-            id = row.get("ebook_id", UUID::class.java)!!,
-            mainImagePath = row.get("main_image_path", String::class.java)!!,
-            wishlistId = row.get("wishlist_id", UUID::class.java),
-            title = row.get("title", String::class.java)!!,
-            review = ReviewView(
-                rating = row.get("rating", BigDecimal::class.java)!!.toDouble(),
-                count = row.get("count", BigInteger::class.java)!!.toInt(),
-            ),
-            relatedCategoryIdList = row.get("related_category_id_list", Array<UUID>::class.java)!!.toList(),
-            writerName = row.get("writer_name", String::class.java)!!,
-            price = row.get("price", BigInteger::class.java)!!.toInt(),
-        )
+    suspend fun findBy(command: GetDetailOfEbookCommand): EbookDetailRow? =
+        query {
+            val reviewSubQuery = getReviewSubQuery()
+            val mainImageSubQuery = getMainImageSubQuery()
+            val descriptionImageSubQuery = getDescriptionImageSubQuery()
+            val relatedCategorySubQuery = getRelatedCategorySubQuery()
+
+            select(
+                EBOOK.EBOOK_ID,
+                EBOOK.TITLE,
+                EBOOK.PRICE,
+                EBOOK.SELLING_MEMBER_ID.`as`("seller_member_id"),
+                MEMBER.NICKNAME.`as`("seller_nickname"),
+                MEMBER.PROFILE_IMAGE_PATH.`as`("seller_profile_image_path"),
+                DSL.coalesce(reviewSubQuery.field("review_rating"), 0.0)
+                    .`as`("review_rating"),
+                DSL.coalesce(reviewSubQuery.field("review_count"), 0)
+                    .`as`("review_count"),
+                EBOOK.CREATED_DATE,
+                EBOOK.MODIFIED_DATE,
+                DSL.coalesce(
+                    relatedCategorySubQuery.field("related_category_id_list"),
+                    DSL.inline("{}")
+                ).`as`("related_category_id_list"),
+                WISHLIST.WISHLIST_ID,
+                EBOOK.INTRODUCTION,
+                EBOOK.TABLE_OF_CONTENTS,
+                PDF.PDF_ID,
+                PDF.PAGE_COUNT,
+                mainImageSubQuery.field("main_image_json_data"),
+                DSL.coalesce(
+                    descriptionImageSubQuery.field("description_image_json_data"),
+                    DSL.inline("[]")
+                ).`as`("description_image_json_data"),
+            ).from(
+                EBOOK
+                    .join(PDF).on(EBOOK.PDF_ID.eq(PDF.PDF_ID))
+                    .join(MEMBER).on(EBOOK.SELLING_MEMBER_ID.eq(MEMBER.MEMBER_ID))
+                    .leftJoin(reviewSubQuery).on(
+                        EBOOK.EBOOK_ID.eq(reviewSubQuery.field("ebook_id", UUID::class.java))
+                    )
+                    .leftJoin(WISHLIST).on(
+                        EBOOK.EBOOK_ID.eq(WISHLIST.EBOOK_ID).and(WISHLIST.MEMBER_ID.eq(command.requesterId))
+                    )
+                    .leftJoin(mainImageSubQuery).on(
+                        EBOOK.EBOOK_ID.eq(mainImageSubQuery.field("ebook_id", UUID::class.java))
+                    )
+                    .leftJoin(descriptionImageSubQuery).on(
+                        EBOOK.EBOOK_ID.eq(descriptionImageSubQuery.field("ebook_id", UUID::class.java))
+                    )
+                    .leftJoin(relatedCategorySubQuery).on(
+                        EBOOK.EBOOK_ID.eq(relatedCategorySubQuery.field("ebook_id", UUID::class.java))
+                    )
+            ).where(
+                EBOOK.DELETED_DATE.isNull.and(EBOOK.EBOOK_ID.eq(command.ebookId))
+            )
+        }.map {
+            it.into(EbookDetailRow::class.java)
+        }.firstOrNull()
+
+    private fun DSLContext.getDescriptionImageSubQuery() =
+        select(
+            EBOOK_IMAGE.EBOOK_ID,
+            DSL.jsonArrayAgg(
+                DSL.jsonObject(
+                    key("id").value(EBOOK_IMAGE.EBOOK_IMAGE_ID),
+                    key("image_path").value(EBOOK_IMAGE.IMAGE_PATH),
+                    key("order").value(EBOOK_IMAGE.IMAGE_ORDER),
+                )
+            ).`as`("description_image_json_data"),
+        ).from(
+            EBOOK_IMAGE
+        ).where(
+            EBOOK_IMAGE.IMAGE_TYPE.eq(EbookImageType.DESCRIPTION.name)
+        ).groupBy(
+            EBOOK_IMAGE.EBOOK_ID
+        ).asTable("ebook_description_image")
+
+    private fun DSLContext.getReviewSubQuery() =
+        select(
+            REVIEW.EBOOK_ID,
+            DSL.avg(REVIEW.RATING).`as`("review_rating"),
+            DSL.count(REVIEW.REVIEW_ID).`as`("review_count"),
+        ).from(
+            REVIEW
+        ).groupBy(
+            REVIEW.EBOOK_ID
+        ).asTable("review")
+
+    private fun DSLContext.getRelatedCategorySubQuery() =
+        select(
+            RELATED_CATEGORY.EBOOK_ID,
+            DSL.arrayAgg(RELATED_CATEGORY.CATEGORY_ID).`as`("related_category_id_list"),
+        ).from(
+            RELATED_CATEGORY
+        ).groupBy(
+            RELATED_CATEGORY.EBOOK_ID
+        ).asTable("related_category")
+
+    private fun DSLContext.getMainImageSubQuery() =
+        select(
+            EBOOK_IMAGE.EBOOK_ID,
+            DSL.jsonObject(
+                key("id").value(EBOOK_IMAGE.EBOOK_IMAGE_ID),
+                key("image_path").value(EBOOK_IMAGE.IMAGE_PATH),
+                key("order").value(EBOOK_IMAGE.IMAGE_ORDER),
+            ).`as`("main_image_json_data"),
+        ).from(
+            EBOOK_IMAGE
+        ).where(
+            EBOOK_IMAGE.IMAGE_TYPE.eq(EbookImageType.MAIN.name)
+        ).asTable("ebook_main_image")
+
+    private fun buildConditionsToGetEbooks(command: GetEbookCommand): List<Condition> {
+        val conditions = mutableListOf<Condition>()
+
+        conditions.add(EBOOK.DELETED_DATE.isNull)
+
+        command.title?.also {
+            conditions.add(EBOOK.TITLE.likeIgnoreCase(it))
+        }
+
+        command.sellingMemberId?.also {
+            conditions.add(EBOOK.SELLING_MEMBER_ID.eq(it))
+        }
+
+        command.ebookIdList?.also {
+            conditions.add(EBOOK.EBOOK_ID.`in`(it))
+        }
+
+        command.categoryIdList?.also {
+            conditions.add(
+                field("related_category_id_list", SQLDataType.UUID.arrayDataType)
+                    .contains(it.toTypedArray())
+            )
+        }
+
+        return conditions
+    }
 }

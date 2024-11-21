@@ -7,7 +7,7 @@ import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
-import com.devooks.backend.ebook.v1.dto.DescriptionImageDto
+import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentDto
 import com.devooks.backend.ebook.v1.dto.EbookInquiryDto
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryCommentRequest
@@ -376,7 +376,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         imageBase64Raw: String?,
         imagePath: Path,
         accessToken: AccessToken,
-    ): List<DescriptionImageDto> {
+    ): List<EbookImageDto> {
         val saveDescriptionImagesRequest = SaveDescriptionImagesRequest(
             imageList = listOf(
                 ImageDto(
