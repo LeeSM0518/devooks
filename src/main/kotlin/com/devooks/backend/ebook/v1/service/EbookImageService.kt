@@ -8,6 +8,7 @@ import com.devooks.backend.ebook.v1.domain.Ebook
 import com.devooks.backend.ebook.v1.domain.EbookImage
 import com.devooks.backend.ebook.v1.domain.EbookImageType
 import com.devooks.backend.ebook.v1.domain.EbookImageType.DESCRIPTION
+import com.devooks.backend.ebook.v1.domain.EbookImageType.MAIN
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.ModifyEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.SaveImagesCommand
@@ -54,23 +55,26 @@ class EbookImageService(
             ?.toList()
             ?: throw EbookError.FORBIDDEN_REGISTER_EBOOK_TO_IMAGE.exception
 
-    suspend fun modifyMainImage(command: ModifyEbookCommand) {
+    suspend fun modifyMainImage(command: ModifyEbookCommand, ebook: Ebook): EbookImage {
         val mainImageId = command.mainImageId
-        if (mainImageId != null) {
-            val mainImage = findById(mainImageId)
-            ebookImageRepository.deleteById(mainImageId)
-            ebookImageRepository.save(mainImage.create(ebookId = command.ebookId))
+        return if (mainImageId != null) {
+            ebookImageRepository
+                .findAllByEbookIdAndImageType(command.ebookId, MAIN)
+                .firstOrNull()
+                ?.let { ebookImageRepository.save(it.copy(ebookId = null)) }
+            save(listOf(command.mainImageId), ebook).first()
+        } else {
+            ebookImageRepository.findAllByEbookIdAndImageType(command.ebookId, MAIN).first().toDomain()
         }
     }
 
     suspend fun modifyDescriptionImageList(command: ModifyEbookCommand, ebook: Ebook): List<EbookImage> {
         val descriptionImageList = ebookImageRepository
             .findAllByEbookIdAndImageType(command.ebookId, DESCRIPTION)
-            .filter { image -> image.id!! != ebook.mainImageId }
 
         val ebookImageList =
-            if (command.isChangedDescriptionImageList) {
-                val changeDescriptionImageIdList = command.descriptionImageIdList!!
+            if (command.isChangedDescriptionImageList && command.descriptionImageIdList != null) {
+                val changeDescriptionImageIdList = command.descriptionImageIdList
 
                 val (deletedImages, existImages) =
                     descriptionImageList
@@ -107,7 +111,7 @@ class EbookImageService(
         image: Image,
     ): String {
         val rootPath = when (imageType) {
-            EbookImageType.MAIN -> MAIN_IMAGE_ROOT_PATH
+            MAIN -> MAIN_IMAGE_ROOT_PATH
             DESCRIPTION -> DESCRIPTION_IMAGE_ROOT_PATH
         }
         val savedImagePath = saveImage(image, rootPath)

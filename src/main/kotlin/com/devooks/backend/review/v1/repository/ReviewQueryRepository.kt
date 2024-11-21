@@ -37,11 +37,11 @@ class ReviewQueryRepository : JooqR2dbcRepository() {
     private fun buildConditions(command: GetReviewsCommand): Condition {
         val conditions = mutableListOf<Condition>()
 
-        command.ebookId?.let {
+        command.ebookId?.also {
             conditions.add(REVIEW.EBOOK_ID.eq(it))
         }
 
-        command.memberId?.let {
+        command.memberId?.also {
             conditions.add(EBOOK.SELLING_MEMBER_ID.eq(it))
         }
 
