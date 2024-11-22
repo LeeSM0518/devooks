@@ -2,6 +2,7 @@ package com.devooks.backend.review.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.review.v1.controller.docs.ReviewCommentControllerDocs
 import com.devooks.backend.review.v1.domain.ReviewComment
 import com.devooks.backend.review.v1.dto.CreateReviewCommentCommand
 import com.devooks.backend.review.v1.dto.CreateReviewCommentRequest
@@ -39,11 +40,11 @@ class ReviewCommentController(
     private val reviewCommentEventService: ReviewCommentEventService,
     private val tokenService: TokenService,
     private val reviewService: ReviewService,
-) {
+): ReviewCommentControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createReviewComment(
+    override suspend fun createReviewComment(
         @RequestBody
         request: CreateReviewCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -58,12 +59,12 @@ class ReviewCommentController(
     }
 
     @GetMapping
-    suspend fun getReviewComments(
-        @RequestParam(required = false, defaultValue = "")
+    override suspend fun getReviewComments(
+        @RequestParam(required = true)
         reviewId: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam(required = true)
         page: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam(required = true)
         count: String,
     ): GetReviewCommentsResponse {
         val command = GetReviewCommentsCommand(reviewId, page, count)
@@ -73,7 +74,7 @@ class ReviewCommentController(
 
     @Transactional
     @PatchMapping("/{commentId}")
-    suspend fun modifyReviewComment(
+    override suspend fun modifyReviewComment(
         @PathVariable(name = "commentId", required = false)
         commentId: String,
         @RequestBody
@@ -89,7 +90,7 @@ class ReviewCommentController(
 
     @Transactional
     @DeleteMapping("/{commentId}")
-    suspend fun deleteReviewComment(
+    override suspend fun deleteReviewComment(
         @PathVariable(name = "commentId", required = false)
         commentId: String,
         @RequestHeader(AUTHORIZATION)
