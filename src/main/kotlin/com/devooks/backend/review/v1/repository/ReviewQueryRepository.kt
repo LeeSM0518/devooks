@@ -41,10 +41,6 @@ class ReviewQueryRepository : JooqR2dbcRepository() {
             conditions.add(REVIEW.EBOOK_ID.eq(it))
         }
 
-        command.memberId?.also {
-            conditions.add(EBOOK.SELLING_MEMBER_ID.eq(it))
-        }
-
         return conditions.reduceOrNull { acc, condition -> acc.and(condition) } ?: DSL.noCondition()
     }
 

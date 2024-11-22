@@ -177,30 +177,6 @@ internal class ReviewControllerTest @Autowired constructor(
     }
 
     @Test
-    fun `회원에 대한 리뷰를 조회할 수 있다`(): Unit = runBlocking {
-        val createReviewResponse = postCreateReview()
-
-        val getReviewsResponse = webTestClient
-            .get()
-            .uri("/api/v1/reviews?page=1&count=10&memberId=${expectedMember1.id}")
-            .accept(APPLICATION_JSON)
-            .exchange()
-            .expectStatus().isOk
-            .expectBody<GetReviewsResponse>()
-            .returnResult()
-            .responseBody!!
-
-        val review = getReviewsResponse.reviews[0]
-        assertThat(review.id).isEqualTo(createReviewResponse.id)
-        assertThat(review.ebookId).isEqualTo(createReviewResponse.ebookId)
-        assertThat(review.content).isEqualTo(createReviewResponse.content)
-        assertThat(review.rating).isEqualTo(createReviewResponse.rating)
-        assertThat(review.writerMemberId).isEqualTo(createReviewResponse.writerMemberId)
-        assertThat(review.writtenDate.toEpochMilli()).isEqualTo(createReviewResponse.writtenDate.toEpochMilli())
-        assertThat(review.modifiedDate.toEpochMilli()).isEqualTo(createReviewResponse.modifiedDate.toEpochMilli())
-    }
-
-    @Test
     fun `리뷰를 수정할 수 있다`(): Unit = runBlocking {
         val createReviewResponse = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken

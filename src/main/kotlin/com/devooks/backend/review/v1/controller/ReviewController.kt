@@ -3,6 +3,7 @@ package com.devooks.backend.review.v1.controller
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.ebook.v1.service.EbookService
+import com.devooks.backend.review.v1.controller.docs.ReviewControllerDocs
 import com.devooks.backend.review.v1.domain.Review
 import com.devooks.backend.review.v1.dto.CreateReviewCommand
 import com.devooks.backend.review.v1.dto.CreateReviewRequest
@@ -42,11 +43,11 @@ class ReviewController(
     private val transactionService: TransactionService,
     private val ebookService: EbookService,
     private val reviewEventService: ReviewEventService,
-) {
+): ReviewControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createReview(
+    override suspend fun createReview(
         @RequestBody
         request: CreateReviewRequest,
         @RequestHeader(AUTHORIZATION)
@@ -62,24 +63,22 @@ class ReviewController(
     }
 
     @GetMapping
-    suspend fun getReviews(
-        @RequestParam(required = false, defaultValue = "")
+    override suspend fun getReviews(
+        @RequestParam(required = true)
         ebookId: String,
-        @RequestParam(required = false, defaultValue = "")
-        memberId: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam(required = true)
         page: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam(required = true)
         count: String,
     ): GetReviewsResponse {
-        val command = GetReviewsCommand(ebookId, memberId, page, count)
+        val command = GetReviewsCommand(ebookId, page, count)
         val reviewList: List<Review> = reviewService.get(command)
         return reviewList.toGetReviewsResponse()
     }
 
     @Transactional
     @PatchMapping("/{reviewId}")
-    suspend fun modifyReview(
+    override suspend fun modifyReview(
         @PathVariable(name = "reviewId", required = false)
         reviewId: String,
         @RequestBody
@@ -95,7 +94,7 @@ class ReviewController(
 
     @Transactional
     @DeleteMapping("/{reviewId}")
-    suspend fun deleteReview(
+    override suspend fun deleteReview(
         @PathVariable(name = "reviewId", required = false)
         reviewId: String,
         @RequestHeader(AUTHORIZATION)

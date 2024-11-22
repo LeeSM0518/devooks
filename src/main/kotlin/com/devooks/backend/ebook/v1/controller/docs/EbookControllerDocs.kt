@@ -174,6 +174,7 @@ interface EbookControllerDocs {
     )
     suspend fun createEbook(
         request: CreateEbookRequest,
+        @Schema(description = "액세스 토큰", required = true, nullable = false)
         authorization: String,
     ): CreateEbookResponse
 
