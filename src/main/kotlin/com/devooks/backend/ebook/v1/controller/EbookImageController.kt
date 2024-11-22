@@ -2,6 +2,7 @@ package com.devooks.backend.ebook.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.ebook.v1.controller.docs.EbookImageControllerDocs
 import com.devooks.backend.ebook.v1.domain.EbookImage
 import com.devooks.backend.ebook.v1.dto.command.SaveImagesCommand
 import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
@@ -24,10 +25,10 @@ import org.springframework.web.bind.annotation.RestController
 class EbookImageController(
     private val ebookImageService: EbookImageService,
     private val tokenService: TokenService,
-) {
+) : EbookImageControllerDocs {
     @Transactional
     @PostMapping("/description-images")
-    suspend fun saveDescriptionImages(
+    override suspend fun saveDescriptionImages(
         @RequestBody
         request: SaveDescriptionImagesRequest,
         @RequestHeader(AUTHORIZATION, required = true)
@@ -41,7 +42,7 @@ class EbookImageController(
 
     @Transactional
     @PostMapping("/main-image")
-    suspend fun saveMainImage(
+    override suspend fun saveMainImage(
         @RequestBody
         request: SaveMainImageRequest,
         @RequestHeader(AUTHORIZATION, required = true)
