@@ -34,10 +34,10 @@ class NotificationRouter(
     private val tokenService: TokenService,
     private val getNotificationUseCase: GetNotificationUseCase,
     private val modifyNotificationUseCase: ModifyNotificationUseCase,
-) {
+): NotificationRouterDocs {
 
     @GetMapping("/count")
-    suspend fun streamCountOfUncheckedNotifications(
+    override suspend fun streamCountOfUncheckedNotifications(
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): Flow<ServerSentEvent<StreamCountResponse>> =
@@ -50,7 +50,7 @@ class NotificationRouter(
             }
 
     @GetMapping
-    suspend fun getNotifications(
+    override suspend fun getNotifications(
         @RequestHeader(AUTHORIZATION)
         authorization: String,
         @RequestParam(name = "page", defaultValue = "1")
@@ -65,7 +65,7 @@ class NotificationRouter(
     }
 
     @PatchMapping(path = ["/{notificationId}/checked", "/checked"])
-    suspend fun checkNotifications(
+    override suspend fun checkNotifications(
         @RequestHeader(AUTHORIZATION)
         authorization: String,
         @PathVariable("notificationId", required = false)
@@ -78,7 +78,7 @@ class NotificationRouter(
     }
 
     private suspend fun getCountOfUncheckedNotifications(memberId: UUID): ServerSentEvent<StreamCountResponse> {
-        val size: Long = getNotificationUseCase.getCountOfUnchecked(memberId)
+        val size = getNotificationUseCase.getCountOfUnchecked(memberId)
         val response = StreamCountResponse(size)
         return ServerSentEvent
             .builder<StreamCountResponse>()

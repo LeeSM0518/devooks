@@ -16,8 +16,8 @@ class NotificationQueryService(
     private val loadNotificationPort: LoadNotificationPort,
 ) : GetNotificationUseCase {
 
-    override suspend fun getCountOfUnchecked(memberId: UUID): Long =
-        loadNotificationPort.loadCountOfUnchecked(memberId)
+    override suspend fun getCountOfUnchecked(memberId: UUID): Int =
+        loadNotificationPort.loadCountOfUnchecked(memberId).toInt()
 
     override suspend fun getNotifications(request: GetNotificationsRequest): Page<NotificationResponse> {
         val notifications = loadNotificationPort.loadNotifications(request).map { it.toResponse() }

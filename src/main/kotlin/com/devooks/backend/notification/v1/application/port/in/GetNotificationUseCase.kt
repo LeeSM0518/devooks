@@ -6,6 +6,6 @@ import java.util.*
 import org.springframework.data.domain.Page
 
 interface GetNotificationUseCase {
-    suspend fun getCountOfUnchecked(memberId: UUID): Long
+    suspend fun getCountOfUnchecked(memberId: UUID): Int
     suspend fun getNotifications(request: GetNotificationsRequest): Page<NotificationResponse>
 }
