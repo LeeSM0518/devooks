@@ -43,7 +43,7 @@ class ServiceInquiryController(
     override suspend fun createServiceInquiry(
         @RequestBody
         request: CreateServiceInquiryRequest,
-        @RequestHeader(AUTHORIZATION, required = true)
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): CreateServiceInquiryResponse {
         val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))
@@ -60,7 +60,7 @@ class ServiceInquiryController(
         page: String,
         @RequestParam(required = true)
         count: String,
-        @RequestHeader(AUTHORIZATION, required = true)
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): GetServiceInquiriesResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
@@ -75,7 +75,7 @@ class ServiceInquiryController(
         serviceInquiryId: String,
         @RequestBody
         request: ModifyServiceInquiryRequest,
-        @RequestHeader(AUTHORIZATION, required = true)
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): ModifyServiceInquiryResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))

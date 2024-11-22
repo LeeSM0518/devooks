@@ -29,7 +29,7 @@ class ServiceInquiryImageService(
         imageList
             .asFlow()
             .map {
-                ServiceInquiryImageEntity(
+                    ServiceInquiryImageEntity(
                     imagePath = saveImage(it, SERVICE_INQUIRY_IMAGE_ROOT_PATH),
                     imageOrder = it.order,
                     uploadMemberId = requesterId

@@ -2,6 +2,7 @@ package com.devooks.backend.service.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.service.v1.controller.docs.ServiceInquiryImagesControllerDocs
 import com.devooks.backend.service.v1.domain.ServiceInquiryImage
 import com.devooks.backend.service.v1.dto.command.SaveServiceInquiryImagesCommand
 import com.devooks.backend.service.v1.dto.request.SaveServiceInquiryImagesRequest
@@ -21,14 +22,14 @@ import org.springframework.web.bind.annotation.RestController
 class ServiceInquiryImagesController(
     private val serviceInquiryImageService: ServiceInquiryImageService,
     private val tokenService: TokenService,
-) {
+): ServiceInquiryImagesControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun saveServiceInquiryImages(
+    override suspend fun saveServiceInquiryImages(
         @RequestBody
         request: SaveServiceInquiryImagesRequest,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): SaveServiceInquiryImagesResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))

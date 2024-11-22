@@ -97,7 +97,7 @@ class MemberController(
     override suspend fun modifyProfile(
         @RequestBody
         request: ModifyProfileRequest,
-        @RequestHeader(AUTHORIZATION, required = true)
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): ModifyProfileResponse {
         val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))

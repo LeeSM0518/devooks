@@ -31,7 +31,7 @@ class EbookImageController(
     override suspend fun saveDescriptionImages(
         @RequestBody
         request: SaveDescriptionImagesRequest,
-        @RequestHeader(AUTHORIZATION, required = true)
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): SaveDescriptionImagesResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
@@ -45,7 +45,7 @@ class EbookImageController(
     override suspend fun saveMainImage(
         @RequestBody
         request: SaveMainImageRequest,
-        @RequestHeader(AUTHORIZATION, required = true)
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): SaveMainImageResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
