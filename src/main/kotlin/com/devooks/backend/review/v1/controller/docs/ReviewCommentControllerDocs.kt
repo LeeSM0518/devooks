@@ -136,7 +136,7 @@ interface ReviewCommentControllerDocs {
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "- REVIEW-402-1: 존재하지 않는 리뷰 댓글입니다.",
+                description = "- REVIEW-404-1: 존재하지 않는 리뷰 댓글입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -190,7 +190,7 @@ interface ReviewCommentControllerDocs {
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "- REVIEW-402-1: 존재하지 않는 리뷰 댓글입니다.",
+                description = "- REVIEW-404-1: 존재하지 않는 리뷰 댓글입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,

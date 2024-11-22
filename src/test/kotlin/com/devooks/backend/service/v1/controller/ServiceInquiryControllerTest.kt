@@ -110,7 +110,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
     }
 
     @Test
-    fun `서비스 문의 생성시 이미지가 자신이 업로드한 경우가 아닐 경우 예외가 발생한다`(): Unit = runBlocking {
+    fun `서비스 문의 생성시 사진이 자신이 업로드한 경우가 아닐 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, imageList) = postSaveServiceInquiryImages()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
 
@@ -207,11 +207,6 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
                 title = "title2",
                 content = "content2",
                 imageIdList = listOf(imageList1.map { it.id.toString() }.first(), imageList2.first().id.toString())
-            ),
-            isChanged = ModifyServiceInquiryRequest.IsChanged(
-                title = true,
-                content = true,
-                imageIdList = true
             )
         )
 
@@ -268,11 +263,6 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
                 title = "title2",
                 content = "content2",
                 imageIdList = listOf(imageList1.map { it.id.toString() }.first(), imageList2.first().id.toString())
-            ),
-            isChanged = ModifyServiceInquiryRequest.IsChanged(
-                title = true,
-                content = true,
-                imageIdList = true
             )
         )
 
@@ -295,10 +285,6 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             serviceInquiry = ModifyServiceInquiryRequest.ServiceInquiry(
                 title = "title2",
                 content = "content2",
-            ),
-            isChanged = ModifyServiceInquiryRequest.IsChanged(
-                title = true,
-                content = true,
             )
         )
 

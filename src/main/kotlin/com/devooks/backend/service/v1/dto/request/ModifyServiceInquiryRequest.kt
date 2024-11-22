@@ -6,41 +6,35 @@ import com.devooks.backend.service.v1.error.validateServiceInquiryContent
 import com.devooks.backend.service.v1.error.validateServiceInquiryId
 import com.devooks.backend.service.v1.error.validateServiceInquiryImageIdList
 import com.devooks.backend.service.v1.error.validateServiceInquiryTitle
+import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
 data class ModifyServiceInquiryRequest(
+    @Schema(description = "서비스 문의", required = true, nullable = false)
     val serviceInquiry: ServiceInquiry?,
-    val isChanged: IsChanged?,
 ) {
 
     data class ServiceInquiry(
+        @Schema(description = "제목", required = false, nullable = true)
         val title: String? = null,
+        @Schema(description = "내용", required = false, nullable = true)
         val content: String? = null,
+        @Schema(description = "사진 식별자 목록", required = false, nullable = true)
         val imageIdList: List<String>? = null,
     )
 
-    data class IsChanged(
-        val title: Boolean? = null,
-        val content: Boolean? = null,
-        val imageIdList: Boolean? = null,
-    )
-
     fun toCommand(serviceInquiryId: String, requesterId: UUID) =
-        if (isChanged != null) {
-            if (serviceInquiry != null) {
+        serviceInquiry
+            ?.let {
                 ModifyServiceInquiryCommand(
-                    serviceInquiryId.validateServiceInquiryId(),
-                    if (isChanged.title == true) serviceInquiry.title.validateServiceInquiryTitle() else null,
-                    if (isChanged.content == true) serviceInquiry.content.validateServiceInquiryContent() else null,
-                    if (isChanged.imageIdList != null) serviceInquiry.imageIdList?.validateServiceInquiryImageIdList() else null,
-                    requesterId
+                    serviceInquiryId = serviceInquiryId.validateServiceInquiryId(),
+                    title = it.title?.validateServiceInquiryTitle(),
+                    content = it.content?.validateServiceInquiryContent(),
+                    imageIdList = it.imageIdList?.validateServiceInquiryImageIdList(),
+                    requesterId = requesterId
 
                 )
-            } else {
-                throw ServiceInquiryError.REQUIRED_IS_CHANGED_FOR_MODIFY.exception
             }
-        } else {
-            throw ServiceInquiryError.REQUIRED_SERVICE_INQUIRY_FOR_MODIFY.exception
-        }
+            ?: throw ServiceInquiryError.REQUIRED_SERVICE_INQUIRY_FOR_MODIFY.exception
 
 }

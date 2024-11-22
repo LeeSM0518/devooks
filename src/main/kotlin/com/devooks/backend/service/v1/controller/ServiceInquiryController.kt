@@ -2,6 +2,7 @@ package com.devooks.backend.service.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.service.v1.controller.docs.ServiceInquiryControllerDocs
 import com.devooks.backend.service.v1.domain.ServiceInquiry
 import com.devooks.backend.service.v1.domain.ServiceInquiryImage
 import com.devooks.backend.service.v1.dto.command.CreateServiceInquiryCommand
@@ -35,14 +36,14 @@ class ServiceInquiryController(
     private val tokenService: TokenService,
     private val serviceInquiryService: ServiceInquiryService,
     private val serviceInquiryImageService: ServiceInquiryImageService,
-) {
+): ServiceInquiryControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createServiceInquiry(
+    override suspend fun createServiceInquiry(
         @RequestBody
         request: CreateServiceInquiryRequest,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        @RequestHeader(AUTHORIZATION, required = true)
         authorization: String,
     ): CreateServiceInquiryResponse {
         val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))
@@ -54,12 +55,12 @@ class ServiceInquiryController(
     }
 
     @GetMapping
-    suspend fun getServiceInquiries(
-        @RequestParam(required = false, defaultValue = "")
+    override suspend fun getServiceInquiries(
+        @RequestParam(required = true)
         page: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam(required = true)
         count: String,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        @RequestHeader(AUTHORIZATION, required = true)
         authorization: String,
     ): GetServiceInquiriesResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
@@ -69,12 +70,12 @@ class ServiceInquiryController(
 
     @Transactional
     @PatchMapping("/{serviceInquiryId}")
-    suspend fun modifyServiceInquiry(
-        @PathVariable("serviceInquiryId", required = false)
+    override suspend fun modifyServiceInquiry(
+        @PathVariable("serviceInquiryId", required = true)
         serviceInquiryId: String,
         @RequestBody
         request: ModifyServiceInquiryRequest,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
+        @RequestHeader(AUTHORIZATION, required = true)
         authorization: String,
     ): ModifyServiceInquiryResponse {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
