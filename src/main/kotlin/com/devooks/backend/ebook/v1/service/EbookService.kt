@@ -1,8 +1,8 @@
 package com.devooks.backend.ebook.v1.service
 
 import com.devooks.backend.ebook.v1.domain.Ebook
-import com.devooks.backend.ebook.v1.dto.EbookDetailView
-import com.devooks.backend.ebook.v1.dto.EbookView
+import com.devooks.backend.ebook.v1.repository.row.EbookDetailRow
+import com.devooks.backend.ebook.v1.repository.row.EbookRow
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookInquiryCommand
 import com.devooks.backend.ebook.v1.dto.command.DeleteEbookCommand
@@ -18,6 +18,7 @@ import com.devooks.backend.review.v1.dto.CreateReviewCommand
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionCommand
 import java.time.Instant.now
 import java.util.*
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 
 @Service
@@ -44,7 +45,11 @@ class EbookService(
     suspend fun findById(ebookId: UUID): Ebook =
         ebookRepository
             .findById(ebookId)
-            ?.also { if (it.deletedDate != null) { throw EbookError.NOT_FOUND_EBOOK.exception } }
+            ?.also {
+                if (it.deletedDate != null) {
+                    throw EbookError.NOT_FOUND_EBOOK.exception
+                }
+            }
             ?.toDomain()
             ?: throw EbookError.NOT_FOUND_EBOOK.exception
 
@@ -66,13 +71,12 @@ class EbookService(
         findById(command.ebookId)
     }
 
-    suspend fun get(command: GetEbookCommand): List<EbookView> =
-        ebookQueryRepository.findBy(command)
+    suspend fun get(command: GetEbookCommand): List<EbookRow> =
+        ebookQueryRepository.findBy(command).toList()
 
-    suspend fun get(command: GetDetailOfEbookCommand): EbookDetailView {
-        findById(command.ebookId)
-        return ebookQueryRepository.findBy(command)
-    }
+    suspend fun get(command: GetDetailOfEbookCommand): EbookDetailRow =
+        ebookQueryRepository.findBy(command)
+            ?: throw EbookError.NOT_FOUND_EBOOK.exception
 
     suspend fun modify(command: ModifyEbookCommand): Ebook {
         val ebook = findById(command.ebookId)

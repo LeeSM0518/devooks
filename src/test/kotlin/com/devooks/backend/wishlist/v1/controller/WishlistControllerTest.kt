@@ -7,7 +7,7 @@ import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
-import com.devooks.backend.ebook.v1.dto.DescriptionImageDto
+import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveMainImageRequest
@@ -187,7 +187,7 @@ internal class WishlistControllerTest @Autowired constructor(
             .get()
             .uri(
                 "/api/v1/wishlist?page=1&count=10&" +
-                        "categoryIds=${createEbookResponse.ebook.relatedCategoryList[0].id}&" +
+                        "categoryIds=${createEbookResponse.ebook.relatedCategoryIdList[0]}&" +
                         "categoryIds=${UUID.randomUUID()}"
             )
             .header(AUTHORIZATION, "Bearer $accessToken")
@@ -326,7 +326,7 @@ internal class WishlistControllerTest @Autowired constructor(
         imageBase64Raw: String?,
         imagePath: Path,
         accessToken: AccessToken,
-    ): List<DescriptionImageDto> {
+    ): List<EbookImageDto> {
         val saveDescriptionImagesRequest = SaveDescriptionImagesRequest(
             imageList = listOf(
                 ImageDto(
