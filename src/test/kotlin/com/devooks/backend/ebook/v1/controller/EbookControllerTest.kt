@@ -603,7 +603,7 @@ internal class EbookControllerTest @Autowired constructor(
     }
 
     @Test
-    fun `설명 이미지가 존재하지 않는 전자책을 상세 조회할 수 있다`(): Unit = runBlocking {
+    fun `설명 사진이 존재하지 않는 전자책을 상세 조회할 수 있다`(): Unit = runBlocking {
         val (_, response) = postCreateEbookWithNoneDescriptionImageList()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
 

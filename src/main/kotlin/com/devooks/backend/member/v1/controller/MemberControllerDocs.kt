@@ -140,11 +140,11 @@ interface MemberControllerDocs {
             ApiResponse(
                 responseCode = "400",
                 description =
-                "- COMMON-400-3 : 이미지 내용이 반드시 필요합니다.\n" +
-                        "- COMMON-400-4 : 유효하지 않은 이미지 확장자입니다. JPG, PNG, JPEG만 가능합니다.\n" +
+                "- COMMON-400-3 : 사진 내용이 반드시 필요합니다.\n" +
+                        "- COMMON-400-4 : 유효하지 않은 사진 확장자입니다. JPG, PNG, JPEG만 가능합니다.\n" +
                         "- COMMON-400-5 : 50MB 이하의 영상만 저장이 가능합니다.\n" +
-                        "- COMMON-400-6 : 이미지가 반드시 필요합니다.\n" +
-                        "- COMMON-400-7 : 유효하지 않은 이미지 순서입니다.",
+                        "- COMMON-400-6 : 사진이 반드시 필요합니다.\n" +
+                        "- COMMON-400-7 : 유효하지 않은 사진 순서입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
