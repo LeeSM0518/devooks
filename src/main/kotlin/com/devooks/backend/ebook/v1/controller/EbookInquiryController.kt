@@ -2,6 +2,7 @@ package com.devooks.backend.ebook.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.ebook.v1.controller.docs.EbookInquiryControllerDocs
 import com.devooks.backend.ebook.v1.domain.EbookInquiry
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookInquiryCommand
 import com.devooks.backend.ebook.v1.dto.command.DeleteEbookInquiryCommand
@@ -39,11 +40,11 @@ class EbookInquiryController(
     private val tokenService: TokenService,
     private val ebookInquiryService: EbookInquiryService,
     private val ebookInquiryEventService: EbookInquiryEventService,
-) {
+) : EbookInquiryControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createEbookInquiry(
+    override suspend fun createEbookInquiry(
         @RequestBody
         request: CreateEbookInquiryRequest,
         @RequestHeader(AUTHORIZATION)
@@ -58,7 +59,7 @@ class EbookInquiryController(
     }
 
     @GetMapping
-    suspend fun getEbookInquiries(
+    override suspend fun getEbookInquiries(
         @RequestParam(required = false, defaultValue = "")
         ebookId: String,
         @RequestParam(required = false, defaultValue = "")
@@ -73,7 +74,7 @@ class EbookInquiryController(
 
     @Transactional
     @PatchMapping("/{inquiryId}")
-    suspend fun modifyEbookInquiry(
+    override suspend fun modifyEbookInquiry(
         @PathVariable(name = "inquiryId", required = false)
         inquiryId: String,
         @RequestBody
@@ -89,7 +90,7 @@ class EbookInquiryController(
 
     @Transactional
     @DeleteMapping("/{inquiryId}")
-    suspend fun deleteEbookInquiry(
+    override suspend fun deleteEbookInquiry(
         @PathVariable(name = "inquiryId", required = false)
         inquiryId: String,
         @RequestHeader(AUTHORIZATION)
