@@ -11,7 +11,7 @@ class PostgresqlInitializer : ApplicationContextInitializer<ConfigurableApplicat
 
     private val postgresqlContainer = PostgreSQLContainer(
         DockerImageName.parse("postgres:alpine")
-    ).withDatabaseName("devooksdb").withInitScript("schema.sql")
+    ).withDatabaseName("devooksdb").withInitScript("initialize.sql")
 
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
         postgresqlContainer.start()

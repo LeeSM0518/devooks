@@ -1,19 +1,41 @@
 server:
-  port: 8081
+  port: 80
 
 spring:
   r2dbc:
-    url: ${DATABASE_URL:r2dbc:postgresql://localhost:35432/devooksdb}
+    url: r2dbc:postgresql://localhost:5432/devooksdb
     driver: postgresql
     protocol: r2dbc
     host: localhost
-    port: 35432
+    port: 5432
     database: devooksdb
-    username: ${DATABASE_USERNAME:devooks}
-    password: ${DATABASE_PASSWORD:devooks}
+    username: devooks
+    password: devooks
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: email@gmail.com
+    password: password
+    protocol: smtp
+    timeout: 10000
+    auth: true
+    tls: true
+    debug: true
+
+  webflux:
+    static-path-pattern: /static/**
+  web:
+    resources:
+      static-locations: "file:static/"
   codec:
-    max-in-memory-size: 500MB
+    max-in-memory-size: 1GB
+
+  flyway:
+    url: jdbc:postgresql://localhost:5432/devooksdb
+    locations: classpath:/db/migration
+    user: devooks
+    password: devooks
 
 jwt:
   secretKey:
@@ -27,7 +49,7 @@ naver:
   profileUrl: /v1/nid/me
   clientId:
   clientSecret:
-  state:
+  state: test
 
 kakao:
   oauthHost: https://kauth.kakao.com

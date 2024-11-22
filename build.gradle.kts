@@ -36,8 +36,8 @@ dependencies {
 
     // r2dbc
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:3.0.4")
-    implementation("org.postgresql:r2dbc-postgresql:1.0.1.RELEASE")
-    runtimeOnly("org.postgresql:postgresql")
+    implementation("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
+    implementation("org.postgresql:postgresql:42.7.4")
 
     // feign client
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
@@ -93,6 +93,10 @@ dependencies {
     jooqCodegen("org.jooq:jooq-meta-kotlin:${jooqVersion}")
     // workaround of array type codegen, see: https://github.com/jOOQ/jOOQ/issues/13322
     jooqCodegen("com.h2database:h2:2.3.232")
+
+    // flyway
+    implementation("org.flywaydb:flyway-core:10.22.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.22.0")
 }
 
 jooq {
@@ -125,7 +129,7 @@ jooq {
                             // - ? matches a single character in a directory / file name
                             property {
                                 key = "scripts"
-                                value = "src/main/resources/schema.sql"
+                                value = "src/main/resources/db/jooq/schema.sql"
                             }
 
                             // The sort order of the scripts within a directory, where:
