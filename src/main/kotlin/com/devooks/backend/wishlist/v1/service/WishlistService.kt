@@ -9,7 +9,10 @@ import com.devooks.backend.wishlist.v1.entity.WishlistEntity
 import com.devooks.backend.wishlist.v1.error.WishlistError
 import com.devooks.backend.wishlist.v1.repository.WishlistCrudRepository
 import com.devooks.backend.wishlist.v1.repository.WishlistQueryRepository
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.stereotype.Service
 
 @Service
@@ -25,13 +28,20 @@ class WishlistService(
         return wishlistCrudRepository.save(wishlistEntity).toDomain()
     }
 
-    suspend fun get(command: GetWishlistCommand): List<Wishlist> =
-        wishlistQueryRepository.findBy(command).toList()
+    suspend fun get(command: GetWishlistCommand): Page<Wishlist> {
+        val wishlists = wishlistQueryRepository.findBy(command)
+        val count = wishlistQueryRepository.countBy(command)
+        return PageImpl(wishlists.toList(), command.pageable, count.first())
+    }
 
     suspend fun delete(command: DeleteWishlistCommand) {
         wishlistCrudRepository
             .findById(command.wishlistId)
-            ?.also { if (it.memberId != command.memberId) { throw WishlistError.FORBIDDEN_DELETE_WISHLIST.exception } }
+            ?.also {
+                if (it.memberId != command.memberId) {
+                    throw WishlistError.FORBIDDEN_DELETE_WISHLIST.exception
+                }
+            }
             ?.also { wishlistCrudRepository.delete(it) }
             ?: throw WishlistError.NOT_FOUND_WISHLIST.exception
     }

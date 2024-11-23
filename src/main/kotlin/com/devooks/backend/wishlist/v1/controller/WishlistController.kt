@@ -2,6 +2,8 @@ package com.devooks.backend.wishlist.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.domain.Ebook
 import com.devooks.backend.ebook.v1.service.EbookService
 import com.devooks.backend.wishlist.v1.domain.Wishlist
@@ -11,8 +13,8 @@ import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
 import com.devooks.backend.wishlist.v1.dto.DeleteWishlistCommand
 import com.devooks.backend.wishlist.v1.dto.DeleteWishlistResponse
 import com.devooks.backend.wishlist.v1.dto.GetWishlistCommand
-import com.devooks.backend.wishlist.v1.dto.GetWishlistResponse
-import com.devooks.backend.wishlist.v1.dto.GetWishlistResponse.Companion.toResponse
+import com.devooks.backend.wishlist.v1.dto.WishlistView
+import com.devooks.backend.wishlist.v1.dto.WishlistView.Companion.toWishlistView
 import com.devooks.backend.wishlist.v1.service.WishlistService
 import java.util.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
@@ -33,7 +35,7 @@ class WishlistController(
     private val wishlistService: WishlistService,
     private val ebookService: EbookService,
     private val tokenService: TokenService,
-): WishlistControllerDocs {
+) : WishlistControllerDocs {
 
     @Transactional
     @PostMapping
@@ -60,10 +62,11 @@ class WishlistController(
         count: String,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
-    ): GetWishlistResponse {
+    ): PageResponse<WishlistView> {
         val memberId = tokenService.getMemberId(Authorization(authorization))
         val command = GetWishlistCommand(memberId, categoryIds, page, count)
-        return wishlistService.get(command).toResponse()
+        val wishlists = wishlistService.get(command)
+        return wishlists.map { it.toWishlistView() }.toResponse()
     }
 
     @Transactional

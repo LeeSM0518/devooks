@@ -5,7 +5,6 @@ import com.devooks.backend.common.exception.ErrorResponse
 import com.devooks.backend.review.v1.dto.CreateReviewRequest
 import com.devooks.backend.review.v1.dto.CreateReviewResponse
 import com.devooks.backend.review.v1.dto.DeleteReviewResponse
-import com.devooks.backend.review.v1.dto.GetReviewsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse
 import com.devooks.backend.review.v1.dto.ReviewView

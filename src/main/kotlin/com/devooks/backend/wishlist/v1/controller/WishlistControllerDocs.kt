@@ -1,10 +1,11 @@
 package com.devooks.backend.wishlist.v1.controller
 
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.exception.ErrorResponse
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistRequest
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
 import com.devooks.backend.wishlist.v1.dto.DeleteWishlistResponse
-import com.devooks.backend.wishlist.v1.dto.GetWishlistResponse
+import com.devooks.backend.wishlist.v1.dto.WishlistView
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -76,12 +77,6 @@ interface WishlistControllerDocs {
             ApiResponse(
                 responseCode = "200",
                 description = "OK",
-                content = [
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = GetWishlistResponse::class)
-                    )
-                ]
             ),
             ApiResponse(
                 responseCode = "400",
@@ -106,7 +101,7 @@ interface WishlistControllerDocs {
         count: String,
         @Schema(description = "액세스 토큰", required = true, nullable = false)
         authorization: String,
-    ): GetWishlistResponse
+    ): PageResponse<WishlistView>
 
     @Operation(summary = "찜 취소")
     @ApiResponses(

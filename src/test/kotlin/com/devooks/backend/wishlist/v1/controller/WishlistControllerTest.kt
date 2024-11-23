@@ -6,6 +6,7 @@ import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
@@ -26,7 +27,7 @@ import com.devooks.backend.pdf.v1.repository.PdfRepository
 import com.devooks.backend.pdf.v1.repository.PreviewImageRepository
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistRequest
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
-import com.devooks.backend.wishlist.v1.dto.GetWishlistResponse
+import com.devooks.backend.wishlist.v1.dto.WishlistView
 import com.devooks.backend.wishlist.v1.repository.WishlistCrudRepository
 import io.netty.handler.codec.http.HttpResponseStatus.CONFLICT
 import java.io.File
@@ -160,21 +161,25 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val response = postCreateWishlist(createEbookResponse, accessToken)
 
-        val wishlist = webTestClient
+        val pageWishlist = webTestClient
             .get()
             .uri("/api/v1/wishlist?page=1&count=10")
             .header(AUTHORIZATION, "Bearer $accessToken")
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetWishlistResponse>()
+            .expectBody<PageResponse<WishlistView>>()
             .returnResult()
             .responseBody!!
-            .wishlist
 
-        assertThat(wishlist[0].id).isEqualTo(response.wishlistId)
-        assertThat(wishlist[0].ebookId).isEqualTo(response.ebookId)
-        assertThat(wishlist[0].memberId).isEqualTo(response.memberId)
+        val wishlistViewList = pageWishlist.data
+
+        assertThat(pageWishlist.pageable.totalPages).isEqualTo(1)
+        assertThat(pageWishlist.pageable.totalElements).isEqualTo(1)
+        assertThat(wishlistViewList.size).isEqualTo(1)
+        assertThat(wishlistViewList[0].id).isEqualTo(response.wishlistId)
+        assertThat(wishlistViewList[0].ebookId).isEqualTo(response.ebookId)
+        assertThat(wishlistViewList[0].memberId).isEqualTo(response.memberId)
     }
 
     @Test
@@ -183,7 +188,7 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val response = postCreateWishlist(createEbookResponse, accessToken)
 
-        val wishlist = webTestClient
+        val pageWishlist = webTestClient
             .get()
             .uri(
                 "/api/v1/wishlist?page=1&count=10&" +
@@ -194,14 +199,18 @@ internal class WishlistControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetWishlistResponse>()
+            .expectBody<PageResponse<WishlistView>>()
             .returnResult()
             .responseBody!!
-            .wishlist
 
-        assertThat(wishlist[0].id).isEqualTo(response.wishlistId)
-        assertThat(wishlist[0].ebookId).isEqualTo(response.ebookId)
-        assertThat(wishlist[0].memberId).isEqualTo(response.memberId)
+        val wishlistViewList = pageWishlist.data
+
+        assertThat(pageWishlist.pageable.totalPages).isEqualTo(1)
+        assertThat(pageWishlist.pageable.totalElements).isEqualTo(1)
+        assertThat(wishlistViewList.size).isEqualTo(1)
+        assertThat(wishlistViewList[0].id).isEqualTo(response.wishlistId)
+        assertThat(wishlistViewList[0].ebookId).isEqualTo(response.ebookId)
+        assertThat(wishlistViewList[0].memberId).isEqualTo(response.memberId)
     }
 
     @Test
