@@ -3,12 +3,11 @@ package com.devooks.backend.wishlist.v1.dto
 import com.devooks.backend.common.dto.Paging
 import com.devooks.backend.wishlist.v1.error.validateCategoryIds
 import java.util.*
-import org.springframework.data.domain.Pageable
 
 class GetWishlistCommand(
     val memberId: UUID,
     val categoryIds: List<UUID>?,
-    private val pageable: Pageable,
+    private val paging: Paging,
 ) {
     constructor(
         memberId: UUID,
@@ -18,12 +17,14 @@ class GetWishlistCommand(
     ) : this(
         memberId = memberId,
         categoryIds = categoryIds.takeIf { it.isNotEmpty() }?.validateCategoryIds(),
-        pageable = Paging(page, count).value
+        paging = Paging(page, count)
     )
 
     val offset: Int
-        get() = pageable.offset.toInt()
+        get() = paging.offset
 
     val limit: Int
-        get() = pageable.pageSize
+        get() = paging.limit
+
+    val pageable = paging.value
 }

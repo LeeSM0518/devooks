@@ -8,6 +8,7 @@ import com.devooks.backend.wishlist.v1.domain.Wishlist
 import com.devooks.backend.wishlist.v1.dto.GetWishlistCommand
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -26,9 +27,20 @@ class WishlistQueryRepository : JooqR2dbcRepository() {
                     .on(EBOOK.EBOOK_ID.eq(WISHLIST.EBOOK_ID))
                     .join(RELATED_CATEGORY)
                     .on(RELATED_CATEGORY.RELATED_CATEGORY_ID.eq(RELATED_CATEGORY.RELATED_CATEGORY_ID))
-            ).where(WISHLIST.MEMBER_ID.eq(command.memberId))
-                .offset(command.offset)
-                .limit(command.limit)
+            ).where(
+                WISHLIST.MEMBER_ID.eq(command.memberId)
+            ).offset(command.offset).limit(command.limit)
         }.map { it.into(Wishlist::class.java) }
+
+    suspend fun countBy(command: GetWishlistCommand): Flow<Long> =
+        query {
+            select(
+                DSL.count()
+            ).from(
+                WISHLIST
+            ).where(
+                WISHLIST.MEMBER_ID.eq(command.memberId)
+            )
+        }.map { it.into(Long::class.java) }
 
 }
