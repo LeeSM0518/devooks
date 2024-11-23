@@ -13,6 +13,8 @@ import java.time.Instant
 import java.util.*
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.stereotype.Service
 
 @Service
@@ -28,11 +30,13 @@ class EbookInquiryService(
         return ebookInquiryRepository.save(entity).toDomain()
     }
 
-    suspend fun get(command: GetEbookInquiresCommand): List<EbookInquiry> =
-        ebookInquiryRepository
+    suspend fun get(command: GetEbookInquiresCommand): Page<EbookInquiry> {
+        val ebookInquiries = ebookInquiryRepository
             .findAllByEbookId(command.ebookId, command.pageable)
             .map { it.toDomain() }
-            .toList()
+        val count = ebookInquiryRepository.countByEbookId(command.ebookId)
+        return PageImpl(ebookInquiries.toList(), command.pageable, count)
+    }
 
     suspend fun modify(command: ModifyEbookInquiryCommand): EbookInquiry =
         findById(command.inquiryId)

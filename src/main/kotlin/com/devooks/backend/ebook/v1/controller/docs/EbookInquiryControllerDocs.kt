@@ -1,11 +1,12 @@
 package com.devooks.backend.ebook.v1.controller.docs
 
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.exception.ErrorResponse
+import com.devooks.backend.ebook.v1.dto.EbookInquiryView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryRequest
 import com.devooks.backend.ebook.v1.dto.request.ModifyEbookInquiryRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.DeleteEbookInquiryResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiriesResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -67,12 +68,6 @@ interface EbookInquiryControllerDocs {
             ApiResponse(
                 responseCode = "200",
                 description = "OK",
-                content = [
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = GetEbookInquiriesResponse::class)
-                    )
-                ]
             ),
             ApiResponse(
                 responseCode = "400",
@@ -97,7 +92,7 @@ interface EbookInquiryControllerDocs {
         page: String,
         @Schema(description = "개수", required = true, nullable = false)
         count: String,
-    ): GetEbookInquiriesResponse
+    ): PageResponse<EbookInquiryView>
 
     @Operation(summary = "전자책 문의 수정")
     @ApiResponses(

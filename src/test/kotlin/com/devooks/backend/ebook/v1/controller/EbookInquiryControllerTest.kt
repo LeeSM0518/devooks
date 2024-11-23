@@ -6,9 +6,10 @@ import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
-import com.devooks.backend.ebook.v1.dto.EbookInquiryDto
+import com.devooks.backend.ebook.v1.dto.EbookInquiryView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryRequest
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
 import com.devooks.backend.ebook.v1.dto.request.ModifyEbookInquiryRequest
@@ -16,7 +17,6 @@ import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveMainImageRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiriesResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveDescriptionImagesResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveMainImageResponse
@@ -149,18 +149,21 @@ internal class EbookInquiryControllerTest @Autowired constructor(
     fun `전자책 문의를 조회할 수 있다`(): Unit = runBlocking {
         val createdEbookInquiry = postCreateEbookInquiry()
 
-        val foundEbookInquiry =
+        val pageEbookInquiry =
             webTestClient
                 .get()
                 .uri("/api/v1/ebook-inquiries?ebookId=${createdEbookInquiry.ebookId}&page=1&count=10")
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk
-                .expectBody<GetEbookInquiriesResponse>()
+                .expectBody<PageResponse<EbookInquiryView>>()
                 .returnResult()
                 .responseBody!!
-                .ebookInquiryList[0]
 
+        val foundEbookInquiry = pageEbookInquiry.data[0]
+
+        assertThat(pageEbookInquiry.pageable.totalPages).isEqualTo(1)
+        assertThat(pageEbookInquiry.pageable.totalElements).isEqualTo(1)
         assertThat(foundEbookInquiry.id).isEqualTo(createdEbookInquiry.id)
         assertThat(foundEbookInquiry.content).isEqualTo(createdEbookInquiry.content)
         assertThat(foundEbookInquiry.ebookId).isEqualTo(createdEbookInquiry.ebookId)
@@ -288,7 +291,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
             .expectStatus().isNotFound
     }
 
-    private suspend fun EbookInquiryControllerTest.postCreateEbookInquiry(): EbookInquiryDto {
+    private suspend fun EbookInquiryControllerTest.postCreateEbookInquiry(): EbookInquiryView {
         val (_, createEbookResponse) = postCreateEbook()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(

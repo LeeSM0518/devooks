@@ -2,8 +2,12 @@ package com.devooks.backend.ebook.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.controller.docs.EbookInquiryControllerDocs
 import com.devooks.backend.ebook.v1.domain.EbookInquiry
+import com.devooks.backend.ebook.v1.dto.EbookInquiryView
+import com.devooks.backend.ebook.v1.dto.EbookInquiryView.Companion.toEbookInquiryView
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookInquiryCommand
 import com.devooks.backend.ebook.v1.dto.command.DeleteEbookInquiryCommand
 import com.devooks.backend.ebook.v1.dto.command.GetEbookInquiresCommand
@@ -13,13 +17,12 @@ import com.devooks.backend.ebook.v1.dto.request.ModifyEbookInquiryRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryResponse.Companion.toCreateEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.DeleteEbookInquiryResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiriesResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiriesResponse.Companion.toGetEbookInquiriesResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryResponse.Companion.toModifyEbookInquiryResponse
 import com.devooks.backend.ebook.v1.service.EbookInquiryEventService
 import com.devooks.backend.ebook.v1.service.EbookInquiryService
 import com.devooks.backend.ebook.v1.service.EbookService
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -60,22 +63,22 @@ class EbookInquiryController(
 
     @GetMapping
     override suspend fun getEbookInquiries(
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam
         ebookId: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam
         page: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam
         count: String,
-    ): GetEbookInquiriesResponse {
+    ): PageResponse<EbookInquiryView> {
         val command = GetEbookInquiresCommand(ebookId, page, count)
-        val ebookInquiryList: List<EbookInquiry> = ebookInquiryService.get(command)
-        return ebookInquiryList.toGetEbookInquiriesResponse()
+        val ebookInquiryList: Page<EbookInquiry> = ebookInquiryService.get(command)
+        return ebookInquiryList.map { it.toEbookInquiryView() }.toResponse()
     }
 
     @Transactional
     @PatchMapping("/{inquiryId}")
     override suspend fun modifyEbookInquiry(
-        @PathVariable(name = "inquiryId", required = false)
+        @PathVariable
         inquiryId: String,
         @RequestBody
         request: ModifyEbookInquiryRequest,
@@ -91,7 +94,7 @@ class EbookInquiryController(
     @Transactional
     @DeleteMapping("/{inquiryId}")
     override suspend fun deleteEbookInquiry(
-        @PathVariable(name = "inquiryId", required = false)
+        @PathVariable
         inquiryId: String,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
