@@ -29,6 +29,22 @@ import org.springframework.stereotype.Repository
 @Repository
 class EbookQueryRepository : JooqR2dbcRepository() {
 
+    suspend fun count(command: GetEbookCommand): Flow<Long> =
+        query {
+            val relatedCategorySubQuery = getRelatedCategorySubQuery()
+
+            select(
+                DSL.count()
+            ).from(
+                EBOOK
+                    .leftJoin(relatedCategorySubQuery).on(
+                        EBOOK.EBOOK_ID.eq(relatedCategorySubQuery.field("ebook_id", UUID::class.java))
+                    )
+            ).where(
+                buildConditionsToGetEbooks(command)
+            )
+        }.map { it.into(Long::class.java) }
+
     suspend fun findBy(command: GetEbookCommand): Flow<EbookRow> =
         query {
             val reviewSubQuery = getReviewSubQuery()

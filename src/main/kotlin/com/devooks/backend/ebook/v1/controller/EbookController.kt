@@ -4,9 +4,13 @@ import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.domain.Category
 import com.devooks.backend.category.v1.service.CategoryService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.controller.docs.EbookControllerDocs
 import com.devooks.backend.ebook.v1.domain.Ebook
 import com.devooks.backend.ebook.v1.domain.EbookImage
+import com.devooks.backend.ebook.v1.dto.EbookView
+import com.devooks.backend.ebook.v1.dto.EbookView.Companion.toEbookView
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.DeleteEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.GetDetailOfEbookCommand
@@ -19,8 +23,6 @@ import com.devooks.backend.ebook.v1.dto.response.DeleteEbookResponse
 import com.devooks.backend.ebook.v1.dto.response.EbookResponse
 import com.devooks.backend.ebook.v1.dto.response.GetDetailOfEbookResponse
 import com.devooks.backend.ebook.v1.dto.response.GetDetailOfEbookResponse.Companion.toGetDetailOfEbookResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbooksResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbooksResponse.Companion.toGetEbooksResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookResponse
 import com.devooks.backend.ebook.v1.service.EbookImageService
 import com.devooks.backend.ebook.v1.service.EbookService
@@ -75,9 +77,9 @@ class EbookController(
 
     @GetMapping
     override suspend fun getEbooks(
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam(required = true)
         page: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam(required = true)
         count: String,
         @RequestParam(required = false, defaultValue = "")
         title: String,
@@ -91,7 +93,7 @@ class EbookController(
         orderBy: String,
         @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
         authorization: String,
-    ): GetEbooksResponse {
+    ): PageResponse<EbookView> {
         val requesterId = authorization
             .takeIf { it.isNotBlank() }
             ?.let { tokenService.getMemberId(Authorization(it)) }
@@ -105,7 +107,8 @@ class EbookController(
             page = page,
             count = count
         )
-        return ebookService.get(command).toGetEbooksResponse()
+        val ebooks = ebookService.get(command)
+        return ebooks.map { it.toEbookView() }.toResponse()
     }
 
     @GetMapping("/{ebookId}")

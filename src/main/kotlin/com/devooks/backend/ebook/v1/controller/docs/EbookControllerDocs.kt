@@ -1,12 +1,13 @@
 package com.devooks.backend.ebook.v1.controller.docs
 
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.exception.ErrorResponse
+import com.devooks.backend.ebook.v1.dto.EbookView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
 import com.devooks.backend.ebook.v1.dto.request.ModifyEbookRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookResponse
 import com.devooks.backend.ebook.v1.dto.response.DeleteEbookResponse
 import com.devooks.backend.ebook.v1.dto.response.GetDetailOfEbookResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbooksResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -24,13 +25,7 @@ interface EbookControllerDocs {
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK",
-                content = [
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = GetEbooksResponse::class)
-                    )
-                ]
+                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
@@ -64,7 +59,7 @@ interface EbookControllerDocs {
         orderBy: String,
         @Schema(description = "액세스 토큰", required = false, nullable = true)
         authorization: String,
-    ): GetEbooksResponse
+    ): PageResponse<EbookView>
 
     @Operation(summary = "전자책 상세 조회")
     @ApiResponses(
