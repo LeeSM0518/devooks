@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.Instant
 import java.util.*
 
-data class ReviewCommentDto(
+data class ReviewCommentView(
     @Schema(description = "리뷰 댓글 식별자")
     val id: UUID,
     @Schema(description = "내용")
@@ -20,8 +20,8 @@ data class ReviewCommentDto(
     val modifiedDate: Instant,
 ) {
     companion object {
-        fun ReviewComment.toDto(): ReviewCommentDto =
-            ReviewCommentDto(
+        fun ReviewComment.toReviewCommentView(): ReviewCommentView =
+            ReviewCommentView(
                 id = this.id,
                 content = this.content,
                 reviewId = this.reviewId,
