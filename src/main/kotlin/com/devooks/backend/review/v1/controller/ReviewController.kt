@@ -2,6 +2,8 @@ package com.devooks.backend.review.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.service.EbookService
 import com.devooks.backend.review.v1.controller.docs.ReviewControllerDocs
 import com.devooks.backend.review.v1.domain.Review
@@ -12,16 +14,17 @@ import com.devooks.backend.review.v1.dto.CreateReviewResponse.Companion.toCreate
 import com.devooks.backend.review.v1.dto.DeleteReviewCommand
 import com.devooks.backend.review.v1.dto.DeleteReviewResponse
 import com.devooks.backend.review.v1.dto.GetReviewsCommand
-import com.devooks.backend.review.v1.dto.GetReviewsResponse
-import com.devooks.backend.review.v1.dto.GetReviewsResponse.Companion.toGetReviewsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommand
 import com.devooks.backend.review.v1.dto.ModifyReviewRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse.Companion.toModifyReviewResponse
+import com.devooks.backend.review.v1.dto.ReviewView
+import com.devooks.backend.review.v1.dto.ReviewView.Companion.toReviewView
 import com.devooks.backend.review.v1.service.ReviewEventService
 import com.devooks.backend.review.v1.service.ReviewService
 import com.devooks.backend.transaciton.v1.service.TransactionService
 import java.util.*
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -43,7 +46,7 @@ class ReviewController(
     private val transactionService: TransactionService,
     private val ebookService: EbookService,
     private val reviewEventService: ReviewEventService,
-): ReviewControllerDocs {
+) : ReviewControllerDocs {
 
     @Transactional
     @PostMapping
@@ -70,10 +73,10 @@ class ReviewController(
         page: String,
         @RequestParam(required = true)
         count: String,
-    ): GetReviewsResponse {
+    ): PageResponse<ReviewView> {
         val command = GetReviewsCommand(ebookId, page, count)
-        val reviewList: List<Review> = reviewService.get(command)
-        return reviewList.toGetReviewsResponse()
+        val reviewList: Page<Review> = reviewService.get(command)
+        return reviewList.map { it.toReviewView() }.toResponse()
     }
 
     @Transactional

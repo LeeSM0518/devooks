@@ -1,12 +1,12 @@
 package com.devooks.backend.review.v1.dto
 
 import com.devooks.backend.review.v1.domain.Review
-import com.devooks.backend.review.v1.dto.ReviewDto.Companion.toDto
+import com.devooks.backend.review.v1.dto.ReviewView.Companion.toReviewView
 
 class ModifyReviewResponse(
-    val review: ReviewDto
+    val review: ReviewView
 ) {
     companion object {
-        fun Review.toModifyReviewResponse() = ModifyReviewResponse(this.toDto())
+        fun Review.toModifyReviewResponse() = ModifyReviewResponse(this.toReviewView())
     }
 }

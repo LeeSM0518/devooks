@@ -34,7 +34,7 @@ import com.devooks.backend.review.v1.dto.GetReviewCommentsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse
 import com.devooks.backend.review.v1.dto.ReviewCommentDto
-import com.devooks.backend.review.v1.dto.ReviewDto
+import com.devooks.backend.review.v1.dto.ReviewView
 import com.devooks.backend.review.v1.repository.ReviewCommentRepository
 import com.devooks.backend.review.v1.repository.ReviewRepository
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod
@@ -301,7 +301,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
         return Pair(reviewComment, response)
     }
 
-    private suspend fun postCreateReview(): ReviewDto {
+    private suspend fun postCreateReview(): ReviewView {
         val (createEbookResponse, accessToken) = postCreateEbookAndCreateTransaction()
 
         val createReviewRequest =
