@@ -6,9 +6,10 @@ import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
-import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentDto
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView
 import com.devooks.backend.ebook.v1.dto.EbookInquiryView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryCommentRequest
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryRequest
@@ -19,7 +20,6 @@ import com.devooks.backend.ebook.v1.dto.request.SaveMainImageRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiryCommentsResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveDescriptionImagesResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveMainImageResponse
@@ -156,17 +156,20 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
     fun `전자책 문의 댓글을 조회할 수 있다`(): Unit = runBlocking {
         val ebookInquiryComment = postCreateEbookInquiryComment()
 
-        val foundEbookInquiryComment = webTestClient
+        val pageEbookInquiryComment = webTestClient
             .get()
             .uri("/api/v1/ebook-inquiry-comments?inquiryId=${ebookInquiryComment.inquiryId}&page=1&count=10")
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbookInquiryCommentsResponse>()
+            .expectBody<PageResponse<EbookInquiryCommentView>>()
             .returnResult()
             .responseBody!!
-            .comments[0]
 
+        val foundEbookInquiryComment = pageEbookInquiryComment.data[0]
+
+        assertThat(pageEbookInquiryComment.pageable.totalPages).isEqualTo(1)
+        assertThat(pageEbookInquiryComment.pageable.totalPages).isEqualTo(1)
         assertThat(foundEbookInquiryComment.id).isEqualTo(ebookInquiryComment.id)
         assertThat(foundEbookInquiryComment.content).isEqualTo(ebookInquiryComment.content)
         assertThat(foundEbookInquiryComment.inquiryId).isEqualTo(ebookInquiryComment.inquiryId)
@@ -287,7 +290,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
             .expectStatus().isNotFound
     }
 
-    private suspend fun EbookInquiryCommentControllerTest.postCreateEbookInquiryComment(): EbookInquiryCommentDto {
+    private suspend fun EbookInquiryCommentControllerTest.postCreateEbookInquiryComment(): EbookInquiryCommentView {
         val (accessToken, ebookInquiry) = postCreateEbookInquiry()
 
         val createEbookInquiryCommentRequest = CreateEbookInquiryCommentRequest(

@@ -1,15 +1,15 @@
 package com.devooks.backend.ebook.v1.dto.response
 
 import com.devooks.backend.ebook.v1.domain.EbookInquiryComment
-import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentDto
-import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentDto.Companion.toDto
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView.Companion.toEbookInquiryCommentView
 
 data class ModifyEbookInquiryCommentResponse(
-    val comment: EbookInquiryCommentDto,
+    val comment: EbookInquiryCommentView,
 ) {
     companion object {
         fun EbookInquiryComment.toModifyEbookInquiryCommentResponse() =
-            ModifyEbookInquiryCommentResponse(toDto())
+            ModifyEbookInquiryCommentResponse(toEbookInquiryCommentView())
     }
 }
 

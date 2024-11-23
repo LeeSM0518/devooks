@@ -1,11 +1,12 @@
 package com.devooks.backend.ebook.v1.controller.docs
 
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.exception.ErrorResponse
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryCommentRequest
 import com.devooks.backend.ebook.v1.dto.request.ModifyEbookInquiryCommentRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.DeleteEbookInquiryCommentResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiryCommentsResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryCommentResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -68,12 +69,6 @@ interface EbookInquiryCommentControllerDocs {
             ApiResponse(
                 responseCode = "200",
                 description = "OK",
-                content = [
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = GetEbookInquiryCommentsResponse::class)
-                    )
-                ]
             ),
             ApiResponse(
                 responseCode = "400",
@@ -98,7 +93,7 @@ interface EbookInquiryCommentControllerDocs {
         page: String,
         @Schema(description = "개수", required = true, nullable = false)
         count: String,
-    ): GetEbookInquiryCommentsResponse
+    ): PageResponse<EbookInquiryCommentView>
 
     @Operation(summary = "전자책 문의 댓글 수정")
     @ApiResponses(
