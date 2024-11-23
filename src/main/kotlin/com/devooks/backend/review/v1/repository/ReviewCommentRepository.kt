@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository
 interface ReviewCommentRepository : CoroutineCrudRepository<ReviewCommentEntity, UUID> {
 
     suspend fun findAllByReviewId(reviewId: UUID, pageable: Pageable): Flow<ReviewCommentEntity>
+    suspend fun countByReviewId(reviewId: UUID): Long
 }

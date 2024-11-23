@@ -2,6 +2,8 @@ package com.devooks.backend.review.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.review.v1.controller.docs.ReviewCommentControllerDocs
 import com.devooks.backend.review.v1.domain.ReviewComment
 import com.devooks.backend.review.v1.dto.CreateReviewCommentCommand
@@ -11,15 +13,16 @@ import com.devooks.backend.review.v1.dto.CreateReviewCommentResponse.Companion.t
 import com.devooks.backend.review.v1.dto.DeleteReviewCommentCommand
 import com.devooks.backend.review.v1.dto.DeleteReviewCommentResponse
 import com.devooks.backend.review.v1.dto.GetReviewCommentsCommand
-import com.devooks.backend.review.v1.dto.GetReviewCommentsResponse
-import com.devooks.backend.review.v1.dto.GetReviewCommentsResponse.Companion.toGetReviewCommentsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentCommand
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse.Companion.toModifyReviewCommentResponse
+import com.devooks.backend.review.v1.dto.ReviewCommentView
+import com.devooks.backend.review.v1.dto.ReviewCommentView.Companion.toReviewCommentView
 import com.devooks.backend.review.v1.service.ReviewCommentEventService
 import com.devooks.backend.review.v1.service.ReviewCommentService
 import com.devooks.backend.review.v1.service.ReviewService
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -66,10 +69,10 @@ class ReviewCommentController(
         page: String,
         @RequestParam(required = true)
         count: String,
-    ): GetReviewCommentsResponse {
+    ): PageResponse<ReviewCommentView> {
         val command = GetReviewCommentsCommand(reviewId, page, count)
-        val reviewCommentList: List<ReviewComment> = reviewCommentService.get(command)
-        return reviewCommentList.toGetReviewCommentsResponse()
+        val reviewCommentList: Page<ReviewComment> = reviewCommentService.get(command)
+        return reviewCommentList.map { it.toReviewCommentView() }.toResponse()
     }
 
     @Transactional
