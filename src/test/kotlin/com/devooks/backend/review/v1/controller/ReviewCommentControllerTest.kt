@@ -6,6 +6,7 @@ import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
@@ -30,10 +31,9 @@ import com.devooks.backend.review.v1.dto.CreateReviewCommentRequest
 import com.devooks.backend.review.v1.dto.CreateReviewCommentResponse
 import com.devooks.backend.review.v1.dto.CreateReviewRequest
 import com.devooks.backend.review.v1.dto.CreateReviewResponse
-import com.devooks.backend.review.v1.dto.GetReviewCommentsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse
-import com.devooks.backend.review.v1.dto.ReviewCommentDto
+import com.devooks.backend.review.v1.dto.ReviewCommentView
 import com.devooks.backend.review.v1.dto.ReviewView
 import com.devooks.backend.review.v1.repository.ReviewCommentRepository
 import com.devooks.backend.review.v1.repository.ReviewRepository
@@ -269,7 +269,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
             .expectStatus().isNotFound
     }
 
-    private suspend fun postCreateReviewComment(): Pair<ReviewCommentDto, ReviewCommentDto> {
+    private suspend fun postCreateReviewComment(): Pair<ReviewCommentView, ReviewCommentView> {
         val review = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
         val createReviewCommentRequest = CreateReviewCommentRequest(review.id.toString(), review.content)
@@ -294,11 +294,13 @@ internal class ReviewCommentControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetReviewCommentsResponse>()
+            .expectBody<PageResponse<ReviewCommentView>>()
             .returnResult()
             .responseBody!!
-            .reviewComments[0]
-        return Pair(reviewComment, response)
+
+        assertThat(response.pageable.totalElements).isEqualTo(1)
+        assertThat(response.pageable.totalPages).isEqualTo(1)
+        return Pair(reviewComment, response.data[0])
     }
 
     private suspend fun postCreateReview(): ReviewView {
