@@ -2,8 +2,12 @@ package com.devooks.backend.ebook.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.controller.docs.EbookInquiryCommentControllerDocs
 import com.devooks.backend.ebook.v1.domain.EbookInquiryComment
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView.Companion.toEbookInquiryCommentView
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookInquiryCommentCommand
 import com.devooks.backend.ebook.v1.dto.command.DeleteEbookInquiryCommentCommand
 import com.devooks.backend.ebook.v1.dto.command.GetEbookInquireCommentsCommand
@@ -13,13 +17,12 @@ import com.devooks.backend.ebook.v1.dto.request.ModifyEbookInquiryCommentRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryCommentResponse.Companion.toCreateEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.DeleteEbookInquiryCommentResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiryCommentsResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiryCommentsResponse.Companion.toGetEbookInquiryCommentsResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryCommentResponse.Companion.toModifyEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.service.EbookInquiryCommentEventService
 import com.devooks.backend.ebook.v1.service.EbookInquiryCommentService
 import com.devooks.backend.ebook.v1.service.EbookInquiryService
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -40,7 +43,7 @@ class EbookInquiryCommentController(
     private val tokenService: TokenService,
     private val ebookInquiryCommentService: EbookInquiryCommentService,
     private val ebookInquiryCommentEventService: EbookInquiryCommentEventService,
-): EbookInquiryCommentControllerDocs {
+) : EbookInquiryCommentControllerDocs {
 
     @Transactional
     @PostMapping
@@ -66,10 +69,10 @@ class EbookInquiryCommentController(
         page: String,
         @RequestParam(required = true)
         count: String,
-    ): GetEbookInquiryCommentsResponse {
+    ): PageResponse<EbookInquiryCommentView> {
         val command = GetEbookInquireCommentsCommand(inquiryId, page, count)
-        val inquiryCommentList: List<EbookInquiryComment> = ebookInquiryCommentService.get(command)
-        return inquiryCommentList.toGetEbookInquiryCommentsResponse()
+        val inquiryCommentList: Page<EbookInquiryComment> = ebookInquiryCommentService.get(command)
+        return inquiryCommentList.map { it.toEbookInquiryCommentView() }.toResponse()
     }
 
     @Transactional

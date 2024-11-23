@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.Instant
 import java.util.*
 
-data class EbookInquiryCommentDto(
+data class EbookInquiryCommentView(
     @Schema(description = "전자책 문의 댓글 식별자")
     val id: UUID,
     @Schema(description = "내용")
@@ -20,8 +20,8 @@ data class EbookInquiryCommentDto(
     val modifiedDate: Instant,
 ) {
     companion object {
-        fun EbookInquiryComment.toDto() =
-            EbookInquiryCommentDto(
+        fun EbookInquiryComment.toEbookInquiryCommentView() =
+            EbookInquiryCommentView(
                 id = this.id,
                 content = this.content,
                 inquiryId = this.inquiryId,

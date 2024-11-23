@@ -10,8 +10,11 @@ import com.devooks.backend.ebook.v1.error.EbookError
 import com.devooks.backend.ebook.v1.repository.EbookInquiryCommentRepository
 import java.time.Instant
 import java.util.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.stereotype.Service
 
 @Service
@@ -27,11 +30,13 @@ class EbookInquiryCommentService(
         return ebookInquiryCommentRepository.save(entity).toDomain()
     }
 
-    suspend fun get(command: GetEbookInquireCommentsCommand): List<EbookInquiryComment> =
-        ebookInquiryCommentRepository
+    suspend fun get(command: GetEbookInquireCommentsCommand): Page<EbookInquiryComment> {
+        val ebookInquiryComments = ebookInquiryCommentRepository
             .findAllByInquiryId(command.inquiryId, command.pageable)
             .map { it.toDomain() }
-            .toList()
+        val count = ebookInquiryCommentRepository.countByInquiryId(command.inquiryId)
+        return PageImpl(ebookInquiryComments.toList(), command.pageable, count.first())
+    }
 
     suspend fun modify(command: ModifyEbookInquiryCommentCommand): EbookInquiryComment =
         findBy(command.commentId)
