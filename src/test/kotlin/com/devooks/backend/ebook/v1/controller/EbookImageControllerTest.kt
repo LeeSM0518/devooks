@@ -122,10 +122,11 @@ internal class EbookImageControllerTest @Autowired constructor(
         val imageBase64Raw = Base64.getEncoder().encodeToString(imageBytes)
 
         val request = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
                 imagePath.extension,
                 imagePath.fileSize(),
+                1
             )
         )
 

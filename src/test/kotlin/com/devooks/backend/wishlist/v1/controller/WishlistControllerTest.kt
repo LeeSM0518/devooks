@@ -364,12 +364,13 @@ internal class WishlistControllerTest @Autowired constructor(
         imageBase64Raw: String?,
         imagePath: Path,
         accessToken: AccessToken,
-    ): SaveMainImageResponse.MainImageDto {
+    ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
                 imagePath.extension,
                 imagePath.fileSize(),
+                1
             )
         )
 
