@@ -12,7 +12,7 @@ class Image(
 
     fun convertDecodedImage(): ByteArray =
         runCatching {
-            Base64.getMimeDecoder().decode(base64Raw)
+            Base64.getDecoder().decode(base64Raw)
         }.getOrElse {
             throw CommonError.FAIL_SAVE_IMAGE.exception
         }
