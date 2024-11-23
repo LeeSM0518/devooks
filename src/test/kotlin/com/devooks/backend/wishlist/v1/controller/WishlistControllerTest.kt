@@ -342,13 +342,11 @@ internal class WishlistControllerTest @Autowired constructor(
                     imageBase64Raw,
                     imagePath.extension,
                     imagePath.fileSize(),
-                    1
                 ),
                 ImageDto(
                     imageBase64Raw,
                     imagePath.extension,
                     imagePath.fileSize(),
-                    2
                 ),
             )
         )
@@ -379,7 +377,6 @@ internal class WishlistControllerTest @Autowired constructor(
                 imageBase64Raw,
                 imagePath.extension,
                 imagePath.fileSize(),
-                1
             )
         )
 

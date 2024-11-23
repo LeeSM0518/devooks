@@ -381,7 +381,6 @@ internal class MemberControllerTest @Autowired constructor(
                 "test",
                 "png",
                 4,
-                1
             )
         )
 

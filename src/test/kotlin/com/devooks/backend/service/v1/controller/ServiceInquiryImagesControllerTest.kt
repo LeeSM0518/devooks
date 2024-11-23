@@ -79,13 +79,11 @@ internal class ServiceInquiryImagesControllerTest @Autowired constructor(
                     imageBase64Raw,
                     imagePath.extension,
                     imagePath.fileSize(),
-                    1
                 ),
                 ImageDto(
                     imageBase64Raw,
                     imagePath.extension,
                     imagePath.fileSize(),
-                    2
                 ),
             )
         )
@@ -105,8 +103,7 @@ internal class ServiceInquiryImagesControllerTest @Autowired constructor(
             .imageList
 
         imageList.forEachIndexed { index, image ->
-            val expected = request.imageList!![index]
-            assertThat(image.order).isEqualTo(expected.order)
+            assertThat(image.order).isEqualTo(index)
             assertThat(File(image.imagePath).exists()).isTrue()
         }
     }

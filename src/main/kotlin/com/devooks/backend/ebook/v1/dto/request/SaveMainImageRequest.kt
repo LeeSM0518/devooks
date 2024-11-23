@@ -12,8 +12,12 @@ data class SaveMainImageRequest(
 
     fun toCommand(requesterId: UUID) =
         SaveImagesCommand(
-            imageList = listOf(image.validateImage()),
+            imageList = listOf(image.validateImage(MAIN_IMAGE_INDEX)),
             requesterId = requesterId,
             imageType = MAIN
         )
+
+    companion object {
+        private const val MAIN_IMAGE_INDEX = 0
+    }
 }

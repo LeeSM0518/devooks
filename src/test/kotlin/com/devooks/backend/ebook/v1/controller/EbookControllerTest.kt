@@ -1027,14 +1027,12 @@ internal class EbookControllerTest @Autowired constructor(
                 ImageDto(
                     imageBase64Raw,
                     imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    imagePath.fileSize()
                 ),
                 ImageDto(
                     imageBase64Raw,
                     imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    imagePath.fileSize()
                 ),
             )
         )
@@ -1064,8 +1062,7 @@ internal class EbookControllerTest @Autowired constructor(
             ImageDto(
                 base64Raw = imageBase64Raw,
                 extension = imagePath.extension,
-                byteSize = imagePath.fileSize(),
-                order = 1
+                byteSize = imagePath.fileSize()
             )
         )
 

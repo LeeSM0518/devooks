@@ -81,13 +81,11 @@ internal class EbookImageControllerTest @Autowired constructor(
                     imageBase64Raw,
                     imagePath.extension,
                     imagePath.fileSize(),
-                    1
                 ),
                 ImageDto(
                     imageBase64Raw,
                     imagePath.extension,
                     imagePath.fileSize(),
-                    2
                 ),
             )
         )
@@ -107,8 +105,7 @@ internal class EbookImageControllerTest @Autowired constructor(
             .descriptionImageList
 
         descriptionImageList.forEachIndexed { index, image ->
-            val expected = request.imageList!![index]
-            assertThat(image.order).isEqualTo(expected.order)
+            assertThat(image.order).isEqualTo(index)
             assertThat(File(image.imagePath).exists()).isTrue()
         }
     }
@@ -126,7 +123,6 @@ internal class EbookImageControllerTest @Autowired constructor(
                 imageBase64Raw,
                 imagePath.extension,
                 imagePath.fileSize(),
-                1
             )
         )
 
