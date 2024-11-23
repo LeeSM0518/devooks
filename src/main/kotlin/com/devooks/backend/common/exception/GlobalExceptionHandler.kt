@@ -23,6 +23,7 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.resource.NoResourceFoundException
 import org.springframework.web.server.MissingRequestValueException
 import org.springframework.web.server.ServerWebInputException
+import org.springframework.web.server.UnsupportedMediaTypeStatusException
 import reactor.core.publisher.Mono
 
 @Component
@@ -94,7 +95,16 @@ class GlobalErrorWebExceptionHandler(
                     .body(BodyInserters.fromValue(errorAttributes))
             }
 
+            is UnsupportedMediaTypeStatusException -> {
+                errorAttributes["reason"] = error.reason
+                ServerResponse
+                    .status(error.statusCode)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromValue(errorAttributes))
+            }
+
             else -> {
+                errorAttributes["reason"] = error.cause.toString()
                 ServerResponse
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .contentType(MediaType.APPLICATION_JSON)
