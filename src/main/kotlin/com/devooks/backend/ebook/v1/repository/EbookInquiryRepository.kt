@@ -8,4 +8,5 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface EbookInquiryRepository : CoroutineCrudRepository<EbookInquiryEntity, UUID> {
     suspend fun findAllByEbookId(ebookId: UUID, pageable: Pageable): Flow<EbookInquiryEntity>
+    suspend fun countByEbookId(ebookId: UUID): Long
 }

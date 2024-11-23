@@ -9,7 +9,7 @@ import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentDto
-import com.devooks.backend.ebook.v1.dto.EbookInquiryDto
+import com.devooks.backend.ebook.v1.dto.EbookInquiryView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryCommentRequest
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryRequest
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
@@ -311,7 +311,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         return ebookInquiryComment
     }
 
-    private suspend fun EbookInquiryCommentControllerTest.postCreateEbookInquiry(): Pair<AccessToken, EbookInquiryDto> {
+    private suspend fun EbookInquiryCommentControllerTest.postCreateEbookInquiry(): Pair<AccessToken, EbookInquiryView> {
         val (_, createEbookResponse) = postCreateEbook()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(

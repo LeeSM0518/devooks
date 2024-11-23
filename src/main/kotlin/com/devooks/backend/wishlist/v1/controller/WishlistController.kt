@@ -54,9 +54,9 @@ class WishlistController(
     override suspend fun getWishlist(
         @RequestParam(required = false, defaultValue = "")
         categoryIds: List<String>,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam
         page: String,
-        @RequestParam(required = false, defaultValue = "")
+        @RequestParam
         count: String,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
