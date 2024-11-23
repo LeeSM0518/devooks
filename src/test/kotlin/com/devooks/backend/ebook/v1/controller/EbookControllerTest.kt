@@ -156,7 +156,7 @@ internal class EbookControllerTest @Autowired constructor(
     fun `전자책을 조회할 수 있다`(): Unit = runBlocking {
         val (_, response) = postCreateEbook()
 
-        val ebookViewList = webTestClient
+        val ebookPage = webTestClient
             .get()
             .uri("/api/v1/ebooks?page=1&count=10")
             .accept(APPLICATION_JSON)
@@ -165,10 +165,13 @@ internal class EbookControllerTest @Autowired constructor(
             .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .data
 
+        val pageable = ebookPage.pageable
+        val ebookViewList = ebookPage.data
         val ebookView = ebookViewList[0]
 
+        assertThat(pageable.totalPages).isEqualTo(1)
+        assertThat(pageable.totalElements).isEqualTo(1)
         assertThat(ebookViewList.size).isEqualTo(1)
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
         assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
