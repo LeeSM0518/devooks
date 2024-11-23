@@ -316,13 +316,11 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
                     imageBase64Raw,
                     imagePath.extension,
                     imagePath.fileSize(),
-                    1
                 ),
                 ImageDto(
                     imageBase64Raw,
                     imagePath.extension,
                     imagePath.fileSize(),
-                    2
                 ),
             )
         )

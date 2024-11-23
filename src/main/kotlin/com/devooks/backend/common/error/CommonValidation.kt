@@ -14,14 +14,13 @@ fun String?.validateNotBlank(exception: GeneralException): String =
 fun <T : Any> List<T>?.validateNotEmpty(exception: GeneralException): List<T> =
     takeIf { !isNullOrEmpty() } ?: throw exception
 
-fun ImageDto?.validateImage(): Image =
-    this?.toDomain() ?: throw CommonError.REQUIRED_IMAGE.exception
+fun ImageDto?.validateImage(index: Int): Image =
+    this?.toDomain(index) ?: throw CommonError.REQUIRED_IMAGE.exception
 
 fun List<ImageDto>?.validateImages(): List<Image> =
-    takeIf { it.isNullOrEmpty().not() }?.map { it.toDomain() } ?: throw CommonError.REQUIRED_IMAGE.exception
-
-fun Int?.validateImageOrder(): Int =
-    takeIf { it != null && it >= 0 } ?: throw CommonError.INVALID_IMAGE_ORDER.exception
+    takeIf { it.isNullOrEmpty().not() }
+        ?.mapIndexed { index, dto -> dto.toDomain(index) }
+        ?: throw CommonError.REQUIRED_IMAGE.exception
 
 fun String?.validateUUID(exception: GeneralException): UUID =
     runCatching { UUID.fromString(this) }.getOrElse { throw exception }

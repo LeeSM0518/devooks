@@ -18,7 +18,6 @@ enum class CommonError(val exception: GeneralException) {
     ),
     INVALID_BYTE_SIZE(GeneralException("COMMON-400-5", BAD_REQUEST, "50MB 이하의 영상만 저장이 가능합니다.")),
     REQUIRED_IMAGE(GeneralException("COMMON-400-6", BAD_REQUEST, "사진이 반드시 필요합니다.")),
-    INVALID_IMAGE_ORDER(GeneralException("COMMON-400-7", BAD_REQUEST, "유효하지 않은 사진 순서입니다.")),
 
     // 500
     FAIL_SAVE_IMAGE(GeneralException("COMMON-500-1", INTERNAL_SERVER_ERROR, "사진 저장을 실패했습니다.")),
