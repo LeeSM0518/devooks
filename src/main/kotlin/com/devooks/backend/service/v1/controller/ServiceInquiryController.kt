@@ -2,17 +2,19 @@ package com.devooks.backend.service.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.service.v1.controller.docs.ServiceInquiryControllerDocs
 import com.devooks.backend.service.v1.domain.ServiceInquiry
 import com.devooks.backend.service.v1.domain.ServiceInquiryImage
+import com.devooks.backend.service.v1.dto.ServiceInquiryView
+import com.devooks.backend.service.v1.dto.ServiceInquiryView.Companion.toServiceInquiryView
 import com.devooks.backend.service.v1.dto.command.CreateServiceInquiryCommand
 import com.devooks.backend.service.v1.dto.command.GetServiceInquiriesCommand
 import com.devooks.backend.service.v1.dto.command.ModifyServiceInquiryCommand
 import com.devooks.backend.service.v1.dto.request.CreateServiceInquiryRequest
 import com.devooks.backend.service.v1.dto.request.ModifyServiceInquiryRequest
 import com.devooks.backend.service.v1.dto.response.CreateServiceInquiryResponse
-import com.devooks.backend.service.v1.dto.response.GetServiceInquiriesResponse
-import com.devooks.backend.service.v1.dto.response.GetServiceInquiriesResponse.Companion.toGetServiceInquiriesResponse
 import com.devooks.backend.service.v1.dto.response.ModifyServiceInquiryResponse
 import com.devooks.backend.service.v1.dto.response.ServiceInquiryResponse
 import com.devooks.backend.service.v1.service.ServiceInquiryImageService
@@ -36,7 +38,7 @@ class ServiceInquiryController(
     private val tokenService: TokenService,
     private val serviceInquiryService: ServiceInquiryService,
     private val serviceInquiryImageService: ServiceInquiryImageService,
-): ServiceInquiryControllerDocs {
+) : ServiceInquiryControllerDocs {
 
     @Transactional
     @PostMapping
@@ -62,10 +64,11 @@ class ServiceInquiryController(
         count: String,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
-    ): GetServiceInquiriesResponse {
+    ): PageResponse<ServiceInquiryView> {
         val requesterId = tokenService.getMemberId(Authorization(authorization))
         val command = GetServiceInquiriesCommand(page = page, count = count, requesterId = requesterId)
-        return serviceInquiryService.get(command).toGetServiceInquiriesResponse()
+        val pageServiceInquiry = serviceInquiryService.get(command)
+        return pageServiceInquiry.map { it.toServiceInquiryView() }.toResponse()
     }
 
     @Transactional
@@ -81,7 +84,8 @@ class ServiceInquiryController(
         val requesterId = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyServiceInquiryCommand = request.toCommand(serviceInquiryId, requesterId)
         val serviceInquiry: ServiceInquiry = serviceInquiryService.modify(command)
-        val serviceInquiryImageList: List<ServiceInquiryImage> = serviceInquiryImageService.modify(command, serviceInquiry)
+        val serviceInquiryImageList: List<ServiceInquiryImage> =
+            serviceInquiryImageService.modify(command, serviceInquiry)
         return ModifyServiceInquiryResponse(ServiceInquiryResponse(serviceInquiry, serviceInquiryImageList))
     }
 

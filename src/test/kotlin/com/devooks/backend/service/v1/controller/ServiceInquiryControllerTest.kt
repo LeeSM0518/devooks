@@ -5,6 +5,7 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.domain.Member.Companion.toDomain
@@ -12,11 +13,11 @@ import com.devooks.backend.member.v1.entity.MemberEntity
 import com.devooks.backend.member.v1.repository.MemberRepository
 import com.devooks.backend.service.v1.domain.InquiryProcessingStatus
 import com.devooks.backend.service.v1.dto.ServiceInquiryImageDto
+import com.devooks.backend.service.v1.dto.ServiceInquiryView
 import com.devooks.backend.service.v1.dto.request.CreateServiceInquiryRequest
 import com.devooks.backend.service.v1.dto.request.ModifyServiceInquiryRequest
 import com.devooks.backend.service.v1.dto.request.SaveServiceInquiryImagesRequest
 import com.devooks.backend.service.v1.dto.response.CreateServiceInquiryResponse
-import com.devooks.backend.service.v1.dto.response.GetServiceInquiriesResponse
 import com.devooks.backend.service.v1.dto.response.ModifyServiceInquiryResponse
 import com.devooks.backend.service.v1.dto.response.SaveServiceInquiryImagesResponse
 import com.devooks.backend.service.v1.repository.ServiceInquiryCrudRepository
@@ -155,26 +156,29 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             .responseBody!!
             .serviceInquiry
 
-        val serviceInquiryDto = webTestClient
+        val pageServiceInquiry = webTestClient
             .get()
             .uri("/api/v1/service-inquiries?page=1&count=10")
             .accept(APPLICATION_JSON)
             .header(AUTHORIZATION, "Bearer $accessToken")
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetServiceInquiriesResponse>()
+            .expectBody<PageResponse<ServiceInquiryView>>()
             .returnResult()
             .responseBody!!
-            .serviceInquiryList[0]
 
-        assertThat(serviceInquiryDto.id).isEqualTo(serviceInquiry.id)
-        assertThat(serviceInquiryDto.title).isEqualTo(serviceInquiry.title)
-        assertThat(serviceInquiryDto.imageList).containsAll(serviceInquiry.imageList)
-        assertThat(serviceInquiryDto.content).isEqualTo(serviceInquiry.content)
-        assertThat(serviceInquiryDto.inquiryProcessingStatus).isEqualTo(serviceInquiry.inquiryProcessingStatus)
-        assertThat(serviceInquiryDto.createdDate.toEpochMilli()).isEqualTo(serviceInquiry.createdDate.toEpochMilli())
-        assertThat(serviceInquiryDto.modifiedDate.toEpochMilli()).isEqualTo(serviceInquiry.modifiedDate.toEpochMilli())
-        assertThat(serviceInquiryDto.writerMemberId).isEqualTo(serviceInquiry.writerMemberId)
+        val serviceInquiryView = pageServiceInquiry.data[0]
+
+        assertThat(pageServiceInquiry.pageable.totalPages).isEqualTo(1)
+        assertThat(pageServiceInquiry.pageable.totalElements).isEqualTo(1)
+        assertThat(serviceInquiryView.id).isEqualTo(serviceInquiry.id)
+        assertThat(serviceInquiryView.title).isEqualTo(serviceInquiry.title)
+        assertThat(serviceInquiryView.imageList).containsAll(serviceInquiry.imageList)
+        assertThat(serviceInquiryView.content).isEqualTo(serviceInquiry.content)
+        assertThat(serviceInquiryView.inquiryProcessingStatus).isEqualTo(serviceInquiry.inquiryProcessingStatus)
+        assertThat(serviceInquiryView.createdDate.toEpochMilli()).isEqualTo(serviceInquiry.createdDate.toEpochMilli())
+        assertThat(serviceInquiryView.modifiedDate.toEpochMilli()).isEqualTo(serviceInquiry.modifiedDate.toEpochMilli())
+        assertThat(serviceInquiryView.writerMemberId).isEqualTo(serviceInquiry.writerMemberId)
     }
 
     @Test

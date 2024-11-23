@@ -1,11 +1,12 @@
 package com.devooks.backend.service.v1.controller.docs
 
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.exception.ErrorResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse
+import com.devooks.backend.service.v1.dto.ServiceInquiryView
 import com.devooks.backend.service.v1.dto.request.CreateServiceInquiryRequest
 import com.devooks.backend.service.v1.dto.request.ModifyServiceInquiryRequest
 import com.devooks.backend.service.v1.dto.response.CreateServiceInquiryResponse
-import com.devooks.backend.service.v1.dto.response.GetServiceInquiriesResponse
 import com.devooks.backend.service.v1.dto.response.ModifyServiceInquiryResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -67,12 +68,6 @@ interface ServiceInquiryControllerDocs {
             ApiResponse(
                 responseCode = "200",
                 description = "OK",
-                content = [
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = GetServiceInquiriesResponse::class)
-                    )
-                ]
             ),
             ApiResponse(
                 responseCode = "400",
@@ -95,7 +90,7 @@ interface ServiceInquiryControllerDocs {
         count: String,
         @Schema(description = "액세스 토큰", required = true, nullable = false)
         authentication: String,
-    ): GetServiceInquiriesResponse
+    ): PageResponse<ServiceInquiryView>
 
     @Operation(summary = "서비스 문의 수정")
     @ApiResponses(

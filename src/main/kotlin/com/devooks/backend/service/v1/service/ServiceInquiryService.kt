@@ -11,7 +11,10 @@ import com.devooks.backend.service.v1.repository.ServiceInquiryCrudRepository
 import com.devooks.backend.service.v1.repository.ServiceInquiryQueryRepository
 import com.devooks.backend.service.v1.repository.row.ServiceInquiryRow
 import java.util.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.stereotype.Service
 
 @Service
@@ -30,8 +33,11 @@ class ServiceInquiryService(
         return serviceInquiryEntity.toDomain()
     }
 
-    suspend fun get(command: GetServiceInquiriesCommand): List<ServiceInquiryRow> =
-        serviceInquiryQueryRepository.findBy(command).toList()
+    suspend fun get(command: GetServiceInquiriesCommand): Page<ServiceInquiryRow> {
+        val serviceInquiries = serviceInquiryQueryRepository.findBy(command)
+        val count = serviceInquiryQueryRepository.countBy(command)
+        return PageImpl(serviceInquiries.toList(), command.pageable, count.first())
+    }
 
     suspend fun modify(command: ModifyServiceInquiryCommand): ServiceInquiry {
         val serviceInquiry = findBy(command.serviceInquiryId)
