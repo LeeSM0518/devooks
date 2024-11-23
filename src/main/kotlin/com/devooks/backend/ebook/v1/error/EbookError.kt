@@ -24,7 +24,6 @@ enum class EbookError(val exception: GeneralException) {
     INVALID_EBOOK_INQUIRY_COMMENT_ID(GeneralException("EBOOK-400-15", BAD_REQUEST, "잘못된 형식의 댓글 식별자입니다.")),
     INVALID_EBOOK_ID(GeneralException("EBOOK-400-16", BAD_REQUEST, "잘못된 형식의 전자책 식별자입니다.")),
     REQUIRED_EBOOK_FOR_MODIFY(GeneralException("EBOOK-400-17", BAD_REQUEST, "전자책이 반드시 필요합니다.")),
-    REQUIRED_MAIN_IMAGE(GeneralException("EBOOK-400-18", BAD_REQUEST, "메인 사진이 반드시 필요합니다.")),
     REQUIRED_MAIN_IMAGE_ID(GeneralException("EBOOK-400-19", BAD_REQUEST, "메인 사진 식별자가 반드시 필요합니다.")),
     INVALID_MAIN_IMAGE_ID(GeneralException("EBOOK-400-20", BAD_REQUEST, "잘못된 형식의 메인 사진 식별자입니다.")),
     REQUIRED_DESCRIPTION_IMAGE_ID(GeneralException("EBOOK-400-21", BAD_REQUEST, "설명 사진 식별자가 반드시 필요합니다.")),

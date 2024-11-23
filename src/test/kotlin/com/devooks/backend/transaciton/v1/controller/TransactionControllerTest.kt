@@ -410,10 +410,11 @@ internal class TransactionControllerTest @Autowired constructor(
         accessToken: AccessToken,
     ): SaveMainImageResponse.MainImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
                 imagePath.extension,
                 imagePath.fileSize(),
+                1
             )
         )
 

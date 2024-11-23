@@ -1061,10 +1061,11 @@ internal class EbookControllerTest @Autowired constructor(
         accessToken: AccessToken,
     ): SaveMainImageResponse.MainImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
-                imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+            ImageDto(
+                base64Raw = imageBase64Raw,
+                extension = imagePath.extension,
+                byteSize = imagePath.fileSize(),
+                order = 1
             )
         )
 
