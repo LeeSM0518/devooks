@@ -6,18 +6,19 @@ import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.domain.EbookImageType.DESCRIPTION
 import com.devooks.backend.ebook.v1.domain.EbookImageType.MAIN
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.EbookImageDto.Companion.toDto
+import com.devooks.backend.ebook.v1.dto.EbookView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
 import com.devooks.backend.ebook.v1.dto.request.ModifyEbookRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveMainImageRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookResponse
 import com.devooks.backend.ebook.v1.dto.response.GetDetailOfEbookResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbooksResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveDescriptionImagesResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveMainImageResponse
@@ -161,10 +162,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         val ebookView = ebookViewList[0]
 
@@ -190,10 +191,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         assertThat(ebookList.isEmpty()).isTrue()
     }
@@ -233,10 +234,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         assertThat(ebookList.isEmpty()).isTrue()
     }
@@ -265,10 +266,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
@@ -295,10 +296,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
@@ -325,10 +326,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
@@ -357,10 +358,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
@@ -387,10 +388,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
@@ -426,10 +427,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList
+            .data
 
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
@@ -475,10 +476,10 @@ internal class EbookControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList[0]
+            .data[0]
 
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
         assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
@@ -515,10 +516,10 @@ internal class EbookControllerTest @Autowired constructor(
             .header(AUTHORIZATION, "Bearer $accessToken")
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbooksResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .ebookList[0]
+            .data[0]
 
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
         assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()

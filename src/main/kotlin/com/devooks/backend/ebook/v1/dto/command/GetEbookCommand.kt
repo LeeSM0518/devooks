@@ -43,4 +43,5 @@ class GetEbookCommand(
     val limit: Int
         get() = paging.limit
 
+    val pageable = paging.value
 }
