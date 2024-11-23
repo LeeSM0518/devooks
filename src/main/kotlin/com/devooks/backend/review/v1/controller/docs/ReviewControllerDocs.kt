@@ -1,5 +1,6 @@
 package com.devooks.backend.review.v1.controller.docs
 
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.exception.ErrorResponse
 import com.devooks.backend.review.v1.dto.CreateReviewRequest
 import com.devooks.backend.review.v1.dto.CreateReviewResponse
@@ -7,6 +8,7 @@ import com.devooks.backend.review.v1.dto.DeleteReviewResponse
 import com.devooks.backend.review.v1.dto.GetReviewsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse
+import com.devooks.backend.review.v1.dto.ReviewView
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -89,12 +91,6 @@ interface ReviewControllerDocs {
             ApiResponse(
                 responseCode = "200",
                 description = "OK",
-                content = [
-                    Content(
-                        mediaType = APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = GetReviewsResponse::class)
-                    )
-                ]
             ),
             ApiResponse(
                 responseCode = "400",
@@ -119,7 +115,7 @@ interface ReviewControllerDocs {
         page: String,
         @Schema(description = "개수", required = true, nullable = false)
         count: String,
-    ): GetReviewsResponse
+    ): PageResponse<ReviewView>
 
     @Operation(summary = "리뷰 수정")
     @ApiResponses(

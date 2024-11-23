@@ -12,7 +12,10 @@ import com.devooks.backend.review.v1.repository.ReviewQueryRepository
 import com.devooks.backend.review.v1.repository.ReviewRepository
 import java.time.Instant
 import java.util.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.stereotype.Service
 
 @Service
@@ -31,8 +34,11 @@ class ReviewService(
         return reviewRepository.save(entity).toDomain()
     }
 
-    suspend fun get(command: GetReviewsCommand): List<Review> =
-        reviewQueryRepository.findBy(command).toList()
+    suspend fun get(command: GetReviewsCommand): Page<Review> {
+        val reviews = reviewQueryRepository.findBy(command)
+        val count = reviewQueryRepository.countBy(command)
+        return PageImpl(reviews.toList(), command.pageable, count.first())
+    }
 
     suspend fun modify(command: ModifyReviewCommand): Review =
         findById(command.reviewId)

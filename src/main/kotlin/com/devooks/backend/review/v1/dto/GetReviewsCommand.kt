@@ -22,4 +22,6 @@ class GetReviewsCommand(
 
     val limit: Int
         get() = paging.limit
+
+    val pageable = paging.value
 }

@@ -6,6 +6,7 @@ import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
@@ -28,10 +29,9 @@ import com.devooks.backend.pdf.v1.repository.PdfRepository
 import com.devooks.backend.pdf.v1.repository.PreviewImageRepository
 import com.devooks.backend.review.v1.dto.CreateReviewRequest
 import com.devooks.backend.review.v1.dto.CreateReviewResponse
-import com.devooks.backend.review.v1.dto.GetReviewsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse
-import com.devooks.backend.review.v1.dto.ReviewDto
+import com.devooks.backend.review.v1.dto.ReviewView
 import com.devooks.backend.review.v1.repository.ReviewRepository
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionRequest
@@ -162,11 +162,13 @@ internal class ReviewControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetReviewsResponse>()
+            .expectBody<PageResponse<ReviewView>>()
             .returnResult()
             .responseBody!!
 
-        val review = getReviewsResponse.reviews[0]
+        val review = getReviewsResponse.data[0]
+        assertThat(getReviewsResponse.pageable.totalPages).isEqualTo(1)
+        assertThat(getReviewsResponse.pageable.totalElements).isEqualTo(1)
         assertThat(review.id).isEqualTo(createReviewResponse.id)
         assertThat(review.ebookId).isEqualTo(createReviewResponse.ebookId)
         assertThat(review.content).isEqualTo(createReviewResponse.content)
@@ -387,7 +389,7 @@ internal class ReviewControllerTest @Autowired constructor(
             .expectStatus().isEqualTo(CONFLICT.code())
     }
 
-    private suspend fun postCreateReview(): ReviewDto {
+    private suspend fun postCreateReview(): ReviewView {
         val (createEbookResponse, accessToken) = postCreateEbookAndCreateTransaction()
 
         val createReviewRequest =
