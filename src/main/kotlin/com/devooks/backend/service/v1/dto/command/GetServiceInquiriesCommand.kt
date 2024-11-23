@@ -21,4 +21,6 @@ class GetServiceInquiriesCommand(
 
     val limit: Int
         get() = paging.limit
+
+    val pageable = paging.value
 }

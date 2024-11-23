@@ -3,8 +3,8 @@ package com.devooks.backend.service.v1.repository
 import com.devooks.backend.common.config.database.JooqR2dbcRepository
 import com.devooks.backend.jooq.tables.references.SERVICE_INQUIRY
 import com.devooks.backend.jooq.tables.references.SERVICE_INQUIRY_IMAGE
-import com.devooks.backend.service.v1.repository.row.ServiceInquiryRow
 import com.devooks.backend.service.v1.dto.command.GetServiceInquiriesCommand
+import com.devooks.backend.service.v1.repository.row.ServiceInquiryRow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.jooq.impl.DSL
@@ -53,5 +53,18 @@ class ServiceInquiryQueryRepository : JooqR2dbcRepository() {
         }.map {
             it.into(ServiceInquiryRow::class.java)
         }
+
+    suspend fun countBy(command: GetServiceInquiriesCommand): Flow<Long> =
+        query {
+            val inquiry = SERVICE_INQUIRY
+
+            select(
+                DSL.count()
+            ).from(
+                inquiry
+            ).where(
+                inquiry.WRITER_MEMBER_ID.eq(command.requesterId)
+            )
+        }.map { it.into(Long::class.java) }
 
 }
