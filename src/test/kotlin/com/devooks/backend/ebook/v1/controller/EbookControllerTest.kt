@@ -1059,7 +1059,7 @@ internal class EbookControllerTest @Autowired constructor(
         imageBase64Raw: String?,
         imagePath: Path,
         accessToken: AccessToken,
-    ): SaveMainImageResponse.MainImageDto {
+    ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
             ImageDto(
                 base64Raw = imageBase64Raw,
