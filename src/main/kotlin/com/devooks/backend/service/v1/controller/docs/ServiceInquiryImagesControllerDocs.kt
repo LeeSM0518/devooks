@@ -29,7 +29,7 @@ interface ServiceInquiryImagesControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "- COMMON-400-6: 사진이 반드시 필요합니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -52,7 +52,7 @@ interface ServiceInquiryImagesControllerDocs {
     suspend fun saveServiceInquiryImages(
         request: SaveServiceInquiryImagesRequest,
         @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
-        authentication: String
+        authorization: String
     ): SaveServiceInquiryImagesResponse
 
 }

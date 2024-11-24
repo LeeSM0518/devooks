@@ -81,7 +81,7 @@ class EbookInquiryCommentController(
     @Transactional
     @PatchMapping("/{commentId}")
     override suspend fun modifyEbookInquiryComment(
-        @PathVariable(name = "commentId", required = true)
+        @PathVariable(name = "commentId")
         commentId: UUID,
         @Valid
         @RequestBody
@@ -98,7 +98,7 @@ class EbookInquiryCommentController(
     @Transactional
     @DeleteMapping("/{commentId}")
     override suspend fun deleteEbookInquiryComment(
-        @PathVariable(name = "commentId", required = true)
+        @PathVariable(name = "commentId")
         commentId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,

@@ -1,7 +1,6 @@
 package com.devooks.backend.review.v1.error
 
 import com.devooks.backend.common.exception.GeneralException
-import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND

@@ -87,7 +87,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList.map { it.id.toString() }
+            imageIdList = imageList.map { it.id }
         )
 
         val serviceInquiry = webTestClient
@@ -119,7 +119,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList.map { it.id.toString() }
+            imageIdList = imageList.map { it.id }
         )
 
         webTestClient
@@ -140,7 +140,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList.map { it.id.toString() }
+            imageIdList = imageList.map { it.id }
         )
 
         val serviceInquiry = webTestClient
@@ -189,7 +189,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList1.map { it.id.toString() }
+            imageIdList = imageList1.map { it.id }
         )
 
         val createdServiceInquiry = webTestClient
@@ -208,11 +208,9 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
 
         val (_, imageList2) = postSaveServiceInquiryImages()
         val modifyServiceInquiryRequest = ModifyServiceInquiryRequest(
-            serviceInquiry = ModifyServiceInquiryRequest.ServiceInquiry(
-                title = "title2",
-                content = "content2",
-                imageIdList = listOf(imageList1.map { it.id.toString() }.first(), imageList2.first().id.toString())
-            )
+            title = "title2",
+            content = "content2",
+            imageIdList = listOf(imageList1.map { it.id }.first(), imageList2.first().id)
         )
 
         val updatedServiceInquiry = webTestClient
@@ -230,9 +228,9 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             .serviceInquiry
 
         assertThat(updatedServiceInquiry.id).isEqualTo(createdServiceInquiry.id)
-        assertThat(updatedServiceInquiry.title).isEqualTo(modifyServiceInquiryRequest.serviceInquiry!!.title)
-        assertThat(updatedServiceInquiry.content).isEqualTo(modifyServiceInquiryRequest.serviceInquiry!!.content)
-        assertThat(updatedServiceInquiry.imageList.map { it.id.toString() }).containsAll(modifyServiceInquiryRequest.serviceInquiry!!.imageIdList)
+        assertThat(updatedServiceInquiry.title).isEqualTo(modifyServiceInquiryRequest.title)
+        assertThat(updatedServiceInquiry.content).isEqualTo(modifyServiceInquiryRequest.content)
+        assertThat(updatedServiceInquiry.imageList.map { it.id }).containsAll(modifyServiceInquiryRequest.imageIdList)
         assertThat(updatedServiceInquiry.writerMemberId).isEqualTo(createdServiceInquiry.writerMemberId)
         assertThat(updatedServiceInquiry.inquiryProcessingStatus).isEqualTo(createdServiceInquiry.inquiryProcessingStatus)
     }
@@ -245,7 +243,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList1.map { it.id.toString() }
+            imageIdList = imageList1.map { it.id }
         )
 
         val createdServiceInquiry = webTestClient
@@ -264,11 +262,9 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
 
         val (_, imageList2) = postSaveServiceInquiryImages()
         val modifyServiceInquiryRequest = ModifyServiceInquiryRequest(
-            serviceInquiry = ModifyServiceInquiryRequest.ServiceInquiry(
-                title = "title2",
-                content = "content2",
-                imageIdList = listOf(imageList1.map { it.id.toString() }.first(), imageList2.first().id.toString())
-            )
+            title = "title2",
+            content = "content2",
+            imageIdList = listOf(imageList1.map { it.id }.first(), imageList2.first().id)
         )
 
         webTestClient
@@ -287,10 +283,9 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val (accessToken, _) = postSaveServiceInquiryImages()
 
         val modifyServiceInquiryRequest = ModifyServiceInquiryRequest(
-            serviceInquiry = ModifyServiceInquiryRequest.ServiceInquiry(
-                title = "title2",
-                content = "content2",
-            )
+            title = "title2",
+            content = "content2",
+            imageIdList = null
         )
 
         webTestClient
