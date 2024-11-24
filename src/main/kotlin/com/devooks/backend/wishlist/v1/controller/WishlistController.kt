@@ -16,6 +16,7 @@ import com.devooks.backend.wishlist.v1.dto.GetWishlistCommand
 import com.devooks.backend.wishlist.v1.dto.WishlistView
 import com.devooks.backend.wishlist.v1.dto.WishlistView.Companion.toWishlistView
 import com.devooks.backend.wishlist.v1.service.WishlistService
+import jakarta.validation.Valid
 import java.util.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -40,6 +41,7 @@ class WishlistController(
     @Transactional
     @PostMapping
     override suspend fun createWishlist(
+        @Valid
         @RequestBody
         request: CreateWishlistRequest,
         @RequestHeader(AUTHORIZATION)
@@ -54,8 +56,8 @@ class WishlistController(
 
     @GetMapping
     override suspend fun getWishlist(
-        @RequestParam(required = false, defaultValue = "")
-        categoryIds: List<String>,
+        @RequestParam(required = false)
+        categoryIdList: List<UUID>?,
         @RequestParam
         page: Int,
         @RequestParam
@@ -64,7 +66,7 @@ class WishlistController(
         authorization: String,
     ): PageResponse<WishlistView> {
         val memberId = tokenService.getMemberId(Authorization(authorization))
-        val command = GetWishlistCommand(memberId, categoryIds, page, count)
+        val command = GetWishlistCommand(memberId, categoryIdList, page, count)
         val wishlists = wishlistService.get(command)
         return wishlists.map { it.toWishlistView() }.toResponse()
     }
@@ -72,8 +74,8 @@ class WishlistController(
     @Transactional
     @DeleteMapping("/{wishlistId}")
     override suspend fun deleteWishlist(
-        @PathVariable
-        wishlistId: String,
+        @PathVariable("wishlistId")
+        wishlistId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteWishlistResponse {

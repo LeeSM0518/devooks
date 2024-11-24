@@ -107,7 +107,7 @@ internal class TransactionControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
             ebookId = createEbookResponse.ebook.id,
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -136,7 +136,7 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 때 전자책이 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
         val createTransactionRequest = CreateTransactionRequest(
             ebookId = UUID.randomUUID(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = 1000
         )
 
@@ -159,7 +159,7 @@ internal class TransactionControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
             ebookId = createEbookResponse.ebook.id,
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = 1000
         )
 
@@ -182,7 +182,7 @@ internal class TransactionControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
             ebookId = createEbookResponse.ebook.id,
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -205,7 +205,7 @@ internal class TransactionControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
             ebookId = createEbookResponse.ebook.id,
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -308,7 +308,7 @@ internal class TransactionControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
             ebookId = createEbookResponse.ebook.id,
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 

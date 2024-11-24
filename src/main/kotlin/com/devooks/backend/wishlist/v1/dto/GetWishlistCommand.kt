@@ -1,22 +1,21 @@
 package com.devooks.backend.wishlist.v1.dto
 
 import com.devooks.backend.common.dto.Paging
-import com.devooks.backend.wishlist.v1.error.validateCategoryIds
 import java.util.*
 
 class GetWishlistCommand(
     val memberId: UUID,
-    val categoryIds: List<UUID>?,
+    val categoryIdList: List<UUID>?,
     private val paging: Paging,
 ) {
     constructor(
         memberId: UUID,
-        categoryIds: List<String>,
+        categoryIdList: List<UUID>?,
         page: Int,
         count: Int,
     ) : this(
         memberId = memberId,
-        categoryIds = categoryIds.takeIf { it.isNotEmpty() }?.validateCategoryIds(),
+        categoryIdList = categoryIdList,
         paging = Paging(page, count)
     )
 

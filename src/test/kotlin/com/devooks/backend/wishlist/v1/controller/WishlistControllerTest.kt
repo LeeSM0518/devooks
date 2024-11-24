@@ -265,7 +265,7 @@ internal class WishlistControllerTest @Autowired constructor(
 
         webTestClient
             .delete()
-            .uri("/api/v1/wishlist/ ")
+            .uri("/api/v1/wishlist/asd")
             .accept(APPLICATION_JSON)
             .header(AUTHORIZATION, "Bearer $accessToken")
             .exchange()

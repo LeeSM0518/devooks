@@ -33,9 +33,7 @@ interface WishlistControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- EBOOK-400-23 : 전자책 식별자가 반드시 필요합니다.\n" +
-                        "- EBOOK-400-16 : 잘못된 형식의 전자책 식별자입니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -81,9 +79,7 @@ interface WishlistControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- COMMON-400-1 : 페이지는 1부터 조회할 수 있습니다.\n" +
-                        "- COMMON-400-2 : 개수는 1~1000 까지 조회할 수 있습니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -94,8 +90,8 @@ interface WishlistControllerDocs {
         ]
     )
     suspend fun getWishlist(
-        @Schema(description = "카테고리 식별자 목록", required = false)
-        categoryIds: List<String>,
+        @Schema(description = "카테고리 식별자 목록", type = "array", format = "uuid", required = false)
+        categoryIdList: List<UUID>?,
         @Schema(description = "페이지", implementation = Int::class, required = true)
         page: Int,
         @Schema(description = "개수", implementation = Int::class, required = true)
@@ -119,8 +115,7 @@ interface WishlistControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- WISHLIST-400-2 : 잘못된 형식의 찜 식별자 입니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -154,7 +149,7 @@ interface WishlistControllerDocs {
     )
     suspend fun deleteWishlist(
         @Schema(description = "찜 식별자", required = true, implementation = UUID::class)
-        wishlistId: String,
+        wishlistId: UUID,
         @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): DeleteWishlistResponse

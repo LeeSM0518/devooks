@@ -397,7 +397,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
             ebookId = createEbookResponse.ebook.id,
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 

@@ -27,6 +27,7 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.resource.NoResourceFoundException
 import org.springframework.web.server.MethodNotAllowedException
 import org.springframework.web.server.MissingRequestValueException
+import org.springframework.web.server.ServerErrorException
 import org.springframework.web.server.ServerWebInputException
 import org.springframework.web.server.UnsupportedMediaTypeStatusException
 import reactor.core.publisher.Mono
@@ -158,6 +159,19 @@ class GlobalErrorWebExceptionHandler(
                             .toErrorResponse(
                                 error = HttpStatus.valueOf(error.statusCode.value()).name,
                                 message = error.reason
+                            )
+                    )
+            }
+
+            is ServerErrorException -> {
+                ServerResponse
+                    .status(error.statusCode)
+                    .contentType(APPLICATION_JSON)
+                    .bodyValue(
+                        errorAttributes
+                            .toErrorResponse(
+                                error = HttpStatus.valueOf(error.statusCode.value()).name,
+                                message = error.stackTraceToString()
                             )
                     )
             }
