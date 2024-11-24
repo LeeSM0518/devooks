@@ -67,7 +67,7 @@ interface WishlistControllerDocs {
     )
     suspend fun createWishlist(
         request: CreateWishlistRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): CreateWishlistResponse
 
@@ -95,11 +95,11 @@ interface WishlistControllerDocs {
     suspend fun getWishlist(
         @Schema(description = "카테고리 식별자 목록", required = false)
         categoryIds: List<String>,
-        @Schema(description = "페이지", required = true, nullable = false)
+        @Schema(description = "페이지", required = true)
         page: String,
-        @Schema(description = "개수", required = true, nullable = false)
+        @Schema(description = "개수", required = true)
         count: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): PageResponse<WishlistView>
 
@@ -152,9 +152,9 @@ interface WishlistControllerDocs {
         ]
     )
     suspend fun deleteWishlist(
-        @Schema(description = "찜 식별자", required = true, nullable = false)
+        @Schema(description = "찜 식별자", required = true)
         wishlistId: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): DeleteWishlistResponse
 }

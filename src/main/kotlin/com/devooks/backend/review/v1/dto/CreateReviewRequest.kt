@@ -7,11 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
 data class CreateReviewRequest(
-    @Schema(description = "전자책 식별자", required = true, nullable = false)
+    @Schema(description = "전자책 식별자", required = true)
     val ebookId: String?,
-    @Schema(description = "평점 (0~5점)", required = true, nullable = false)
+    @Schema(description = "평점 (0~5점)", required = true)
     val rating: String?,
-    @Schema(description = "내용", required = true, nullable = false)
+    @Schema(description = "내용", required = true)
     val content: String?
 ) {
     fun toCommand(requesterId: UUID): CreateReviewCommand =

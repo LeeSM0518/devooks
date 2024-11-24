@@ -1,24 +1,27 @@
 package com.devooks.backend.member.v1.dto
 
-import com.devooks.backend.member.v1.error.validateAccountNumber
-import com.devooks.backend.member.v1.error.validateBank
-import com.devooks.backend.member.v1.error.validateRealName
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 
 data class ModifyAccountInfoRequest(
-    @Schema(description = "수취인 이름", required = true, nullable = false)
+    @field:Size(min = 1, max = 10)
+    @Schema(description = "수취인 이름", nullable = true)
     val realName: String?,
-    @Schema(description = "은행 이름", required = true, nullable = false)
+    @field:Size(min = 1, max = 10)
+    @Schema(description = "은행 이름", nullable = true)
     val bank: String?,
-    @Schema(description = "계좌 번호", required = true, nullable = false)
+    @field:Size(min = 1, max = 20)
+    @field:Pattern(regexp = "[0-9]+")
+    @Schema(description = "계좌 번호", nullable = true)
     val accountNumber: String?,
 ) {
 
     fun toCommand(): ModifyAccountInfoCommand =
         ModifyAccountInfoCommand(
-            realName = realName.validateRealName(),
-            bank = bank.validateBank(),
-            accountNumber = accountNumber.validateAccountNumber()
+            realName = realName,
+            bank = bank,
+            accountNumber = accountNumber
         )
 
 }

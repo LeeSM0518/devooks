@@ -5,6 +5,7 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
@@ -339,14 +340,14 @@ internal class TransactionControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -367,7 +368,7 @@ internal class TransactionControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -375,13 +376,13 @@ internal class TransactionControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -403,15 +404,15 @@ internal class TransactionControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
             ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

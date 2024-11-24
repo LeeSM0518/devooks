@@ -8,11 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
 data class CreateServiceInquiryRequest(
-    @Schema(description = "제목", required = true, nullable = false)
+    @Schema(description = "제목", required = true)
     val title: String?,
-    @Schema(description = "내용", required = true, nullable = false)
+    @Schema(description = "내용", required = true)
     val content: String?,
-    @Schema(description = "사진 식별자 목록", required = true, nullable = false)
+    @Schema(description = "사진 식별자 목록", required = true)
     val imageIdList: List<String>?,
 ) {
     fun toCommand(requesterId: UUID): CreateServiceInquiryCommand =

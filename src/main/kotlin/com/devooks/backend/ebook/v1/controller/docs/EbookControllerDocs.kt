@@ -43,9 +43,9 @@ interface EbookControllerDocs {
         ]
     )
     suspend fun getEbooks(
-        @Schema(description = "페이지", required = true, nullable = false)
+        @Schema(description = "페이지", required = true)
         page: String,
-        @Schema(description = "개수", required = true, nullable = false)
+        @Schema(description = "개수", required = true)
         count: String,
         @Schema(description = "검색할 전자책 제목", required = false, nullable = true)
         title: String,
@@ -100,7 +100,7 @@ interface EbookControllerDocs {
         ]
     )
     suspend fun getDetailOfEbook(
-        @Schema(description = "전자책 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 식별자", required = true)
         ebookId: String,
         @Schema(description = "액세스 토큰", required = false, nullable = true)
         authorization: String,
@@ -169,7 +169,7 @@ interface EbookControllerDocs {
     )
     suspend fun createEbook(
         request: CreateEbookRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): CreateEbookResponse
 
@@ -234,10 +234,10 @@ interface EbookControllerDocs {
         ]
     )
     suspend fun modifyEbook(
-        @Schema(description = "전자책 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 식별자", required = true)
         ebookId: String,
         request: ModifyEbookRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): ModifyEbookResponse
 
@@ -291,9 +291,9 @@ interface EbookControllerDocs {
         ]
     )
     suspend fun deleteEbook(
-        @Schema(description = "전자책 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 식별자", required = true)
         ebookId: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): DeleteEbookResponse
 }

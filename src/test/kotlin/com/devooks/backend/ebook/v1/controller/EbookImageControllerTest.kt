@@ -3,6 +3,7 @@ package com.devooks.backend.ebook.v1.controller
 import com.devooks.backend.BackendApplication.Companion.STATIC_ROOT_PATH
 import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
@@ -79,13 +80,13 @@ internal class EbookImageControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -121,8 +122,8 @@ internal class EbookImageControllerTest @Autowired constructor(
         val request = SaveMainImageRequest(
             ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

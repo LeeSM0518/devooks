@@ -5,6 +5,7 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
@@ -134,7 +135,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(response.ebook.introduction).isEqualTo(request.introduction)
         assertThat(response.ebook.price).isEqualTo(request.price)
         assertThat(response.ebook.tableOfContents).isEqualTo(request.tableOfContents)
-        assertThat(response.ebook.relatedCategoryIdList[0].toString()).isEqualTo(request.relatedCategoryIdList!![0])
+        assertThat(response.ebook.relatedCategoryIdList[0]).isEqualTo(request.relatedCategoryIdList[0])
 
         val mainImage = response.ebook.mainImage
         assertThat(mainImage.id).isEqualTo(ebookEntity.mainImageId)
@@ -990,14 +991,14 @@ internal class EbookControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -1018,7 +1019,7 @@ internal class EbookControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -1026,13 +1027,13 @@ internal class EbookControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize()
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt()
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize()
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt()
                 ),
             )
         )
@@ -1054,15 +1055,15 @@ internal class EbookControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
             ImageDto(
                 base64Raw = imageBase64Raw,
-                extension = imagePath.extension,
-                byteSize = imagePath.fileSize()
+                extension = ImageExtension.valueOf(imagePath.extension.uppercase()),
+                byteSize = imagePath.fileSize().toInt()
             )
         )
 
@@ -1090,13 +1091,13 @@ internal class EbookControllerTest @Autowired constructor(
         val imageBytes = Files.readAllBytes(imagePath)
         val imageBase64Raw = Base64.getEncoder().encodeToString(imageBytes)
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val createEbookRequest = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
+            mainImageId = mainImage.id,
             descriptionImageIdList = listOf(),
             10000,
             "introduction",

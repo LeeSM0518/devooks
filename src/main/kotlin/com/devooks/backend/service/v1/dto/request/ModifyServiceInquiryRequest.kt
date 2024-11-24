@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
 data class ModifyServiceInquiryRequest(
-    @Schema(description = "서비스 문의", required = true, nullable = false)
+    @Schema(description = "서비스 문의", required = true)
     val serviceInquiry: ServiceInquiry?,
 ) {
 

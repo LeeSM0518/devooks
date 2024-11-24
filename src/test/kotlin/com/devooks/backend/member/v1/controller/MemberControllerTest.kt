@@ -12,12 +12,11 @@ import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.domain.Category.Companion.toDomain
 import com.devooks.backend.category.v1.dto.CategoryDto.Companion.toDto
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
-import com.devooks.backend.common.error.CommonError
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.fixture.ErrorResponse
-import com.devooks.backend.fixture.ErrorResponse.Companion.patchForBadRequest
-import com.devooks.backend.fixture.ErrorResponse.Companion.postForBadRequest
+import com.devooks.backend.fixture.ErrorResponse.Companion.isBadRequest
 import com.devooks.backend.member.v1.domain.Member.Companion.toDomain
 import com.devooks.backend.member.v1.dto.GetProfileResponse
 import com.devooks.backend.member.v1.dto.ModifyAccountInfoRequest
@@ -92,10 +91,10 @@ internal class MemberControllerTest @Autowired constructor(
     @Test
     fun `회원가입 할 수 있다`(): Unit = runBlocking {
         // given
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
         val request = SignUpRequest(
             oauthId = "oauthId",
-            oauthType = OauthType.NAVER.name,
+            oauthType = OauthType.NAVER,
             nickname = "nickname",
             favoriteCategoryIdList = listOf(categoryId)
         )
@@ -109,7 +108,7 @@ internal class MemberControllerTest @Autowired constructor(
         assertThat(response.member.profileImagePath).isEqualTo("")
 
         val category = categoryRepository.findAll().firstOrNull()!!
-        assertThat(category.id.toString()).isEqualTo(request.favoriteCategoryIdList!!.first())
+        assertThat(category.id).isEqualTo(request.favoriteCategoryIdList!!.first())
 
         val favoriteCategory = favoriteCategoryRepository.findAll().firstOrNull()!!
         assertThat(favoriteCategory.categoryId).isEqualTo(category.id)
@@ -122,126 +121,105 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `oauthId가 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "oauthType" : "NAVER",
-                  "nickname" : "nickname",
-                  "favoriteCategories" : [ "category" ]
-                }
-            """.trimIndent()
-        val response = webTestClient.postForBadRequest("/api/v1/members/signup", request)
-
-        response.isEqualTo(AuthError.REQUIRED_OAUTH_ID.exception)
+        val request = mapOf(
+            "oauthType" to "NAVER",
+            "nickname" to "nickname",
+            "favoriteCategories" to UUID.randomUUID()
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
     }
 
     @Test
     fun `oauthId가 빈문자열인 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "oauthId": "",
-                  "oauthType" : "NAVER",
-                  "nickname" : "nickname",
-                  "favoriteCategories" : [ "category" ]
-                }
-            """.trimIndent()
-        val response = webTestClient.postForBadRequest("/api/v1/members/signup", request)
-
-        response.isEqualTo(AuthError.REQUIRED_OAUTH_ID.exception)
+        val request = mapOf(
+            "oauthId" to "",
+            "oauthType" to "NAVER",
+            "nickname" to "nickname",
+            "favoriteCategories" to UUID.randomUUID()
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
     }
 
     @Test
     fun `oauthType이 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "oauthId" : "oauthId",
-                  "nickname" : "nickname",
-                  "favoriteCategories" : [ "category" ]
-                }
-            """.trimIndent()
-        val response = webTestClient.postForBadRequest("/api/v1/members/signup", request)
-
-        response.isEqualTo(AuthError.INVALID_OAUTH_TYPE.exception)
+        val request = mapOf(
+            "oauthId" to "123",
+            "nickname" to "nickname",
+            "favoriteCategories" to UUID.randomUUID()
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
     }
 
     @Test
     fun `oauthType이 잘못된 형식일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "oauthId" : "oauthId",
-                  "oauthType" : " ",
-                  "nickname" : "nickname",
-                  "favoriteCategories" : [ "category" ]
-                }
-            """.trimIndent()
-        val response = webTestClient.postForBadRequest("/api/v1/members/signup", request)
-
-        response.isEqualTo(AuthError.INVALID_OAUTH_TYPE.exception)
+        val request = mapOf(
+            "oauthId" to "123",
+            "oauthType" to "test",
+            "nickname" to "nickname",
+            "favoriteCategories" to UUID.randomUUID()
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
     }
 
     @Test
     fun `nickname 이 null 일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "oauthId" : "oauthId",
-                  "oauthType" : "NAVER",
-                  "favoriteCategories" : [ "category" ]
-                }
-            """.trimIndent()
-        val response = webTestClient.postForBadRequest("/api/v1/members/signup", request)
-
-        response.isEqualTo(MemberError.REQUIRED_NICKNAME.exception)
+        val request = mapOf(
+            "oauthId" to "123",
+            "oauthType" to "NAVER",
+            "favoriteCategories" to UUID.randomUUID()
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
     }
 
     @Test
     fun `nickname 이 2자 미만일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "oauthId" : "oauthId",
-                  "oauthType" : "NAVER",
-                  "nickname" : "n",
-                  "favoriteCategories" : [ "category" ]
-                }
-            """.trimIndent()
-        val response = webTestClient.postForBadRequest("/api/v1/members/signup", request)
-
-        response.isEqualTo(MemberError.INVALID_NICKNAME.exception)
+        val request = mapOf(
+            "oauthId" to "123",
+            "oauthType" to "NAVER",
+            "nickname" to "1",
+            "favoriteCategories" to UUID.randomUUID()
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
     }
 
     @Test
     fun `nickname 이 12자 초과일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "oauthId" : "oauthId",
-                  "oauthType" : "NAVER",
-                  "nickname" : "1111111111111",
-                  "favoriteCategories" : [ "category" ]
-                }
-            """.trimIndent()
-        val response = webTestClient.postForBadRequest("/api/v1/members/signup", request)
-
-        response.isEqualTo(MemberError.INVALID_NICKNAME.exception)
+        val request = mapOf(
+            "oauthId" to "123",
+            "oauthType" to "NAVER",
+            "nickname" to "1111111111111",
+            "favoriteCategories" to UUID.randomUUID()
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
     }
 
     @Test
     fun `favoriteCategories 가 null 일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "oauthId" : "oauthId",
-                  "oauthType" : "NAVER",
-                  "nickname" : "nickname"
-                }
-            """.trimIndent()
-        val response = webTestClient.postForBadRequest("/api/v1/members/signup", request)
+        val request = mapOf(
+            "oauthId" to "123",
+            "oauthType" to "NAVER",
+            "nickname" to "nickname",
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
+    }
 
-        response.isEqualTo(MemberError.REQUIRED_FAVORITE_CATEGORIES.exception)
+    @Test
+    fun `favoriteCategories 가 UUID가 아닐 경우 예외가 발생한다`(): Unit = runBlocking {
+        val request = mapOf(
+            "oauthId" to "123",
+            "oauthType" to "NAVER",
+            "nickname" to "nickname",
+            "favoriteCategories" to "test"
+        )
+        webTestClient.post().isBadRequest("/api/v1/members/signup", request)
     }
 
     @Test
     fun `닉네임이 이미 존재할 경우 회원가입 실패`(): Unit = runBlocking {
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
         val request = SignUpRequest(
             oauthId = "oauthId",
-            oauthType = "NAVER",
+            oauthType = OauthType.NAVER,
             nickname = "nickname",
             favoriteCategoryIdList = listOf(categoryId)
         )
@@ -264,10 +242,10 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `정지당한 회원일 경우 회원가입 실패`(): Unit = runBlocking {
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
         val request = SignUpRequest(
             oauthId = "oauthId",
-            oauthType = "NAVER",
+            oauthType = OauthType.NAVER,
             nickname = "nickname",
             favoriteCategoryIdList = listOf(categoryId)
         )
@@ -292,10 +270,10 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `탈퇴한 회원일 경우 회원가입 실패`(): Unit = runBlocking {
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
         val request = SignUpRequest(
             oauthId = "oauthId",
-            oauthType = "NAVER",
+            oauthType = OauthType.NAVER,
             nickname = "nickname",
             favoriteCategoryIdList = listOf(categoryId)
         )
@@ -320,10 +298,10 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `이미 존재하는 회원일 경우 회원가입 실패`(): Unit = runBlocking {
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
         val request = SignUpRequest(
             oauthId = "oauthId",
-            oauthType = "NAVER",
+            oauthType = OauthType.NAVER,
             nickname = "nickname",
             favoriteCategoryIdList = listOf(categoryId)
         )
@@ -348,7 +326,7 @@ internal class MemberControllerTest @Autowired constructor(
     fun `계좌정보를 수정할 수 있다`(): Unit = runBlocking {
         val (signUpResponse, tokenGroup) = signUp()
         val modifyAccountInfoRequest = ModifyAccountInfoRequest(
-            realName = "이상민",
+            realName = "1",
             bank = "농협",
             accountNumber = "12312341234",
         )
@@ -374,12 +352,52 @@ internal class MemberControllerTest @Autowired constructor(
     }
 
     @Test
+    fun `계좌정보에서 이름만 수정할 수 있다`(): Unit = runBlocking {
+        val (signUpResponse, tokenGroup) = signUp()
+        val modifyAccountInfoRequest = ModifyAccountInfoRequest(
+            realName = "1111111111",
+            bank = null,
+            accountNumber = null,
+        )
+
+        val response = webTestClient
+            .patch()
+            .uri("/api/v1/members/account")
+            .header(AUTHORIZATION, "Bearer ${tokenGroup.accessToken}")
+            .contentType(APPLICATION_JSON)
+            .accept(APPLICATION_JSON)
+            .bodyValue(modifyAccountInfoRequest)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<ModifyAccountInfoResponse>()
+            .returnResult()
+            .responseBody!!
+
+        val memberInfo = memberInfoRepository.findByMemberId(signUpResponse.member.id)!!
+
+        assertThat(response.realName).isEqualTo(memberInfo.realName)
+        assertThat(response.bank).isNotNull()
+        assertThat(response.accountNumber).isNotNull()
+    }
+
+    @Test
+    fun `계좌번호에 특수문자가 입력될 경우 예외가 발생한다`(): Unit = runBlocking {
+        val request = mapOf(
+            "realName" to "123",
+            "bank" to "bank",
+            "accountNumber" to "1234-1234-1234"
+        )
+
+        webTestClient.patch().isBadRequest("/api/v1/members/account", request)
+    }
+
+    @Test
     fun `프로필 사진을 수정할 수 있다`(): Unit = runBlocking {
         val (signUpResponse, tokenGroup) = signUp()
         val modifyProfileImageRequest = ModifyProfileImageRequest(
             image = ImageDto(
                 "test",
-                "png",
+                ImageExtension.PNG,
                 4,
             )
         )
@@ -408,7 +426,7 @@ internal class MemberControllerTest @Autowired constructor(
     @Test
     fun `프로필을 수정할 수 있다`(): Unit = runBlocking {
         val (_, tokenGroup) = signUp()
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
         val modifyProfileRequest =
             ModifyProfileRequest(
                 nickname = "newNickname",
@@ -422,6 +440,78 @@ internal class MemberControllerTest @Autowired constructor(
             )
 
         postModifyProfile(tokenGroup, modifyProfileRequest)
+    }
+
+    @Test
+    fun `이메일만 수정할 수 있다`(): Unit = runBlocking {
+        val (_, tokenGroup) = signUp()
+        val modifyProfileRequest =
+            ModifyProfileRequest(
+                nickname = null,
+                phoneNumber = null,
+                blogLink = null,
+                instagramLink = null,
+                youtubeLink = null,
+                introduction = null,
+                favoriteCategoryIdList = null,
+                email = "asd@naver.com"
+            )
+
+        val response = webTestClient
+            .patch()
+            .uri("/api/v1/members/profile")
+            .header(AUTHORIZATION, "Bearer ${tokenGroup.accessToken}")
+            .contentType(APPLICATION_JSON)
+            .accept(APPLICATION_JSON)
+            .bodyValue(modifyProfileRequest)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<ModifyProfileResponse>()
+            .returnResult()
+            .responseBody!!
+
+        val memberInfo = response.profile
+
+        assertThat(memberInfo.email).isEqualTo(modifyProfileRequest.email)
+    }
+
+    @Test
+    fun `전화번호 수정시 전화번호가 잘못되어 있을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val (_, tokenGroup) = signUp()
+        val request = mapOf(
+            "phoneNumber" to "q-1234-1234"
+        )
+        webTestClient.patch().isBadRequest("/api/v1/members/profile", request, tokenGroup.accessToken)
+    }
+
+    @Test
+    fun `닉네임 수정시 12 글자를 넘을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val (_, tokenGroup) = signUp()
+        val request = mapOf("nickname" to "".plus("a").repeat(13))
+        webTestClient.patch().isBadRequest("/api/v1/members/profile", request, tokenGroup.accessToken)
+    }
+
+    @Test
+    fun `링크 수정시 255 글자를 넘을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val (_, tokenGroup) = signUp()
+        val request = mapOf("blogLink" to "".plus("a").repeat(256))
+        webTestClient.patch().isBadRequest("/api/v1/members/profile", request, tokenGroup.accessToken)
+    }
+
+    @Test
+    fun `이메일 수정시 이메일이 잘못되어 있을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val (_, tokenGroup) = signUp()
+        val request = mapOf(
+            "email" to "test@asd"
+        )
+        webTestClient.patch().isBadRequest("/api/v1/members/profile", request, tokenGroup.accessToken)
+    }
+
+    @Test
+    fun `소개글 수정시 5000 글자가 넘을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val (_, tokenGroup) = signUp()
+        val request = mapOf("introduction" to "".plus("a").repeat(5001))
+        webTestClient.patch().isBadRequest("/api/v1/members/profile", request, tokenGroup.accessToken)
     }
 
     @Test
@@ -454,6 +544,16 @@ internal class MemberControllerTest @Autowired constructor(
         assertThat(response.profile.accountNumber).isNull()
         assertThat(response.profile.phoneNumber).isNull()
         assertThat(response.profile.email).isNull()
+    }
+
+    @Test
+    fun `프로필 조회시 회원 식별자가 유효하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
+        webTestClient
+            .get()
+            .uri("/api/v1/members/test/profile")
+            .accept(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isBadRequest
     }
 
     @Test
@@ -520,180 +620,127 @@ internal class MemberControllerTest @Autowired constructor(
     }
 
     @Test
-    fun `image 가 null 일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                }
-            """.trimIndent()
+    fun `회원 탈퇴시 탈퇴 사유가 비어 있을 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/image", request, tokenGroup.accessToken)
+        val request = mapOf(
+            "withdrawalReason" to ""
+        )
+        webTestClient.patch().isBadRequest("/api/v1/members/withdrawal", request, tokenGroup.accessToken)
+    }
 
-        response.isEqualTo(CommonError.REQUIRED_IMAGE.exception)
+    @Test
+    fun `회원 탈퇴시 탈퇴 사유가 255 글자를 넘을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val (_, tokenGroup) = signUp()
+        val request = mapOf(
+            "withdrawalReason" to "".plus("a").repeat(256)
+        )
+        webTestClient.patch().isBadRequest("/api/v1/members/withdrawal", request, tokenGroup.accessToken)
+    }
+
+    @Test
+    fun `image 가 null 일 경우 예외가 발생한다`(): Unit = runBlocking {
+        val request = mapOf<String, Any>()
+        val (_, tokenGroup) = signUp()
+        webTestClient.patch().isBadRequest("/api/v1/members/image", request, tokenGroup.accessToken)
     }
 
     @Test
     fun `base64Raw 가 비어있을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "image" : {
-                    "base64Raw" : "",
-                    "extension" : "PNG",
-                    "byteSize" : 4
-                  }
-                }
-            """.trimIndent()
+        val request = mapOf(
+            "image" to mapOf(
+                "base64Raw" to "",
+                "extension" to "PNG",
+                "byteSize" to 4
+            )
+        )
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/image", request, tokenGroup.accessToken)
-
-        response.isEqualTo(CommonError.REQUIRED_BASE64RAW.exception)
+        webTestClient.patch().isBadRequest("/api/v1/members/image", request, tokenGroup.accessToken)
     }
 
     @Test
     fun `extension 이 JPG, PNG, JPEG 이 아닐 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "image" : {
-                    "base64Raw" : "test",
-                    "extension" : "JJP",
-                    "byteSize" : 4
-                  }
-                }
-            """.trimIndent()
+        val request = mapOf(
+            "image" to mapOf(
+                "base64Raw" to "asdf",
+                "extension" to "asd",
+                "byteSize" to 4
+            )
+        )
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/image", request, tokenGroup.accessToken)
-
-        response.isEqualTo(CommonError.INVALID_IMAGE_EXTENSION.exception)
+        webTestClient.patch().isBadRequest("/api/v1/members/image", request, tokenGroup.accessToken)
     }
 
     @Test
     fun `byteSize 가 50MB가 넘을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "image" : {
-                    "base64Raw" : "test",
-                    "extension" : "PNG",
-                    "byteSize" : 51000000
-                  }
-                }
-            """.trimIndent()
+        val request = mapOf(
+            "image" to mapOf(
+                "base64Raw" to "1234",
+                "extension" to "PNG",
+                "byteSize" to 51_000_000
+            )
+        )
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/image", request, tokenGroup.accessToken)
-
-        response.isEqualTo(CommonError.INVALID_BYTE_SIZE.exception)
+        webTestClient.patch().isBadRequest("/api/v1/members/image", request, tokenGroup.accessToken)
     }
 
     @Test
     fun `realName 이 null 일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "bank" : "bank",
-                  "accountNumber" : "accountNumber"
-                }
-            """.trimIndent()
+        val request = mapOf(
+            "bank" to "bank",
+            "accountNumber" to "accountNumber"
+        )
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
-
-        response.isEqualTo(MemberError.REQUIRED_REAL_NAME.exception)
+        webTestClient.patch().isBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
     }
 
     @Test
     fun `realName 이 비어있을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "realName" : "",
-                  "bank" : "bank",
-                  "accountNumber" : "accountNumber"
-                }
-            """.trimIndent()
+        val request = mapOf(
+            "realName" to "",
+            "bank" to "bank",
+            "accountNumber" to "accountNumber"
+        )
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
-
-        response.isEqualTo(MemberError.REQUIRED_REAL_NAME.exception)
+        webTestClient.patch().isBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
     }
 
     @Test
     fun `bank 가 null 일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "realName" : "realName",
-                  "accountNumber" : "accountNumber"
-                }
-            """.trimIndent()
+        val request = mapOf(
+            "realName" to "realName",
+            "accountNumber" to "accountNumber"
+        )
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
-
-        response.isEqualTo(MemberError.REQUIRED_BANK.exception)
+        webTestClient.patch().isBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
     }
 
     @Test
     fun `bank 가 비어있을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "bank" : "",
-                  "realName" : "realName",
-                  "accountNumber" : "accountNumber"
-                }
-            """.trimIndent()
+        val request = mapOf(
+            "realName" to "realName",
+            "bank" to "",
+            "accountNumber" to "accountNumber"
+        )
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
-
-        response.isEqualTo(MemberError.REQUIRED_BANK.exception)
-    }
-
-    @Test
-    fun `accountNumber 가 null 일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "bank" : "bank",
-                  "realName" : "realName"
-                }
-            """.trimIndent()
-        val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
-
-        response.isEqualTo(MemberError.REQUIRED_ACCOUNT_NUMBER.exception)
+        webTestClient.patch().isBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
     }
 
     @Test
     fun `accountNumber 가 비어있을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-                {
-                  "bank" : "bank",
-                  "realName" : "realName",
-                  "accountNumber" : ""
-                }
-            """.trimIndent()
+        val request = mapOf(
+            "realName" to "realName",
+            "bank" to "bank",
+            "accountNumber" to ""
+        )
         val (_, tokenGroup) = signUp()
-        val response =
-            webTestClient
-                .patchForBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
-
-        response.isEqualTo(MemberError.REQUIRED_ACCOUNT_NUMBER.exception)
+        webTestClient.patch().isBadRequest("/api/v1/members/account", request, tokenGroup.accessToken)
     }
 
     private suspend fun signUp(): Pair<SignUpResponse, TokenGroup> {
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
         val signUpRequest = SignUpRequest(
             oauthId = "oauthId",
-            oauthType = "NAVER",
+            oauthType = OauthType.NAVER,
             nickname = "nickname",
             favoriteCategoryIdList = listOf(categoryId)
         )

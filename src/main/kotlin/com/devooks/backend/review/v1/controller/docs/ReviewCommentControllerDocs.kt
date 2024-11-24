@@ -58,7 +58,7 @@ interface ReviewCommentControllerDocs {
     )
     suspend fun createReviewComment(
         request: CreateReviewCommentRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): CreateReviewCommentResponse
 
@@ -86,11 +86,11 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun getReviewComments(
-        @Schema(description = "리뷰 식별자", required = true, nullable = false)
+        @Schema(description = "리뷰 식별자", required = true)
         reviewId: String,
-        @Schema(description = "페이지", required = true, nullable = false)
+        @Schema(description = "페이지", required = true)
         page: String,
-        @Schema(description = "개수", required = true, nullable = false)
+        @Schema(description = "개수", required = true)
         count: String,
     ): PageResponse<ReviewCommentView>
 
@@ -142,10 +142,10 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun modifyReviewComment(
-        @Schema(description = "리뷰 댓글 식별자", required = true, nullable = false)
+        @Schema(description = "리뷰 댓글 식별자", required = true)
         commentId: String,
         request: ModifyReviewCommentRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): ModifyReviewCommentResponse
 
@@ -196,9 +196,9 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun deleteReviewComment(
-        @Schema(description = "리뷰 댓글 식별자", required = true, nullable = false)
+        @Schema(description = "리뷰 댓글 식별자", required = true)
         commentId: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): DeleteReviewCommentResponse
 }

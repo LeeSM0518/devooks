@@ -18,7 +18,7 @@ import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.fixture.ErrorResponse
-import com.devooks.backend.fixture.ErrorResponse.Companion.postForBadRequest
+import com.devooks.backend.fixture.ErrorResponse.Companion.isBadRequest
 import com.devooks.backend.member.v1.domain.Member.Companion.toDomain
 import com.devooks.backend.member.v1.dto.SignUpRequest
 import com.devooks.backend.member.v1.dto.SignUpResponse
@@ -66,9 +66,9 @@ internal class AuthControllerTest @Autowired constructor(
         val categoryEntity = categoryRepository.findAll().toList()[0]
         signUpRequest = SignUpRequest(
             oauthId = "oauthId",
-            oauthType = OauthType.NAVER.name,
+            oauthType = OauthType.NAVER,
             nickname = "nickname",
-            favoriteCategoryIdList = listOf(categoryEntity.id!!.toString())
+            favoriteCategoryIdList = listOf(categoryEntity.id!!)
         )
         val responseMember = webTestClient
             .post()
@@ -297,81 +297,50 @@ internal class AuthControllerTest @Autowired constructor(
 
     @Test
     fun `authorizationCode가 존재하지 않을 경우 로그인시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "oauthType" : "NAVER"
-            }
-        """.trimIndent()
+        val request = mapOf("oauthType" to "NAVER")
 
-        val response = webTestClient.postForBadRequest("/api/v1/auth/login", request)
-
-        response.isEqualTo(AuthError.REQUIRED_AUTHORIZATION_CODE.exception)
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
     }
 
     @Test
     fun `authorizationCode가 비어있을 경우 로그인시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "authorizationCode" : "",
-              "oauthType" : "NAVER"
-            }
-        """.trimIndent()
+        val request = mapOf(
+            "authorizationCode" to "",
+            "oauthType" to "NAVER"
+        )
 
-        val response = webTestClient.postForBadRequest("/api/v1/auth/login", request)
-
-        response.isEqualTo(AuthError.REQUIRED_AUTHORIZATION_CODE.exception)
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
     }
 
     @Test
     fun `oauthType이 존재하지 않을 경우 로그인시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "authorizationCode": "code"
-            }
-        """.trimIndent()
-
-        val response = webTestClient.postForBadRequest("/api/v1/auth/login", request)
-
-        response.isEqualTo(AuthError.INVALID_OAUTH_TYPE.exception)
+        val request = mapOf(
+            "authorizationCode" to "code",
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
     }
 
     @Test
     fun `oauthType이 값이 NAVER, GOOGLE, KAKAO가 아닐 경우 로그인시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "authorizationCode": "code",
-              "oauthType": "NAVERR"
-            }
-        """.trimIndent()
-
-        val response = webTestClient.postForBadRequest("/api/v1/auth/login", request)
-
-        response.isEqualTo(AuthError.INVALID_OAUTH_TYPE.exception)
+        val request = mapOf(
+            "authorizationCode" to "code",
+            "oauthType" to "NAVERR"
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
     }
 
     @Test
     fun `refreshToken이 존재하지 않을 경우 로그아웃시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-            }
-        """.trimIndent()
-
-        val response = webTestClient.postForBadRequest("/api/v1/auth/logout", request)
-
-        response.isEqualTo(AuthError.REQUIRED_TOKEN.exception)
+        val request = mapOf<String, Any>()
+        webTestClient.post().isBadRequest("/api/v1/auth/logout", request)
     }
 
     @Test
     fun `refreshToken이 비어있을 경우 로그아웃시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "refreshToken" : ""
-            }
-        """.trimIndent()
-
-        val response = webTestClient.postForBadRequest("/api/v1/auth/logout", request)
-
-        response.isEqualTo(AuthError.REQUIRED_TOKEN.exception)
+        val request = mapOf(
+            "refreshToken" to "",
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/logout", request)
     }
 
     private fun postLogin(): LoginResponse {

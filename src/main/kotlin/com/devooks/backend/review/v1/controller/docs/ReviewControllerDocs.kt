@@ -80,7 +80,7 @@ interface ReviewControllerDocs {
     )
     suspend fun createReview(
         request: CreateReviewRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): CreateReviewResponse
 
@@ -108,11 +108,11 @@ interface ReviewControllerDocs {
         ]
     )
     suspend fun getReviews(
-        @Schema(description = "전자책 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 식별자", required = true)
         ebookId: String,
-        @Schema(description = "페이지", required = true, nullable = false)
+        @Schema(description = "페이지", required = true)
         page: String,
-        @Schema(description = "개수", required = true, nullable = false)
+        @Schema(description = "개수", required = true)
         count: String,
     ): PageResponse<ReviewView>
 
@@ -166,10 +166,10 @@ interface ReviewControllerDocs {
         ]
     )
     suspend fun modifyReview(
-        @Schema(description = "리뷰 식별자", required = true, nullable = false)
+        @Schema(description = "리뷰 식별자", required = true)
         reviewId: String,
         request: ModifyReviewRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): ModifyReviewResponse
 
@@ -220,9 +220,9 @@ interface ReviewControllerDocs {
         ]
     )
     suspend fun deleteReview(
-        @Schema(description = "리뷰 식별자", required = true, nullable = false)
+        @Schema(description = "리뷰 식별자", required = true)
         reviewId: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): DeleteReviewResponse
 

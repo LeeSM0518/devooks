@@ -51,7 +51,7 @@ interface ServiceInquiryImagesControllerDocs {
     )
     suspend fun saveServiceInquiryImages(
         request: SaveServiceInquiryImagesRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authentication: String
     ): SaveServiceInquiryImagesResponse
 

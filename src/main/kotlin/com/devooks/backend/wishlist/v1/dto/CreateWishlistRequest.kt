@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
 data class CreateWishlistRequest(
-    @Schema(description = "전자책 식별자", required = true, nullable = false)
+    @Schema(description = "전자책 식별자", required = true)
     val ebookId: String?,
 ) {
 

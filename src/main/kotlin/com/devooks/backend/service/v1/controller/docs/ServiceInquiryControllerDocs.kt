@@ -58,7 +58,7 @@ interface ServiceInquiryControllerDocs {
     )
     suspend fun createServiceInquiry(
         request: CreateServiceInquiryRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): CreateServiceInquiryResponse
 
@@ -84,11 +84,11 @@ interface ServiceInquiryControllerDocs {
         ]
     )
     suspend fun getServiceInquiries(
-        @Schema(description = "페이지", required = true, nullable = false)
+        @Schema(description = "페이지", required = true)
         page: String,
-        @Schema(description = "개수", required = true, nullable = false)
+        @Schema(description = "개수", required = true)
         count: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authentication: String,
     ): PageResponse<ServiceInquiryView>
 
@@ -144,10 +144,10 @@ interface ServiceInquiryControllerDocs {
         ]
     )
     suspend fun modifyServiceInquiry(
-        @Schema(description = "서비스 문의 식별자", required = true, nullable = false)
+        @Schema(description = "서비스 문의 식별자", required = true)
         serviceInquiryId: String,
         request: ModifyServiceInquiryRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): ModifyServiceInquiryResponse
 }

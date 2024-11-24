@@ -6,7 +6,7 @@ import java.util.*
 class Image(
     val base64Raw: String,
     val extension: ImageExtension,
-    val byteSize: Long,
+    val byteSize: Int,
     val order: Int
 ) {
 
@@ -16,12 +16,4 @@ class Image(
         }.getOrElse {
             throw CommonError.FAIL_SAVE_IMAGE.exception
         }
-
-    companion object {
-        private const val MAX_BYTE_SIZE = 50_000_000
-
-        fun Long?.validateByteSize(): Long =
-            this?.takeIf { it <= MAX_BYTE_SIZE }
-                ?: throw CommonError.INVALID_BYTE_SIZE.exception
-    }
 }

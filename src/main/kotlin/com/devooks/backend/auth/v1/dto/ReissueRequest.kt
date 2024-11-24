@@ -4,7 +4,7 @@ import com.devooks.backend.auth.v1.error.validateRefreshToken
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ReissueRequest(
-    @Schema(description = "리프래시 토큰", required = true, nullable = false)
+    @Schema(description = "리프래시 토큰", required = true)
     val refreshToken: String?,
 ) {
     fun toCommand(): ReissueCommand =

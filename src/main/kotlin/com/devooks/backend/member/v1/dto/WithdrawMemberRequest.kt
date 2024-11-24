@@ -1,13 +1,12 @@
 package com.devooks.backend.member.v1.dto
 
-import com.devooks.backend.member.v1.error.validateWithdrawalReason
+import jakarta.validation.constraints.Size
 
 data class WithdrawMemberRequest(
-    val withdrawalReason: String?
+    @field:Size(min = 1, max = 255)
+    val withdrawalReason: String
 ) {
 
     fun toCommand(): WithdrawMemberCommand =
-        WithdrawMemberCommand(
-            withdrawalReason = withdrawalReason.validateWithdrawalReason()
-        )
+        WithdrawMemberCommand(withdrawalReason = withdrawalReason)
 }

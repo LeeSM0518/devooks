@@ -59,7 +59,7 @@ interface EbookInquiryCommentControllerDocs {
     )
     suspend fun createEbookInquiryComment(
         request: CreateEbookInquiryCommentRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): CreateEbookInquiryCommentResponse
 
@@ -87,11 +87,11 @@ interface EbookInquiryCommentControllerDocs {
         ]
     )
     suspend fun getEbookInquiryComments(
-        @Schema(description = "전자책 문의 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 문의 식별자", required = true)
         inquiryId: String,
-        @Schema(description = "페이지", required = true, nullable = false)
+        @Schema(description = "페이지", required = true)
         page: String,
-        @Schema(description = "개수", required = true, nullable = false)
+        @Schema(description = "개수", required = true)
         count: String,
     ): PageResponse<EbookInquiryCommentView>
 
@@ -143,10 +143,10 @@ interface EbookInquiryCommentControllerDocs {
         ]
     )
     suspend fun modifyEbookInquiryComment(
-        @Schema(description = "전자책 문의 댓글 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 문의 댓글 식별자", required = true)
         commentId: String,
         request: ModifyEbookInquiryCommentRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): ModifyEbookInquiryCommentResponse
 
@@ -197,9 +197,9 @@ interface EbookInquiryCommentControllerDocs {
         ]
     )
     suspend fun deleteEbookInquiryComment(
-        @Schema(description = "전자책 문의 댓글 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 문의 댓글 식별자", required = true)
         commentId: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): DeleteEbookInquiryCommentResponse
 

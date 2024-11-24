@@ -57,9 +57,9 @@ interface PdfControllerDocs {
         ]
     )
     suspend fun uploadPdf(
-        @Schema(description = "PDF 파일", required = true, nullable = false)
+        @Schema(description = "PDF 파일", required = true)
         filePart: FilePart,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): UploadPdfResponse
 
@@ -114,7 +114,7 @@ interface PdfControllerDocs {
         ]
     )
     suspend fun getPreviewImageList(
-        @Schema(description = "PDF 식별자", required = true, nullable = false)
+        @Schema(description = "PDF 식별자", required = true)
         pdfId: UUID
     ): GetPreviewImageListResponse
 }

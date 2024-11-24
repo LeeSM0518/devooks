@@ -58,7 +58,7 @@ interface EbookInquiryControllerDocs {
     )
     suspend fun createEbookInquiry(
         request: CreateEbookInquiryRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): CreateEbookInquiryResponse
 
@@ -86,11 +86,11 @@ interface EbookInquiryControllerDocs {
         ]
     )
     suspend fun getEbookInquiries(
-        @Schema(description = "전자책 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 식별자", required = true)
         ebookId: String,
-        @Schema(description = "페이지", required = true, nullable = false)
+        @Schema(description = "페이지", required = true)
         page: String,
-        @Schema(description = "개수", required = true, nullable = false)
+        @Schema(description = "개수", required = true)
         count: String,
     ): PageResponse<EbookInquiryView>
 
@@ -142,10 +142,10 @@ interface EbookInquiryControllerDocs {
         ]
     )
     suspend fun modifyEbookInquiry(
-        @Schema(description = "전자책 문의 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 문의 식별자", required = true)
         inquiryId: String,
         request: ModifyEbookInquiryRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): ModifyEbookInquiryResponse
 
@@ -196,9 +196,9 @@ interface EbookInquiryControllerDocs {
         ]
     )
     suspend fun deleteEbookInquiry(
-        @Schema(description = "전자책 문의 식별자", required = true, nullable = false)
+        @Schema(description = "전자책 문의 식별자", required = true)
         inquiryId: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", required = true)
         authorization: String,
     ): DeleteEbookInquiryResponse
 

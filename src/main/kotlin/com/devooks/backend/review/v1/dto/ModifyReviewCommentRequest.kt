@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
 data class ModifyReviewCommentRequest(
-    @Schema(description = "내용", required = true, nullable = false)
+    @Schema(description = "내용", required = true)
     val content: String?,
 ) {
     fun toCommand(commentId: String, requesterId: UUID): ModifyReviewCommentCommand =

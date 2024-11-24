@@ -1,25 +1,28 @@
 package com.devooks.backend.common.dto
 
 import com.devooks.backend.common.domain.Image
-import com.devooks.backend.common.domain.Image.Companion.validateByteSize
-import com.devooks.backend.common.domain.ImageExtension.Companion.validateImageExtension
-import com.devooks.backend.common.error.CommonError
-import com.devooks.backend.common.error.validateNotBlank
+import com.devooks.backend.common.domain.ImageExtension
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
 
 data class ImageDto(
-    @Schema(description = "base64 프로필 사진", required = true, nullable = false)
-    val base64Raw: String?,
-    @Schema(description = "확장자 (ex. JPG, PNG, JPEG)", required = true, nullable = false)
-    val extension: String?,
-    @Schema(description = "파일 크기 (byte, 최대 50MB)", required = true, nullable = false)
-    val byteSize: Long?,
+    @field:NotBlank
+    @Schema(description = "base64 프로필 사진", required = true)
+    val base64Raw: String,
+    @Schema(description = "확장자", required = true)
+    val extension: ImageExtension,
+    @field:Min(1)
+    @field:Max(50_000_000)
+    @Schema(description = "파일 크기 (byte, 최대 50MB)", required = true)
+    val byteSize: Int,
 ) {
     fun toDomain(index: Int): Image =
         Image(
-            base64Raw = base64Raw.validateNotBlank(CommonError.REQUIRED_BASE64RAW.exception),
-            extension = extension.validateImageExtension(),
-            byteSize = byteSize.validateByteSize(),
+            base64Raw = base64Raw,
+            extension = extension,
+            byteSize = byteSize,
             order = index
         )
 }

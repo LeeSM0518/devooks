@@ -50,7 +50,7 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
     // validation
-    implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // jwt
     implementation("io.jsonwebtoken:jjwt-api:$jwtVersion")
