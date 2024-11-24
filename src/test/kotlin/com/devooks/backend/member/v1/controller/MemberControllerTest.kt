@@ -780,7 +780,7 @@ internal class MemberControllerTest @Autowired constructor(
             .responseBody!!
 
         val memberInfo = response.profile
-        val favoriteCategories = response.profile.favoriteCategoryIdList.map { it.toString() }
+        val favoriteCategories = response.profile.favoriteCategoryIdList
 
         assertThat(memberInfo.nickname).isEqualTo(modifyProfileRequest.nickname)
         assertThat(memberInfo.phoneNumber).isEqualTo(modifyProfileRequest.phoneNumber)
