@@ -1,14 +1,12 @@
 package com.devooks.backend.auth.v1.dto
 
-import com.devooks.backend.member.v1.error.validateEmail
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Pattern
 
 data class CheckEmailRequest(
+    @field:Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9]+\\.[A-Za-z]+$")
     @Schema(description = "이메일", required = true)
-    val email: String?,
+    val email: String,
 ) {
-    fun toCommand() =
-        CheckEmailCommand(
-            email = email.validateEmail()
-        )
+    fun toCommand() = CheckEmailCommand(email = email)
 }
