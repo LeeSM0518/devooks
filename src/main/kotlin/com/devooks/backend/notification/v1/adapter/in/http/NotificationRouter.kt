@@ -53,10 +53,10 @@ class NotificationRouter(
     override suspend fun getNotifications(
         @RequestHeader(AUTHORIZATION)
         authorization: String,
-        @RequestParam(name = "page", defaultValue = "1")
-        page: String,
-        @RequestParam(name = "count", defaultValue = "10")
-        count: String,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
     ): PageResponse<NotificationResponse> {
         val memberId = tokenService.getMemberId(Authorization(authorization))
         val request = GetNotificationsRequest(memberId, page, count)
@@ -69,7 +69,7 @@ class NotificationRouter(
         @RequestHeader(AUTHORIZATION)
         authorization: String,
         @PathVariable("notificationId", required = false)
-        notificationId: String?,
+        notificationId: UUID?,
     ): CheckNotificationResponse {
         val memberId = tokenService.getMemberId(Authorization(authorization))
         val request = CheckNotificationsRequest(memberId, notificationId)

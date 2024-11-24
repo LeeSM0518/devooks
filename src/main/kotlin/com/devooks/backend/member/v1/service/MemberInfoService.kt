@@ -25,16 +25,13 @@ class MemberInfoService(
     suspend fun updateAccountInfo(
         command: ModifyAccountInfoCommand,
         requesterId: UUID,
-    ): MemberInfo {
-        val memberInfo =
-            memberInfoRepository
-                .findByMemberId(requesterId)
-                ?: throw MemberError.NOT_FOUND_MEMBER_INFO_BY_ID.exception
-        val updatedMemberInfo =
-            memberInfo.copy(accountNumber = command.accountNumber, bank = command.bank, realName = command.realName)
-        val savedMemberInfo = memberInfoRepository.save(updatedMemberInfo)
-        return savedMemberInfo.toDomain()
-    }
+    ): MemberInfo =
+        memberInfoRepository
+            .findByMemberId(requesterId)
+            ?.updateAccount(command)
+            ?.let { updatedAccount -> memberInfoRepository.save(updatedAccount) }
+            ?.toDomain()
+            ?: throw MemberError.NOT_FOUND_MEMBER_INFO_BY_ID.exception
 
     suspend fun findById(memberId: UUID): MemberInfo =
         findMemberInfoById(memberId).toDomain()
@@ -44,7 +41,7 @@ class MemberInfoService(
         requesterId: UUID,
     ): MemberInfo {
         val memberInfo = findMemberInfoById(requesterId)
-        val updateMemberInfo = memberInfo.update(command)
+        val updateMemberInfo = memberInfo.updateProfile(command)
         return memberInfoRepository.save(updateMemberInfo).toDomain()
     }
 

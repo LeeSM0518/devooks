@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.*
 import kotlinx.coroutines.flow.Flow
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE
@@ -35,7 +36,7 @@ interface NotificationRouterDocs {
         ]
     )
     suspend fun streamCountOfUncheckedNotifications(
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): Flow<ServerSentEvent<StreamCountResponse>>
 
@@ -61,12 +62,12 @@ interface NotificationRouterDocs {
         ]
     )
     suspend fun getNotifications(
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
-        @Schema(description = "페이지", required = true, nullable = false)
-        page: String,
-        @Schema(description = "개수", required = true, nullable = false)
-        count: String,
+        @Schema(description = "페이지", implementation = Int::class, required = true)
+        page: Int,
+        @Schema(description = "개수", implementation = Int::class, required = true)
+        count: Int,
     ): PageResponse<NotificationResponse>
 
     @Operation(
@@ -74,13 +75,9 @@ interface NotificationRouterDocs {
         description = "알림 식별자가 존재하지 않을 경우 확인되지 않을 알림을 모두 확인 상태로 변경함"
     )
     suspend fun checkNotifications(
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
-        @Schema(
-            description = "알림 식별자",
-            required = false,
-            nullable = true
-        )
-        notificationId: String?,
+        @Schema(description = "알림 식별자", required = false, nullable = true, implementation = UUID::class)
+        notificationId: UUID?,
     ): CheckNotificationResponse
 }

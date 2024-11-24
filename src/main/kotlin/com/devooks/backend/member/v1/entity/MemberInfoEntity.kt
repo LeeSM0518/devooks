@@ -1,5 +1,6 @@
 package com.devooks.backend.member.v1.entity
 
+import com.devooks.backend.member.v1.dto.ModifyAccountInfoCommand
 import com.devooks.backend.member.v1.dto.ModifyProfileCommand
 import java.util.*
 import org.springframework.data.annotation.Id
@@ -28,7 +29,7 @@ data class MemberInfoEntity(
 
     override fun isNew(): Boolean = id == null
 
-    fun update(command: ModifyProfileCommand) =
+    fun updateProfile(command: ModifyProfileCommand) =
         copy(
             phoneNumber = command.phoneNumber ?: this.phoneNumber,
             blogLink = command.blogLink ?: this.blogLink,
@@ -36,5 +37,12 @@ data class MemberInfoEntity(
             youtubeLink = command.youtubeLink ?: this.youtubeLink,
             introduction = command.introduction ?: this.introduction,
             email = command.email ?: this.email,
+        )
+
+    fun updateAccount(command: ModifyAccountInfoCommand) =
+        copy(
+            realName = command.realName ?: this.realName,
+            bank = command.bank ?: this.bank,
+            accountNumber = command.accountNumber ?: this.accountNumber,
         )
 }

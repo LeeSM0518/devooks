@@ -8,8 +8,8 @@ class GetSellHistoriesCommand(
     private val paging: Paging,
 ) {
     constructor(
-        page: String,
-        count: String,
+        page: Int,
+        count: Int,
         requesterId: UUID,
     ) : this(
         requesterId = requesterId,

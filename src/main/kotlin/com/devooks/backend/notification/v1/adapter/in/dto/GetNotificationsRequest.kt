@@ -10,8 +10,8 @@ data class GetNotificationsRequest(
 ) {
     constructor(
         memberId: UUID,
-        page: String,
-        count: String,
+        page: Int,
+        count: Int,
     ) : this(memberId, Paging(page, count))
 
     val pageable: Pageable = paging.value

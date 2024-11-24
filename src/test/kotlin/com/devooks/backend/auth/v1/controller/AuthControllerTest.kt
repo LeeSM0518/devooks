@@ -18,7 +18,7 @@ import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.fixture.ErrorResponse
-import com.devooks.backend.fixture.ErrorResponse.Companion.postForBadRequest
+import com.devooks.backend.fixture.ErrorResponse.Companion.isBadRequest
 import com.devooks.backend.member.v1.domain.Member.Companion.toDomain
 import com.devooks.backend.member.v1.dto.SignUpRequest
 import com.devooks.backend.member.v1.dto.SignUpResponse
@@ -66,9 +66,9 @@ internal class AuthControllerTest @Autowired constructor(
         val categoryEntity = categoryRepository.findAll().toList()[0]
         signUpRequest = SignUpRequest(
             oauthId = "oauthId",
-            oauthType = OauthType.NAVER.name,
+            oauthType = OauthType.NAVER,
             nickname = "nickname",
-            favoriteCategoryIdList = listOf(categoryEntity.id!!.toString())
+            favoriteCategoryIdList = listOf(categoryEntity.id!!)
         )
         val responseMember = webTestClient
             .post()
@@ -103,8 +103,25 @@ internal class AuthControllerTest @Autowired constructor(
     }
 
     @Test
+    fun `로그인시 인증 코드가 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val request = mapOf(
+            "oauthType" to "NAVER"
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
+    }
+
+    @Test
+    fun `로그인시 인증 코드가 비어 있을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val request = mapOf(
+            "authorizationCode" to "",
+            "oauthType" to "NAVER"
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
+    }
+
+    @Test
     fun `잘못된 인증 코드로 로그인을 실패할 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = LoginRequest("code", OauthType.NAVER.name)
+        val request = LoginRequest("code", OauthType.NAVER)
         val getNaverTokenResponse =
             GetNaverTokenResponse(null, null, null, null, "error", "erorDescription")
         given(
@@ -112,7 +129,7 @@ internal class AuthControllerTest @Autowired constructor(
                 OauthGrantType.AUTHORIZATION_CODE.value,
                 naverOauthProperties.clientId,
                 naverOauthProperties.clientSecret,
-                request.authorizationCode!!,
+                request.authorizationCode,
                 state = naverOauthProperties.state
             )
         ).willReturn(getNaverTokenResponse)
@@ -133,7 +150,7 @@ internal class AuthControllerTest @Autowired constructor(
 
     @Test
     fun `회원이 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = LoginRequest("code", OauthType.NAVER.name)
+        val request = LoginRequest("code", OauthType.NAVER)
         val getNaverTokenResponse =
             GetNaverTokenResponse("accessToken", "refreshToken", "tokenType", "expiresIn", null, null)
         given(
@@ -141,7 +158,7 @@ internal class AuthControllerTest @Autowired constructor(
                 OauthGrantType.AUTHORIZATION_CODE.value,
                 naverOauthProperties.clientId,
                 naverOauthProperties.clientSecret,
-                request.authorizationCode!!,
+                request.authorizationCode,
                 state = naverOauthProperties.state
             )
         ).willReturn(getNaverTokenResponse)
@@ -173,7 +190,7 @@ internal class AuthControllerTest @Autowired constructor(
 
     @Test
     fun `정지 당한 회원일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = LoginRequest("code", OauthType.NAVER.name)
+        val request = LoginRequest("code", OauthType.NAVER)
         val getNaverTokenResponse =
             GetNaverTokenResponse("accessToken", "refreshToken", "tokenType", "expiresIn", null, null)
         memberRepository.save(member.copy(untilSuspensionDate = Instant.now().plusSeconds(60L)))
@@ -182,7 +199,7 @@ internal class AuthControllerTest @Autowired constructor(
                 OauthGrantType.AUTHORIZATION_CODE.value,
                 naverOauthProperties.clientId,
                 naverOauthProperties.clientSecret,
-                request.authorizationCode!!,
+                request.authorizationCode,
                 state = naverOauthProperties.state
             )
         ).willReturn(getNaverTokenResponse)
@@ -213,7 +230,7 @@ internal class AuthControllerTest @Autowired constructor(
 
     @Test
     fun `탈퇴한 회원일 경우 예외가 발생한다`(): Unit = runBlocking {
-        val request = LoginRequest("code", OauthType.NAVER.name)
+        val request = LoginRequest("code", OauthType.NAVER)
         val getNaverTokenResponse =
             GetNaverTokenResponse("accessToken", "refreshToken", "tokenType", "expiresIn", null, null)
         given(
@@ -221,7 +238,7 @@ internal class AuthControllerTest @Autowired constructor(
                 OauthGrantType.AUTHORIZATION_CODE.value,
                 naverOauthProperties.clientId,
                 naverOauthProperties.clientSecret,
-                request.authorizationCode!!,
+                request.authorizationCode,
                 state = naverOauthProperties.state
             )
         ).willReturn(getNaverTokenResponse)
@@ -297,85 +314,70 @@ internal class AuthControllerTest @Autowired constructor(
 
     @Test
     fun `authorizationCode가 존재하지 않을 경우 로그인시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "oauthType" : "NAVER"
-            }
-        """.trimIndent()
+        val request = mapOf("oauthType" to "NAVER")
 
-        val response = webTestClient.postForBadRequest("/api/v1/auth/login", request)
-
-        response.isEqualTo(AuthError.REQUIRED_AUTHORIZATION_CODE.exception)
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
     }
 
     @Test
     fun `authorizationCode가 비어있을 경우 로그인시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "authorizationCode" : "",
-              "oauthType" : "NAVER"
-            }
-        """.trimIndent()
+        val request = mapOf(
+            "authorizationCode" to "",
+            "oauthType" to "NAVER"
+        )
 
-        val response = webTestClient.postForBadRequest("/api/v1/auth/login", request)
-
-        response.isEqualTo(AuthError.REQUIRED_AUTHORIZATION_CODE.exception)
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
     }
 
     @Test
     fun `oauthType이 존재하지 않을 경우 로그인시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "authorizationCode": "code"
-            }
-        """.trimIndent()
-
-        val response = webTestClient.postForBadRequest("/api/v1/auth/login", request)
-
-        response.isEqualTo(AuthError.INVALID_OAUTH_TYPE.exception)
+        val request = mapOf(
+            "authorizationCode" to "code",
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
     }
 
     @Test
     fun `oauthType이 값이 NAVER, GOOGLE, KAKAO가 아닐 경우 로그인시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "authorizationCode": "code",
-              "oauthType": "NAVERR"
-            }
-        """.trimIndent()
-
-        val response = webTestClient.postForBadRequest("/api/v1/auth/login", request)
-
-        response.isEqualTo(AuthError.INVALID_OAUTH_TYPE.exception)
+        val request = mapOf(
+            "authorizationCode" to "code",
+            "oauthType" to "NAVERR"
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/login", request)
     }
 
     @Test
     fun `refreshToken이 존재하지 않을 경우 로그아웃시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-            }
-        """.trimIndent()
-
-        val response = webTestClient.postForBadRequest("/api/v1/auth/logout", request)
-
-        response.isEqualTo(AuthError.REQUIRED_TOKEN.exception)
+        val request = mapOf<String, Any>()
+        webTestClient.post().isBadRequest("/api/v1/auth/logout", request)
     }
 
     @Test
     fun `refreshToken이 비어있을 경우 로그아웃시 예외가 발생한다`(): Unit = runBlocking {
-        val request = """
-            {
-              "refreshToken" : ""
-            }
-        """.trimIndent()
+        val request = mapOf(
+            "refreshToken" to "",
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/logout", request)
+    }
 
-        val response = webTestClient.postForBadRequest("/api/v1/auth/logout", request)
+    @Test
+    fun `토큰 재발급시 refreshToken이 비어있을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val request = mapOf(
+            "refreshToken" to "",
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/reissue", request)
+    }
 
-        response.isEqualTo(AuthError.REQUIRED_TOKEN.exception)
+    @Test
+    fun `이메일 확인시 email 형식이 잘못되어 있을 경우 예외가 발생한다`(): Unit = runBlocking {
+        val request = mapOf(
+            "email" to "asd@asd",
+        )
+        webTestClient.post().isBadRequest("/api/v1/auth/check/email", request)
     }
 
     private fun postLogin(): LoginResponse {
-        val request = LoginRequest("code", OauthType.NAVER.name)
+        val request = LoginRequest("code", OauthType.NAVER)
         val getNaverTokenResponse =
             GetNaverTokenResponse("accessToken", "refreshToken", "tokenType", "expiresIn", null, null)
         given(
@@ -383,7 +385,7 @@ internal class AuthControllerTest @Autowired constructor(
                 OauthGrantType.AUTHORIZATION_CODE.value,
                 naverOauthProperties.clientId,
                 naverOauthProperties.clientSecret,
-                request.authorizationCode!!,
+                request.authorizationCode,
                 state = naverOauthProperties.state
             )
         ).willReturn(getNaverTokenResponse)

@@ -5,17 +5,8 @@ import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.common.exception.GeneralException
 import java.util.*
 
-inline fun <reified T> T?.validateNotNull(exception: GeneralException): T =
-    takeIf { it != null } ?: throw exception
-
 fun String?.validateNotBlank(exception: GeneralException): String =
     takeIf { it.isNullOrBlank().not() } ?: throw exception
-
-fun <T : Any> List<T>?.validateNotEmpty(exception: GeneralException): List<T> =
-    takeIf { !isNullOrEmpty() } ?: throw exception
-
-fun ImageDto?.validateImage(index: Int): Image =
-    this?.toDomain(index) ?: throw CommonError.REQUIRED_IMAGE.exception
 
 fun List<ImageDto>?.validateImages(): List<Image> =
     takeIf { it.isNullOrEmpty().not() }

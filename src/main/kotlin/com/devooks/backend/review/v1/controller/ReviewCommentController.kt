@@ -22,6 +22,8 @@ import com.devooks.backend.review.v1.dto.ReviewCommentView.Companion.toReviewCom
 import com.devooks.backend.review.v1.service.ReviewCommentEventService
 import com.devooks.backend.review.v1.service.ReviewCommentService
 import com.devooks.backend.review.v1.service.ReviewService
+import jakarta.validation.Valid
+import java.util.UUID
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -48,6 +50,7 @@ class ReviewCommentController(
     @Transactional
     @PostMapping
     override suspend fun createReviewComment(
+        @Valid
         @RequestBody
         request: CreateReviewCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -63,12 +66,12 @@ class ReviewCommentController(
 
     @GetMapping
     override suspend fun getReviewComments(
-        @RequestParam(required = true)
-        reviewId: String,
-        @RequestParam(required = true)
-        page: String,
-        @RequestParam(required = true)
-        count: String,
+        @RequestParam
+        reviewId: UUID,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
     ): PageResponse<ReviewCommentView> {
         val command = GetReviewCommentsCommand(reviewId, page, count)
         val reviewCommentList: Page<ReviewComment> = reviewCommentService.get(command)
@@ -78,8 +81,9 @@ class ReviewCommentController(
     @Transactional
     @PatchMapping("/{commentId}")
     override suspend fun modifyReviewComment(
-        @PathVariable(name = "commentId", required = false)
-        commentId: String,
+        @PathVariable(name = "commentId")
+        commentId: UUID,
+        @Valid
         @RequestBody
         request: ModifyReviewCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -94,8 +98,8 @@ class ReviewCommentController(
     @Transactional
     @DeleteMapping("/{commentId}")
     override suspend fun deleteReviewComment(
-        @PathVariable(name = "commentId", required = false)
-        commentId: String,
+        @PathVariable(name = "commentId")
+        commentId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteReviewCommentResponse {

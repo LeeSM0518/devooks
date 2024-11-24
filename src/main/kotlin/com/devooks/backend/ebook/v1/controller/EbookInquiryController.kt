@@ -22,6 +22,8 @@ import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryResponse.Comp
 import com.devooks.backend.ebook.v1.service.EbookInquiryEventService
 import com.devooks.backend.ebook.v1.service.EbookInquiryService
 import com.devooks.backend.ebook.v1.service.EbookService
+import jakarta.validation.Valid
+import java.util.*
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -48,6 +50,7 @@ class EbookInquiryController(
     @Transactional
     @PostMapping
     override suspend fun createEbookInquiry(
+        @Valid
         @RequestBody
         request: CreateEbookInquiryRequest,
         @RequestHeader(AUTHORIZATION)
@@ -64,11 +67,11 @@ class EbookInquiryController(
     @GetMapping
     override suspend fun getEbookInquiries(
         @RequestParam
-        ebookId: String,
+        ebookId: UUID,
         @RequestParam
-        page: String,
+        page: Int,
         @RequestParam
-        count: String,
+        count: Int,
     ): PageResponse<EbookInquiryView> {
         val command = GetEbookInquiresCommand(ebookId, page, count)
         val ebookInquiryList: Page<EbookInquiry> = ebookInquiryService.get(command)
@@ -79,7 +82,8 @@ class EbookInquiryController(
     @PatchMapping("/{inquiryId}")
     override suspend fun modifyEbookInquiry(
         @PathVariable
-        inquiryId: String,
+        inquiryId: UUID,
+        @Valid
         @RequestBody
         request: ModifyEbookInquiryRequest,
         @RequestHeader(AUTHORIZATION)
@@ -95,7 +99,7 @@ class EbookInquiryController(
     @DeleteMapping("/{inquiryId}")
     override suspend fun deleteEbookInquiry(
         @PathVariable
-        inquiryId: String,
+        inquiryId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteEbookInquiryResponse {

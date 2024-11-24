@@ -5,6 +5,7 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
@@ -112,7 +113,7 @@ internal class WishlistControllerTest @Autowired constructor(
     fun `존재하지 않는 전자책을 찜할 경우 예외가 발생한다`(): Unit = runBlocking {
         val accessToken = tokenService.createTokenGroup(expectedMember).accessToken
         val request = CreateWishlistRequest(
-            ebookId = UUID.randomUUID().toString()
+            ebookId = UUID.randomUUID()
         )
 
         webTestClient
@@ -131,7 +132,7 @@ internal class WishlistControllerTest @Autowired constructor(
         val (accessToken, createEbookResponse) = postCreateEbook()
 
         val request = CreateWishlistRequest(
-            ebookId = createEbookResponse.ebook.id.toString()
+            ebookId = createEbookResponse.ebook.id
         )
 
         webTestClient
@@ -264,7 +265,7 @@ internal class WishlistControllerTest @Autowired constructor(
 
         webTestClient
             .delete()
-            .uri("/api/v1/wishlist/ ")
+            .uri("/api/v1/wishlist/asd")
             .accept(APPLICATION_JSON)
             .header(AUTHORIZATION, "Bearer $accessToken")
             .exchange()
@@ -276,7 +277,7 @@ internal class WishlistControllerTest @Autowired constructor(
         accessToken: AccessToken,
     ): CreateWishlistResponse {
         val request = CreateWishlistRequest(
-            ebookId = createEbookResponse.ebook.id.toString()
+            ebookId = createEbookResponse.ebook.id
         )
 
         val response = webTestClient
@@ -304,14 +305,14 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -332,7 +333,7 @@ internal class WishlistControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -340,13 +341,13 @@ internal class WishlistControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -368,15 +369,15 @@ internal class WishlistControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
             ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

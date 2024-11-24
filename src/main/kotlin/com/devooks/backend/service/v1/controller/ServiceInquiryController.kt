@@ -19,6 +19,7 @@ import com.devooks.backend.service.v1.dto.response.ModifyServiceInquiryResponse
 import com.devooks.backend.service.v1.dto.response.ServiceInquiryResponse
 import com.devooks.backend.service.v1.service.ServiceInquiryImageService
 import com.devooks.backend.service.v1.service.ServiceInquiryService
+import jakarta.validation.Valid
 import java.util.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -43,6 +44,7 @@ class ServiceInquiryController(
     @Transactional
     @PostMapping
     override suspend fun createServiceInquiry(
+        @Valid
         @RequestBody
         request: CreateServiceInquiryRequest,
         @RequestHeader(AUTHORIZATION)
@@ -58,10 +60,10 @@ class ServiceInquiryController(
 
     @GetMapping
     override suspend fun getServiceInquiries(
-        @RequestParam(required = true)
-        page: String,
-        @RequestParam(required = true)
-        count: String,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): PageResponse<ServiceInquiryView> {
@@ -74,8 +76,9 @@ class ServiceInquiryController(
     @Transactional
     @PatchMapping("/{serviceInquiryId}")
     override suspend fun modifyServiceInquiry(
-        @PathVariable("serviceInquiryId", required = true)
-        serviceInquiryId: String,
+        @PathVariable("serviceInquiryId")
+        serviceInquiryId: UUID,
+        @Valid
         @RequestBody
         request: ModifyServiceInquiryRequest,
         @RequestHeader(AUTHORIZATION)

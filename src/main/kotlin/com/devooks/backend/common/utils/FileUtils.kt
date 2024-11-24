@@ -28,7 +28,7 @@ fun saveFileOrNull(
 ): Deferred<File?> =
     CoroutineScope(Dispatchers.IO)
         .async {
-            val fileName = UUID.randomUUID().toString()
+            val fileName = UUID.randomUUID()
             val targetLocation = Path.of(rootPath, "$fileName.$extension")
             runCatching {
                 Files.write(targetLocation, content).toFile()

@@ -1,42 +1,44 @@
 package com.devooks.backend.member.v1.dto
 
-import com.devooks.backend.member.v1.error.validateBlogLink
-import com.devooks.backend.member.v1.error.validateEmail
-import com.devooks.backend.member.v1.error.validateFavoriteCategoryIdList
-import com.devooks.backend.member.v1.error.validateInstagramLink
-import com.devooks.backend.member.v1.error.validateIntroduction
-import com.devooks.backend.member.v1.error.validateNickname
-import com.devooks.backend.member.v1.error.validatePhoneNumber
-import com.devooks.backend.member.v1.error.validateYoutubeLink
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
+import java.util.*
 
 data class ModifyProfileRequest(
-    @Schema(description = "닉네임", required = false, nullable = true)
+    @field:Size(min = 2, max = 12)
+    @Schema(description = "닉네임", nullable = true)
     val nickname: String?,
-    @Schema(description = "전화번호 (ex. 010-1234-1234)", required = false, nullable = true)
+    @field:Pattern(regexp = "^[0-9]{2,3}-[0-9]{3,4}-[0-9]{3,4}\$")
+    @Schema(description = "전화번호 (ex. 010-1234-1234)", nullable = true)
     val phoneNumber: String?,
-    @Schema(description = "블로그 링크", required = false, nullable = true)
+    @field:Size(min = 1, max = 255)
+    @Schema(description = "블로그 링크", nullable = true)
     val blogLink: String?,
-    @Schema(description = "인스타그램 링크", required = false, nullable = true)
+    @field:Size(min = 1, max = 255)
+    @Schema(description = "인스타그램 링크", nullable = true)
     val instagramLink: String?,
-    @Schema(description = "유튜브 링크", required = false, nullable = true)
+    @field:Size(min = 1, max = 255)
+    @Schema(description = "유튜브 링크", nullable = true)
     val youtubeLink: String?,
-    @Schema(description = "소개글", required = false, nullable = true)
+    @field:Size(min = 1, max = 5_000)
+    @Schema(description = "소개글", nullable = true)
     val introduction: String?,
-    @Schema(description = "관심 카테고리 식별자 목록", required = false, nullable = true)
-    val favoriteCategoryIdList: List<String>?,
-    @Schema(description = "이메일", required = false, nullable = true)
+    @Schema(description = "관심 카테고리 식별자 목록", nullable = true)
+    val favoriteCategoryIdList: List<UUID>?,
+    @field:Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9]+\\.[A-Za-z]+$")
+    @Schema(description = "이메일", nullable = true)
     val email: String?,
 ) {
     fun toCommand(): ModifyProfileCommand =
         ModifyProfileCommand(
-            nickname = nickname?.validateNickname(),
-            phoneNumber = phoneNumber?.validatePhoneNumber(),
-            blogLink = blogLink?.validateBlogLink(),
-            instagramLink = instagramLink?.validateInstagramLink(),
-            youtubeLink = youtubeLink?.validateYoutubeLink(),
-            introduction = introduction?.validateIntroduction(),
-            favoriteCategoryIdList = favoriteCategoryIdList?.validateFavoriteCategoryIdList(),
-            email = email?.validateEmail(),
+            nickname = nickname,
+            phoneNumber = phoneNumber,
+            blogLink = blogLink,
+            instagramLink = instagramLink,
+            youtubeLink = youtubeLink,
+            introduction = introduction,
+            favoriteCategoryIdList = favoriteCategoryIdList,
+            email = email,
         )
 }

@@ -35,9 +35,7 @@ interface AuthControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- AUTH-400-1 : 인증 코드(authorizationCode)가 NULL이거나 빈 문자일 경우\n" +
-                        "- AUTH-400-2 : 인증 유형(oauthType)이 NAVER, KAKAO, GOOGLE 이 아닐 경우 ",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -102,8 +100,7 @@ interface AuthControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- AUTH-400-3 : 리프래시 토큰(refreshToken)이 NULL이거나 빈 문자일 경우",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -152,8 +149,7 @@ interface AuthControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- AUTH-400-3 : 리프래시 토큰(refreshToken)이 NULL이거나 빈 문자일 경우",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -214,9 +210,7 @@ interface AuthControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- AUTH-400-16 : 이메일 값이 존재하지 않을 경우" +
-                        "- AUTH-400-17 : 이메일 형식이 아닐 경우",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,

@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @Tag(name = "리뷰 댓글")
@@ -34,9 +35,7 @@ interface ReviewCommentControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "- REVIEW-400-4: 리뷰 식별자가 반드시 필요합니다.\n" +
-                        "- REVIEW-400-5: 잘못된 형식의 리뷰 식별자입니다.\n" +
-                        "- REVIEW-400-3: 내용이 반드시 필요합니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -58,7 +57,7 @@ interface ReviewCommentControllerDocs {
     )
     suspend fun createReviewComment(
         request: CreateReviewCommentRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): CreateReviewCommentResponse
 
@@ -71,11 +70,7 @@ interface ReviewCommentControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- COMMON-400-1 : 페이지는 1부터 조회할 수 있습니다.\n" +
-                        "- COMMON-400-2 : 개수는 1~1000 까지 조회할 수 있습니다.\n" +
-                        "- REVIEW-400-4: 리뷰 식별자가 반드시 필요합니다.\n" +
-                        "- REVIEW-400-5: 잘못된 형식의 리뷰 식별자입니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -86,12 +81,12 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun getReviewComments(
-        @Schema(description = "리뷰 식별자", required = true, nullable = false)
-        reviewId: String,
-        @Schema(description = "페이지", required = true, nullable = false)
-        page: String,
-        @Schema(description = "개수", required = true, nullable = false)
-        count: String,
+        @Schema(description = "리뷰 식별자", required = true, implementation = UUID::class)
+        reviewId: UUID,
+        @Schema(description = "페이지", implementation = Int::class, required = true)
+        page: Int,
+        @Schema(description = "개수", implementation = Int::class, required = true)
+        count: Int,
     ): PageResponse<ReviewCommentView>
 
     @Operation(summary = "리뷰 댓글 수정")
@@ -109,9 +104,7 @@ interface ReviewCommentControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "- REVIEW-400-6: 리뷰 댓글 식별자가 반드시 필요합니다.\n" +
-                        "- REVIEW-400-7: 잘못된 형식의 리뷰 댓글 식별자입니다.\n" +
-                        "- REVIEW-400-3: 내용이 반드시 필요합니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -142,10 +135,10 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun modifyReviewComment(
-        @Schema(description = "리뷰 댓글 식별자", required = true, nullable = false)
-        commentId: String,
+        @Schema(description = "리뷰 댓글 식별자", required = true, implementation = UUID::class)
+        commentId: UUID,
         request: ModifyReviewCommentRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): ModifyReviewCommentResponse
 
@@ -164,8 +157,7 @@ interface ReviewCommentControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "- REVIEW-400-6: 리뷰 댓글 식별자가 반드시 필요합니다.\n" +
-                        "- REVIEW-400-7: 잘못된 형식의 리뷰 댓글 식별자입니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -196,9 +188,9 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun deleteReviewComment(
-        @Schema(description = "리뷰 댓글 식별자", required = true, nullable = false)
-        commentId: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "리뷰 댓글 식별자", required = true, implementation = UUID::class)
+        commentId: UUID,
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): DeleteReviewCommentResponse
 }

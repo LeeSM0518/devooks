@@ -22,6 +22,8 @@ import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryCommentRespon
 import com.devooks.backend.ebook.v1.service.EbookInquiryCommentEventService
 import com.devooks.backend.ebook.v1.service.EbookInquiryCommentService
 import com.devooks.backend.ebook.v1.service.EbookInquiryService
+import jakarta.validation.Valid
+import java.util.*
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -48,6 +50,7 @@ class EbookInquiryCommentController(
     @Transactional
     @PostMapping
     override suspend fun createEbookInquiryComment(
+        @Valid
         @RequestBody
         request: CreateEbookInquiryCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -63,12 +66,12 @@ class EbookInquiryCommentController(
 
     @GetMapping
     override suspend fun getEbookInquiryComments(
-        @RequestParam(required = true)
-        inquiryId: String,
-        @RequestParam(required = true)
-        page: String,
-        @RequestParam(required = true)
-        count: String,
+        @RequestParam
+        inquiryId: UUID,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
     ): PageResponse<EbookInquiryCommentView> {
         val command = GetEbookInquireCommentsCommand(inquiryId, page, count)
         val inquiryCommentList: Page<EbookInquiryComment> = ebookInquiryCommentService.get(command)
@@ -78,8 +81,9 @@ class EbookInquiryCommentController(
     @Transactional
     @PatchMapping("/{commentId}")
     override suspend fun modifyEbookInquiryComment(
-        @PathVariable(name = "commentId", required = true)
-        commentId: String,
+        @PathVariable(name = "commentId")
+        commentId: UUID,
+        @Valid
         @RequestBody
         request: ModifyEbookInquiryCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -94,8 +98,8 @@ class EbookInquiryCommentController(
     @Transactional
     @DeleteMapping("/{commentId}")
     override suspend fun deleteEbookInquiryComment(
-        @PathVariable(name = "commentId", required = true)
-        commentId: String,
+        @PathVariable(name = "commentId")
+        commentId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteEbookInquiryCommentResponse {

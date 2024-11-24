@@ -9,6 +9,7 @@ import com.devooks.backend.service.v1.dto.request.SaveServiceInquiryImagesReques
 import com.devooks.backend.service.v1.dto.response.SaveServiceInquiryImagesResponse
 import com.devooks.backend.service.v1.dto.response.SaveServiceInquiryImagesResponse.Companion.toSaveServiceInquiryImagesResponse
 import com.devooks.backend.service.v1.service.ServiceInquiryImageService
+import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.PostMapping
@@ -27,6 +28,7 @@ class ServiceInquiryImagesController(
     @Transactional
     @PostMapping
     override suspend fun saveServiceInquiryImages(
+        @Valid
         @RequestBody
         request: SaveServiceInquiryImagesRequest,
         @RequestHeader(AUTHORIZATION)

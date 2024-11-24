@@ -219,7 +219,7 @@ class EbookQueryRepository : JooqR2dbcRepository() {
             conditions.add(EBOOK.TITLE.likeIgnoreCase(it))
         }
 
-        command.sellingMemberId?.also {
+        command.sellerMemberId?.also {
             conditions.add(EBOOK.SELLING_MEMBER_ID.eq(it))
         }
 

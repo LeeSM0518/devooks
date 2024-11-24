@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @Tag(name = "서비스 문의")
@@ -34,9 +35,7 @@ interface ServiceInquiryControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "- SERVICE-400-1: 서비스 문의 제목이 반드시 필요합니다.\n" +
-                        "- SERVICE-400-2: 서비스 문의 내용이 반드시 필요합니다.\n" +
-                        "- SERVICE-400-3: 잘못된 형식의 사진 식별자입니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -58,7 +57,7 @@ interface ServiceInquiryControllerDocs {
     )
     suspend fun createServiceInquiry(
         request: CreateServiceInquiryRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): CreateServiceInquiryResponse
 
@@ -71,9 +70,7 @@ interface ServiceInquiryControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- COMMON-400-1 : 페이지는 1부터 조회할 수 있습니다.\n" +
-                        "- COMMON-400-2 : 개수는 1~1000 까지 조회할 수 있습니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -84,12 +81,12 @@ interface ServiceInquiryControllerDocs {
         ]
     )
     suspend fun getServiceInquiries(
-        @Schema(description = "페이지", required = true, nullable = false)
-        page: String,
-        @Schema(description = "개수", required = true, nullable = false)
-        count: String,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
-        authentication: String,
+        @Schema(description = "페이지", implementation = Int::class, required = true)
+        page: Int,
+        @Schema(description = "개수", implementation = Int::class, required = true)
+        count: Int,
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        authorization: String,
     ): PageResponse<ServiceInquiryView>
 
     @Operation(summary = "서비스 문의 수정")
@@ -107,12 +104,7 @@ interface ServiceInquiryControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- SERVICE-400-5: 서비스 문의 식별자가 반드시 필요합니다.\n" +
-                        "- SERVICE-400-6: 잘못된 형식의 서비스 문의 식별자입니다.\n" +
-                        "- SERVICE-400-1: 서비스 문의 제목이 반드시 필요합니다. (제목이 null이 아니면서 비어 있을 경우)\n" +
-                        "- SERVICE-400-2: 서비스 문의 내용이 반드시 필요합니다. (내용이 null이 아니면서 비어 있을 경우)\n" +
-                        "- SERVICE-400-3: 잘못된 형식의 사진 식별자입니다. (사진 목록이 null이 아니면서 UUID가 아닐 경우)",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -144,10 +136,10 @@ interface ServiceInquiryControllerDocs {
         ]
     )
     suspend fun modifyServiceInquiry(
-        @Schema(description = "서비스 문의 식별자", required = true, nullable = false)
-        serviceInquiryId: String,
+        @Schema(description = "서비스 문의 식별자", required = true, implementation = UUID::class)
+        serviceInquiryId: UUID,
         request: ModifyServiceInquiryRequest,
-        @Schema(description = "액세스 토큰", required = true, nullable = false)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): ModifyServiceInquiryResponse
 }

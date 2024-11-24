@@ -10,7 +10,6 @@ import com.devooks.backend.review.v1.entity.ReviewEntity
 import com.devooks.backend.review.v1.error.ReviewError
 import com.devooks.backend.review.v1.repository.ReviewQueryRepository
 import com.devooks.backend.review.v1.repository.ReviewRepository
-import java.time.Instant
 import java.util.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
@@ -43,7 +42,7 @@ class ReviewService(
     suspend fun modify(command: ModifyReviewCommand): Review =
         findById(command.reviewId)
             .also { review -> validateRequesterId(review, command.requesterId) }
-            .copy(rating = command.rating, content = command.content, modifiedDate = Instant.now())
+            .update(command)
             .let { reviewRepository.save(it) }
             .toDomain()
 
