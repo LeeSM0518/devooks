@@ -438,13 +438,13 @@ internal class MemberControllerTest @Autowired constructor(
             .returnResult()
             .responseBody!!
 
-        val categoryDto = categoryRepository.findAll().toList()[0].toDomain().toDto().id
+        val categoryId = categoryRepository.findAll().toList()[0].toDomain().toDto().id
         val foundMemberInfo = memberInfoRepository.findByMemberId(signUpResponse.member.id)!!
 
         assertThat(response.profile.id).isEqualTo(signUpResponse.member.id)
         assertThat(response.profile.nickname).isEqualTo(signUpResponse.member.nickname)
         assertThat(response.profile.profileImagePath).isEqualTo(signUpResponse.member.profileImagePath)
-        assertThat(response.profile.favoriteCategoryList.first().id).isEqualTo(categoryDto)
+        assertThat(response.profile.favoriteCategoryIdList.first()).isEqualTo(categoryId)
         assertThat(response.profile.blogLink).isEqualTo(foundMemberInfo.blogLink)
         assertThat(response.profile.youtubeLink).isEqualTo(foundMemberInfo.youtubeLink)
         assertThat(response.profile.introduction).isEqualTo(foundMemberInfo.introduction)
@@ -473,13 +473,13 @@ internal class MemberControllerTest @Autowired constructor(
             .returnResult()
             .responseBody!!
 
-        val categoryDto = categoryRepository.findAll().toList()[0].toDomain().toDto().id
+        val categoryId = categoryRepository.findAll().toList()[0].toDomain().toDto().id
         val foundMemberInfo = memberInfoRepository.findByMemberId(signUpResponse.member.id)!!
 
         assertThat(response.profile.id).isEqualTo(signUpResponse.member.id)
         assertThat(response.profile.nickname).isEqualTo(signUpResponse.member.nickname)
         assertThat(response.profile.profileImagePath).isEqualTo(signUpResponse.member.profileImagePath)
-        assertThat(response.profile.favoriteCategoryList.first().id).isEqualTo(categoryDto)
+        assertThat(response.profile.favoriteCategoryIdList.first()).isEqualTo(categoryId)
         assertThat(response.profile.blogLink).isEqualTo(foundMemberInfo.blogLink)
         assertThat(response.profile.youtubeLink).isEqualTo(foundMemberInfo.youtubeLink)
         assertThat(response.profile.introduction).isEqualTo(foundMemberInfo.introduction)
@@ -733,7 +733,7 @@ internal class MemberControllerTest @Autowired constructor(
             .responseBody!!
 
         val memberInfo = response.profile
-        val favoriteCategories = response.profile.favoriteCategoryList.map { it.id.toString() }
+        val favoriteCategories = response.profile.favoriteCategoryIdList.map { it.toString() }
 
         assertThat(memberInfo.nickname).isEqualTo(modifyProfileRequest.nickname)
         assertThat(memberInfo.phoneNumber).isEqualTo(modifyProfileRequest.phoneNumber)
