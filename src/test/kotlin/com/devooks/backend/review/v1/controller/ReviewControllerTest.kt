@@ -138,7 +138,7 @@ internal class ReviewControllerTest @Autowired constructor(
             .responseBody!!
 
         val review = createReviewResponse.review
-        assertThat(review.rating.toString()).isEqualTo(createReviewRequest.rating)
+        assertThat(review.rating).isEqualTo(createReviewRequest.rating)
         assertThat(review.content).isEqualTo(createReviewRequest.content)
         assertThat(review.ebookId).isEqualTo(createReviewRequest.ebookId)
         assertThat(review.writerMemberId).isEqualTo(expectedMember2.id)
@@ -203,7 +203,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val review = modifyReviewsResponse.review
         assertThat(review.content).isEqualTo(request.content)
-        assertThat(review.rating.toString()).isEqualTo(request.rating)
+        assertThat(review.rating).isEqualTo(request.rating)
     }
 
     @Test
