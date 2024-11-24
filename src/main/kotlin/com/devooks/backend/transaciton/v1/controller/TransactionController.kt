@@ -14,6 +14,7 @@ import com.devooks.backend.transaciton.v1.dto.GetSellHistoriesCommand
 import com.devooks.backend.transaciton.v1.dto.GetSellHistoriesResponse
 import com.devooks.backend.transaciton.v1.dto.GetSellHistoriesResponse.Companion.toGetSellHistoriesResponse
 import com.devooks.backend.transaciton.v1.service.TransactionService
+import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
@@ -35,6 +36,7 @@ class TransactionController(
     @Transactional
     @PostMapping
     suspend fun createTransaction(
+        @Valid
         @RequestBody
         request: CreateTransactionRequest,
         @RequestHeader(AUTHORIZATION)

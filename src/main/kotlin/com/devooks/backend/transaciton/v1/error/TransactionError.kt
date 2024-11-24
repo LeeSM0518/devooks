@@ -16,8 +16,4 @@ enum class TransactionError(val exception: GeneralException) {
     // 409
     DUPLICATE_TRANSACTION(GeneralException("TRANSACTION-409-1", CONFLICT, "이미 구매한 책 입니다."))
     ;
-
-    override fun toString(): String {
-        return super.toString()
-    }
 }
