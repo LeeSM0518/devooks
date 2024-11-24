@@ -108,7 +108,7 @@ internal class MemberControllerTest @Autowired constructor(
         assertThat(response.member.profileImagePath).isEqualTo("")
 
         val category = categoryRepository.findAll().firstOrNull()!!
-        assertThat(category.id).isEqualTo(request.favoriteCategoryIdList!!.first())
+        assertThat(category.id).isEqualTo(request.favoriteCategoryIdList.first())
 
         val favoriteCategory = favoriteCategoryRepository.findAll().firstOrNull()!!
         assertThat(favoriteCategory.categoryId).isEqualTo(category.id)
