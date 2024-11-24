@@ -13,7 +13,8 @@ data class MemberProfile(
     val nickname: String,
     @Schema(description = "프로필 사진 경로")
     val profileImagePath: String,
-    val favoriteCategoryList: List<Category>,
+    @Schema(description = "관심 카테고리 식별자 목록")
+    val favoriteCategoryIdList: List<UUID>,
     @Schema(description = "블로그 링크")
     val blogLink: String,
     @Schema(description = "인스타그램 링크")
@@ -43,7 +44,7 @@ data class MemberProfile(
             id = member.id,
             nickname = member.nickname,
             profileImagePath = member.profileImagePath,
-            favoriteCategoryList = categoryList,
+            favoriteCategoryIdList = categoryList.map { it.id },
             blogLink = memberInfo.blogLink,
             instagramLink = memberInfo.instagramLink,
             youtubeLink = memberInfo.youtubeLink,
