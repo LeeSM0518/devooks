@@ -69,7 +69,7 @@ class NotificationRouter(
         @RequestHeader(AUTHORIZATION)
         authorization: String,
         @PathVariable("notificationId", required = false)
-        notificationId: String?,
+        notificationId: UUID?,
     ): CheckNotificationResponse {
         val memberId = tokenService.getMemberId(Authorization(authorization))
         val request = CheckNotificationsRequest(memberId, notificationId)

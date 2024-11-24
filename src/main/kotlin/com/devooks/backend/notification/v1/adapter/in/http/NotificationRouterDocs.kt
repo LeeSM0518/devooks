@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.*
 import kotlinx.coroutines.flow.Flow
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE
@@ -76,11 +77,7 @@ interface NotificationRouterDocs {
     suspend fun checkNotifications(
         @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
-        @Schema(
-            description = "알림 식별자",
-            required = false,
-            nullable = true
-        )
-        notificationId: String?,
+        @Schema(description = "알림 식별자", required = false, nullable = true, implementation = UUID::class)
+        notificationId: UUID?,
     ): CheckNotificationResponse
 }
