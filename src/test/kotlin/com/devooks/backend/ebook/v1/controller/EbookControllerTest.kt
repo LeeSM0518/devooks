@@ -796,7 +796,7 @@ internal class EbookControllerTest @Autowired constructor(
             .containsAll(modifyEbookRequest.ebook!!.relatedCategoryIdList!!)
         assertThat(updatedEbook.price).isEqualTo(modifyEbookRequest.ebook!!.price)
         val expected = modifyEbookRequest.ebook!!.descriptionImageIdList!!.map { UUID.fromString(it) }
-        assertThat(updatedEbook.descriptionImageList.map { it.id }).containsAll(expected)
+        assertThat(updatedEbook.descriptionImageList.map { it.id }).isEqualTo(expected)
         assertThat(updatedEbook.introduction).isEqualTo(modifyEbookRequest.ebook!!.introduction)
         assertThat(updatedEbook.tableOfContents).isEqualTo(modifyEbookRequest.ebook!!.tableOfContents)
     }
