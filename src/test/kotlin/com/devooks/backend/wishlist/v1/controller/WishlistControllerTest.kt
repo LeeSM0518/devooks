@@ -113,7 +113,7 @@ internal class WishlistControllerTest @Autowired constructor(
     fun `존재하지 않는 전자책을 찜할 경우 예외가 발생한다`(): Unit = runBlocking {
         val accessToken = tokenService.createTokenGroup(expectedMember).accessToken
         val request = CreateWishlistRequest(
-            ebookId = UUID.randomUUID().toString()
+            ebookId = UUID.randomUUID()
         )
 
         webTestClient
@@ -132,7 +132,7 @@ internal class WishlistControllerTest @Autowired constructor(
         val (accessToken, createEbookResponse) = postCreateEbook()
 
         val request = CreateWishlistRequest(
-            ebookId = createEbookResponse.ebook.id.toString()
+            ebookId = createEbookResponse.ebook.id
         )
 
         webTestClient
@@ -277,7 +277,7 @@ internal class WishlistControllerTest @Autowired constructor(
         accessToken: AccessToken,
     ): CreateWishlistResponse {
         val request = CreateWishlistRequest(
-            ebookId = createEbookResponse.ebook.id.toString()
+            ebookId = createEbookResponse.ebook.id
         )
 
         val response = webTestClient

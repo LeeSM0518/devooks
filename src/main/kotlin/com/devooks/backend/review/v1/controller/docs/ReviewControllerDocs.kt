@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @Tag(name = "리뷰")
@@ -80,7 +81,7 @@ interface ReviewControllerDocs {
     )
     suspend fun createReview(
         request: CreateReviewRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): CreateReviewResponse
 
@@ -108,12 +109,12 @@ interface ReviewControllerDocs {
         ]
     )
     suspend fun getReviews(
-        @Schema(description = "전자책 식별자", required = true)
+        @Schema(description = "전자책 식별자", implementation = UUID::class, required = true)
         ebookId: String,
-        @Schema(description = "페이지", required = true)
-        page: String,
-        @Schema(description = "개수", required = true)
-        count: String,
+        @Schema(description = "페이지", implementation = Int::class, required = true)
+        page: Int,
+        @Schema(description = "개수", implementation = Int::class, required = true)
+        count: Int,
     ): PageResponse<ReviewView>
 
     @Operation(summary = "리뷰 수정")
@@ -166,10 +167,10 @@ interface ReviewControllerDocs {
         ]
     )
     suspend fun modifyReview(
-        @Schema(description = "리뷰 식별자", required = true)
+        @Schema(description = "리뷰 식별자", required = true, implementation = UUID::class)
         reviewId: String,
         request: ModifyReviewRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): ModifyReviewResponse
 
@@ -220,9 +221,9 @@ interface ReviewControllerDocs {
         ]
     )
     suspend fun deleteReview(
-        @Schema(description = "리뷰 식별자", required = true)
+        @Schema(description = "리뷰 식별자", required = true, implementation = UUID::class)
         reviewId: String,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): DeleteReviewResponse
 

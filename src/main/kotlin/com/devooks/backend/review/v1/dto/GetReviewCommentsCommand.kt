@@ -7,12 +7,12 @@ import org.springframework.data.domain.Pageable
 
 data class GetReviewCommentsCommand(
     val reviewId: UUID,
-    private val paging: Paging
+    private val paging: Paging,
 ) {
     constructor(
         reviewId: String,
-        page: String,
-        count: String
+        page: Int,
+        count: Int,
     ) : this(
         reviewId = reviewId.validateReviewId(),
         paging = Paging(page, count)

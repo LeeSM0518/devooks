@@ -58,10 +58,10 @@ class ServiceInquiryController(
 
     @GetMapping
     override suspend fun getServiceInquiries(
-        @RequestParam(required = true)
-        page: String,
-        @RequestParam(required = true)
-        count: String,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): PageResponse<ServiceInquiryView> {

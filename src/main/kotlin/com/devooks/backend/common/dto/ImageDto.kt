@@ -18,11 +18,18 @@ data class ImageDto(
     @Schema(description = "파일 크기 (byte, 최대 50MB)", required = true)
     val byteSize: Int,
 ) {
-    fun toDomain(index: Int): Image =
+    fun toDomain(index: Int? = null): Image =
         Image(
             base64Raw = base64Raw,
             extension = extension,
             byteSize = byteSize,
-            order = index
+            order = index ?: DEFAULT_IMAGE_ORDER
         )
+
+    companion object {
+        private const val DEFAULT_IMAGE_ORDER = 0
+
+        fun List<ImageDto>.toDomain() =
+            mapIndexed { index, imageDto -> imageDto.toDomain(index) }
+    }
 }

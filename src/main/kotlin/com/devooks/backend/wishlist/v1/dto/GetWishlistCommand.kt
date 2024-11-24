@@ -12,8 +12,8 @@ class GetWishlistCommand(
     constructor(
         memberId: UUID,
         categoryIds: List<String>,
-        page: String,
-        count: String,
+        page: Int,
+        count: Int,
     ) : this(
         memberId = memberId,
         categoryIds = categoryIds.takeIf { it.isNotEmpty() }?.validateCategoryIds(),

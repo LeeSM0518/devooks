@@ -106,7 +106,7 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 수 있다`(): Unit = runBlocking {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             paymentMethod = PaymentMethod.CREDIT_CARD.name,
             price = createEbookResponse.ebook.price
         )
@@ -135,7 +135,7 @@ internal class TransactionControllerTest @Autowired constructor(
     @Test
     fun `전자책을 구매할 때 전자책이 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = UUID.randomUUID().toString(),
+            ebookId = UUID.randomUUID(),
             paymentMethod = PaymentMethod.CREDIT_CARD.name,
             price = 1000
         )
@@ -158,7 +158,7 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 때 가격이 다를 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             paymentMethod = PaymentMethod.CREDIT_CARD.name,
             price = 1000
         )
@@ -181,7 +181,7 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 때 자신의 책을 구매할 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             paymentMethod = PaymentMethod.CREDIT_CARD.name,
             price = createEbookResponse.ebook.price
         )
@@ -204,7 +204,7 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 때 이미 구매했을 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             paymentMethod = PaymentMethod.CREDIT_CARD.name,
             price = createEbookResponse.ebook.price
         )
@@ -307,7 +307,7 @@ internal class TransactionControllerTest @Autowired constructor(
     private suspend fun TransactionControllerTest.postCreateTransaction(): Triple<CreateEbookResponse, AccessToken, CreateTransactionResponse> {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             paymentMethod = PaymentMethod.CREDIT_CARD.name,
             price = createEbookResponse.ebook.price
         )

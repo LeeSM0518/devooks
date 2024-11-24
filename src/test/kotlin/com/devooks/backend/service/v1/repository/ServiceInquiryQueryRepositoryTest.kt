@@ -59,7 +59,7 @@ internal class ServiceInquiryQueryRepositoryTest @Autowired constructor(
     @Test
     fun `서비스 문의를 조회할 수 있다`() = runTest {
         // given
-        val command = GetServiceInquiriesCommand("1", "10", expectedMember.id!!)
+        val command = GetServiceInquiriesCommand(1, 10, expectedMember.id!!)
 
         // when
         val foundInquiry = serviceInquiryQueryRepository.findBy(command).toList()

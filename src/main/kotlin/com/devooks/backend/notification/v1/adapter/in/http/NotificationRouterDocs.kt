@@ -35,7 +35,7 @@ interface NotificationRouterDocs {
         ]
     )
     suspend fun streamCountOfUncheckedNotifications(
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): Flow<ServerSentEvent<StreamCountResponse>>
 
@@ -61,12 +61,12 @@ interface NotificationRouterDocs {
         ]
     )
     suspend fun getNotifications(
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
-        @Schema(description = "페이지", required = true)
-        page: String,
-        @Schema(description = "개수", required = true)
-        count: String,
+        @Schema(description = "페이지", implementation = Int::class, required = true)
+        page: Int,
+        @Schema(description = "개수", implementation = Int::class, required = true)
+        count: Int,
     ): PageResponse<NotificationResponse>
 
     @Operation(
@@ -74,7 +74,7 @@ interface NotificationRouterDocs {
         description = "알림 식별자가 존재하지 않을 경우 확인되지 않을 알림을 모두 확인 상태로 변경함"
     )
     suspend fun checkNotifications(
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
         @Schema(
             description = "알림 식별자",

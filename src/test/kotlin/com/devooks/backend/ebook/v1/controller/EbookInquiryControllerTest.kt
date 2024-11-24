@@ -113,7 +113,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             content = "content"
         )
 
@@ -131,7 +131,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
             .responseBody!!
             .ebookInquiry
 
-        assertThat(ebookInquiry.ebookId.toString()).isEqualTo(createEbookInquiryRequest.ebookId)
+        assertThat(ebookInquiry.ebookId).isEqualTo(createEbookInquiryRequest.ebookId)
         assertThat(ebookInquiry.content).isEqualTo(createEbookInquiryRequest.content)
         assertThat(ebookInquiry.writerMemberId).isEqualTo(expectedMember1.id)
 
@@ -277,7 +277,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
     fun `전자책 문의 작성시 전자책이 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(
-            ebookId = UUID.randomUUID().toString(),
+            ebookId = UUID.randomUUID(),
             content = "content"
         )
 
@@ -296,7 +296,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             content = "content"
         )
 

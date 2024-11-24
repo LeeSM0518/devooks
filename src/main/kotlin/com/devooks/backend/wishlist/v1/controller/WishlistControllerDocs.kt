@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @Tag(name = "찜")
@@ -67,7 +68,7 @@ interface WishlistControllerDocs {
     )
     suspend fun createWishlist(
         request: CreateWishlistRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): CreateWishlistResponse
 
@@ -95,11 +96,11 @@ interface WishlistControllerDocs {
     suspend fun getWishlist(
         @Schema(description = "카테고리 식별자 목록", required = false)
         categoryIds: List<String>,
-        @Schema(description = "페이지", required = true)
-        page: String,
-        @Schema(description = "개수", required = true)
-        count: String,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "페이지", implementation = Int::class, required = true)
+        page: Int,
+        @Schema(description = "개수", implementation = Int::class, required = true)
+        count: Int,
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): PageResponse<WishlistView>
 
@@ -152,9 +153,9 @@ interface WishlistControllerDocs {
         ]
     )
     suspend fun deleteWishlist(
-        @Schema(description = "찜 식별자", required = true)
+        @Schema(description = "찜 식별자", required = true, implementation = UUID::class)
         wishlistId: String,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): DeleteWishlistResponse
 }

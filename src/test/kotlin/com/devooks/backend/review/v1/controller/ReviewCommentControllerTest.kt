@@ -124,7 +124,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     fun `리뷰 댓글을 작성할 수 있다`(): Unit = runBlocking {
         val review = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
-        val request = CreateReviewCommentRequest(review.id.toString(), review.content)
+        val request = CreateReviewCommentRequest(review.id, review.content)
 
         val reviewComment = webTestClient
             .post()
@@ -140,7 +140,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
             .responseBody!!
             .reviewComment
 
-        assertThat(reviewComment.reviewId.toString()).isEqualTo(request.reviewId)
+        assertThat(reviewComment.reviewId).isEqualTo(request.reviewId)
         assertThat(reviewComment.content).isEqualTo(request.content)
 
         delay(100)
@@ -157,7 +157,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     fun `리뷰 댓글 작성시 리뷰가 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
         val review = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
-        val request = CreateReviewCommentRequest(UUID.randomUUID().toString(), review.content)
+        val request = CreateReviewCommentRequest(UUID.randomUUID(), review.content)
 
         webTestClient
             .post()
@@ -273,7 +273,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     private suspend fun postCreateReviewComment(): Pair<ReviewCommentView, ReviewCommentView> {
         val review = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
-        val createReviewCommentRequest = CreateReviewCommentRequest(review.id.toString(), review.content)
+        val createReviewCommentRequest = CreateReviewCommentRequest(review.id, review.content)
 
         val reviewComment = webTestClient
             .post()
@@ -309,7 +309,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
+                ebookId = createEbookResponse.ebook.id,
                 rating = "5",
                 content = "content"
             )
@@ -331,7 +331,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     private suspend fun postCreateEbookAndCreateTransaction(): Pair<CreateEbookResponse, AccessToken> {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             paymentMethod = PaymentMethod.CREDIT_CARD.name,
             price = createEbookResponse.ebook.price
         )

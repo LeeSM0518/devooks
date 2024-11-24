@@ -63,12 +63,12 @@ class ReviewCommentController(
 
     @GetMapping
     override suspend fun getReviewComments(
-        @RequestParam(required = true)
+        @RequestParam
         reviewId: String,
-        @RequestParam(required = true)
-        page: String,
-        @RequestParam(required = true)
-        count: String,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
     ): PageResponse<ReviewCommentView> {
         val command = GetReviewCommentsCommand(reviewId, page, count)
         val reviewCommentList: Page<ReviewComment> = reviewCommentService.get(command)

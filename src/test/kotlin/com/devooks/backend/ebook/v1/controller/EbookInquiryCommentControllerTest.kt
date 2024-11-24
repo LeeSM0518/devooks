@@ -118,7 +118,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         val (accessToken, ebookInquiry) = postCreateEbookInquiry()
 
         val createEbookInquiryCommentRequest = CreateEbookInquiryCommentRequest(
-            inquiryId = ebookInquiry.id.toString(),
+            inquiryId = ebookInquiry.id,
             content = "content"
         )
 
@@ -136,7 +136,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
             .responseBody!!
             .comment
 
-        assertThat(ebookInquiryComment.inquiryId.toString()).isEqualTo(createEbookInquiryCommentRequest.inquiryId)
+        assertThat(ebookInquiryComment.inquiryId).isEqualTo(createEbookInquiryCommentRequest.inquiryId)
         assertThat(ebookInquiryComment.content).isEqualTo(createEbookInquiryCommentRequest.content)
         assertThat(ebookInquiryComment.writerMemberId).isEqualTo(expectedMember1.id)
 
@@ -276,7 +276,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         val (accessToken, _) = postCreateEbookInquiry()
 
         val createEbookInquiryCommentRequest = CreateEbookInquiryCommentRequest(
-            inquiryId = UUID.randomUUID().toString(),
+            inquiryId = UUID.randomUUID(),
             content = "content"
         )
 
@@ -295,7 +295,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         val (accessToken, ebookInquiry) = postCreateEbookInquiry()
 
         val createEbookInquiryCommentRequest = CreateEbookInquiryCommentRequest(
-            inquiryId = ebookInquiry.id.toString(),
+            inquiryId = ebookInquiry.id,
             content = "content"
         )
 
@@ -319,7 +319,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             content = "content"
         )
 

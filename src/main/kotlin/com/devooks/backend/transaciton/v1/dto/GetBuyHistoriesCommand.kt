@@ -10,8 +10,8 @@ class GetBuyHistoriesCommand(
 ) {
     constructor(
         ebookTitle: String,
-        page: String,
-        count: String,
+        page: Int,
+        count: Int,
         requesterId: UUID,
     ) : this(
         ebookTitle = ebookTitle.takeIf { it.isNotBlank() }?.let { "%$ebookTitle%" },

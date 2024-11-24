@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @Tag(name = "전자책 문의")
@@ -34,9 +35,7 @@ interface EbookInquiryControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "- EBOOK-400-23: 전자책 식별자가 반드시 필요합니다.\n" +
-                        "- EBOOK-400-16: 잘못된 형식의 전자책 식별자입니다.\n" +
-                        "- EBOOK-400-10: 문의 내용이 반드시 필요합니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -58,7 +57,7 @@ interface EbookInquiryControllerDocs {
     )
     suspend fun createEbookInquiry(
         request: CreateEbookInquiryRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): CreateEbookInquiryResponse
 
@@ -71,11 +70,7 @@ interface EbookInquiryControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description =
-                "- COMMON-400-1 : 페이지는 1부터 조회할 수 있습니다.\n" +
-                        "- COMMON-400-2 : 개수는 1~1000 까지 조회할 수 있습니다.\n" +
-                        "- EBOOK-400-23 : 전자책 식별자가 반드시 필요합니다.\n" +
-                        "- EBOOK-400-16 : 잘못된 형식의 전자책 식별자입니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -86,12 +81,12 @@ interface EbookInquiryControllerDocs {
         ]
     )
     suspend fun getEbookInquiries(
-        @Schema(description = "전자책 식별자", required = true)
-        ebookId: String,
-        @Schema(description = "페이지", required = true)
-        page: String,
-        @Schema(description = "개수", required = true)
-        count: String,
+        @Schema(description = "전자책 식별자", implementation = UUID::class, required = true)
+        ebookId: UUID,
+        @Schema(description = "페이지", implementation = Int::class, required = true)
+        page: Int,
+        @Schema(description = "개수", implementation = Int::class, required = true)
+        count: Int,
     ): PageResponse<EbookInquiryView>
 
     @Operation(summary = "전자책 문의 수정")
@@ -109,9 +104,7 @@ interface EbookInquiryControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "- EBOOK-400-11: 문의 식별자가 반드시 필요합니다.\n" +
-                        "- EBOOK-400-12: 잘못된 형식의 리뷰 식별자입니다.\n" +
-                        "- EBOOK-400-10: 문의 내용이 반드시 필요합니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -142,10 +135,10 @@ interface EbookInquiryControllerDocs {
         ]
     )
     suspend fun modifyEbookInquiry(
-        @Schema(description = "전자책 문의 식별자", required = true)
-        inquiryId: String,
+        @Schema(description = "전자책 문의 식별자", required = true, implementation = UUID::class)
+        inquiryId: UUID,
         request: ModifyEbookInquiryRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): ModifyEbookInquiryResponse
 
@@ -164,8 +157,7 @@ interface EbookInquiryControllerDocs {
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "- EBOOK-400-11: 문의 식별자가 반드시 필요합니다.\n" +
-                        "- EBOOK-400-12: 잘못된 형식의 리뷰 식별자입니다.",
+                description = "- COMMON-400-0 : 유효하지 않은 요청입니다.",
                 content = arrayOf(
                     Content(
                         mediaType = APPLICATION_JSON_VALUE,
@@ -196,9 +188,9 @@ interface EbookInquiryControllerDocs {
         ]
     )
     suspend fun deleteEbookInquiry(
-        @Schema(description = "전자책 문의 식별자", required = true)
-        inquiryId: String,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "전자책 문의 식별자", required = true, implementation = UUID::class)
+        inquiryId: UUID,
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): DeleteEbookInquiryResponse
 

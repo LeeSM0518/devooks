@@ -120,7 +120,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
+                ebookId = createEbookResponse.ebook.id,
                 rating = "5",
                 content = "content"
             )
@@ -140,7 +140,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val review = createReviewResponse.review
         assertThat(review.rating.toString()).isEqualTo(createReviewRequest.rating)
         assertThat(review.content).isEqualTo(createReviewRequest.content)
-        assertThat(review.ebookId.toString()).isEqualTo(createReviewRequest.ebookId)
+        assertThat(review.ebookId).isEqualTo(createReviewRequest.ebookId)
         assertThat(review.writerMemberId).isEqualTo(expectedMember2.id)
 
         delay(100)
@@ -280,7 +280,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
+                ebookId = createEbookResponse.ebook.id,
                 rating = "6",
                 content = "content"
             )
@@ -301,7 +301,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
+                ebookId = createEbookResponse.ebook.id,
                 rating = "a",
                 content = "content"
             )
@@ -323,7 +323,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
+                ebookId = createEbookResponse.ebook.id,
                 rating = "5",
                 content = "content"
             )
@@ -344,7 +344,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = UUID.randomUUID().toString(),
+                ebookId = UUID.randomUUID(),
                 rating = "5",
                 content = "content"
             )
@@ -365,7 +365,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
+                ebookId = createEbookResponse.ebook.id,
                 rating = "5",
                 content = "content"
             )
@@ -395,7 +395,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
+                ebookId = createEbookResponse.ebook.id,
                 rating = "5",
                 content = "content"
             )
@@ -417,7 +417,7 @@ internal class ReviewControllerTest @Autowired constructor(
     private suspend fun postCreateEbookAndCreateTransaction(): Pair<CreateEbookResponse, AccessToken> {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             paymentMethod = PaymentMethod.CREDIT_CARD.name,
             price = createEbookResponse.ebook.price
         )

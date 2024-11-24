@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @Tag(name = "리뷰 댓글")
@@ -58,7 +59,7 @@ interface ReviewCommentControllerDocs {
     )
     suspend fun createReviewComment(
         request: CreateReviewCommentRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): CreateReviewCommentResponse
 
@@ -86,12 +87,12 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun getReviewComments(
-        @Schema(description = "리뷰 식별자", required = true)
+        @Schema(description = "리뷰 식별자", required = true, implementation = UUID::class)
         reviewId: String,
-        @Schema(description = "페이지", required = true)
-        page: String,
-        @Schema(description = "개수", required = true)
-        count: String,
+        @Schema(description = "페이지", implementation = Int::class, required = true)
+        page: Int,
+        @Schema(description = "개수", implementation = Int::class, required = true)
+        count: Int,
     ): PageResponse<ReviewCommentView>
 
     @Operation(summary = "리뷰 댓글 수정")
@@ -142,10 +143,10 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun modifyReviewComment(
-        @Schema(description = "리뷰 댓글 식별자", required = true)
+        @Schema(description = "리뷰 댓글 식별자", required = true, implementation = UUID::class)
         commentId: String,
         request: ModifyReviewCommentRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): ModifyReviewCommentResponse
 
@@ -196,9 +197,9 @@ interface ReviewCommentControllerDocs {
         ]
     )
     suspend fun deleteReviewComment(
-        @Schema(description = "리뷰 댓글 식별자", required = true)
+        @Schema(description = "리뷰 댓글 식별자", required = true, implementation = UUID::class)
         commentId: String,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): DeleteReviewCommentResponse
 }

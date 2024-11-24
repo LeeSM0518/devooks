@@ -113,7 +113,7 @@ interface MemberControllerDocs {
     )
     suspend fun modifyAccountInfo(
         request: ModifyAccountInfoRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): ModifyAccountInfoResponse
 
@@ -166,7 +166,7 @@ interface MemberControllerDocs {
     )
     suspend fun modifyProfileImage(
         request: ModifyProfileImageRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): ModifyProfileImageResponse
 
@@ -208,7 +208,7 @@ interface MemberControllerDocs {
     )
     suspend fun modifyProfile(
         request: ModifyProfileRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): ModifyProfileResponse
 
@@ -250,9 +250,9 @@ interface MemberControllerDocs {
         ]
     )
     suspend fun getProfile(
-        @Schema(description = "회원 식별자", required = true)
+        @Schema(description = "회원 식별자", required = true, implementation = UUID::class)
         memberId: UUID,
-        @Schema(description = "액세스 토큰", required = false, nullable = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", nullable = true)
         authorization: String,
     ): GetProfileResponse
 
@@ -294,7 +294,7 @@ interface MemberControllerDocs {
     )
     suspend fun withdrawMember(
         request: WithdrawMemberRequest,
-        @Schema(description = "액세스 토큰", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
     ): WithdrawMemberResponse
 }

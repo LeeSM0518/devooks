@@ -10,8 +10,8 @@ class GetReviewsCommand(
 ) {
     constructor(
         ebookId: String,
-        page: String,
-        count: String,
+        page: Int,
+        count: Int,
     ) : this(
         ebookId = ebookId.validateEbookId(),
         paging = Paging(page, count)

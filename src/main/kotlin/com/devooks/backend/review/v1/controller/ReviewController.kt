@@ -67,12 +67,12 @@ class ReviewController(
 
     @GetMapping
     override suspend fun getReviews(
-        @RequestParam(required = true)
+        @RequestParam
         ebookId: String,
-        @RequestParam(required = true)
-        page: String,
-        @RequestParam(required = true)
-        count: String,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
     ): PageResponse<ReviewView> {
         val command = GetReviewsCommand(ebookId, page, count)
         val reviewList: Page<Review> = reviewService.get(command)

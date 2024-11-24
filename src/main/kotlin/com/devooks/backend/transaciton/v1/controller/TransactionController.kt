@@ -52,9 +52,9 @@ class TransactionController(
         @RequestParam(required = false, defaultValue = "")
         ebookTitle: String,
         @RequestParam
-        page: String,
+        page: Int,
         @RequestParam
-        count: String,
+        count: Int,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): GetBuyHistoriesResponse {
@@ -66,9 +66,9 @@ class TransactionController(
     @GetMapping("/sell-histories")
     suspend fun getSellHistories(
         @RequestParam
-        page: String,
+        page: Int,
         @RequestParam
-        count: String,
+        count: Int,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): GetSellHistoriesResponse {

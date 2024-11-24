@@ -15,11 +15,11 @@ data class ModifyServiceInquiryRequest(
 ) {
 
     data class ServiceInquiry(
-        @Schema(description = "제목", required = false, nullable = true)
+        @Schema(description = "제목", nullable = true)
         val title: String? = null,
-        @Schema(description = "내용", required = false, nullable = true)
+        @Schema(description = "내용", nullable = true)
         val content: String? = null,
-        @Schema(description = "사진 식별자 목록", required = false, nullable = true)
+        @Schema(description = "사진 식별자 목록", nullable = true)
         val imageIdList: List<String>? = null,
     )
 

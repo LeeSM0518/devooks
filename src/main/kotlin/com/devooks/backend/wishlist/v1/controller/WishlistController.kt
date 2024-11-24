@@ -57,9 +57,9 @@ class WishlistController(
         @RequestParam(required = false, defaultValue = "")
         categoryIds: List<String>,
         @RequestParam
-        page: String,
+        page: Int,
         @RequestParam
-        count: String,
+        count: Int,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): PageResponse<WishlistView> {

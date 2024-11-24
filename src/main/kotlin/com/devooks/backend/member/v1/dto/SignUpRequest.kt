@@ -8,7 +8,7 @@ import java.util.*
 
 data class SignUpRequest(
     @field:NotBlank
-    @Schema(description = "OAuth2 식별자", required = true)
+    @Schema(description = "OAuth2 식별자", required = true, implementation = UUID::class)
     val oauthId: String,
     @Schema(description = "OAuth2 인증 유형", required = true)
     val oauthType: OauthType,

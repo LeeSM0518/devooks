@@ -9,10 +9,6 @@ data class ModifyProfileImageRequest(
 ) {
     fun toCommand(): ModifyProfileImageCommand =
         ModifyProfileImageCommand(
-            image = image.toDomain(PROFILE_IMAGE_INDEX)
+            image = image.toDomain()
         )
-
-    companion object {
-        private const val PROFILE_IMAGE_INDEX = 0
-    }
 }
