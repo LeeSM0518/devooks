@@ -23,5 +23,5 @@ data class ServiceInquiryRow(
                 imagePath = it["image_path"] as String,
                 order = (it["order"] as Long).toInt()
             )
-        }
+        }.sortedBy { it.order }
 }

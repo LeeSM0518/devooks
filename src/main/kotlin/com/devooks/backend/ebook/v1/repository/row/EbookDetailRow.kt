@@ -31,5 +31,6 @@ data class EbookDetailRow(
         descriptionImageJsonData
             .filter { it["id"] != null }
             .map { it.toEbookImageDto() }
+            .sortedBy { it.order }
 
 }
