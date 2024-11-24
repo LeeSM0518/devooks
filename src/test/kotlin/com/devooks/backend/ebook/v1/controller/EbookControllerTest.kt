@@ -459,7 +459,7 @@ internal class EbookControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = response.ebook.id,
-                rating = "5",
+                rating = 5,
                 content = "content"
             )
         val createReviewResponse = webTestClient
@@ -666,7 +666,7 @@ internal class EbookControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = response.ebook.id,
-                rating = "5",
+                rating = 5,
                 content = "content"
             )
         val createReviewResponse = webTestClient

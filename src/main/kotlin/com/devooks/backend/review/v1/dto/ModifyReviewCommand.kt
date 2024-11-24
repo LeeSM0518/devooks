@@ -4,7 +4,7 @@ import java.util.*
 
 class ModifyReviewCommand(
     val reviewId: UUID,
-    val rating: Int,
-    val content: String,
+    val rating: Int?,
+    val content: String?,
     val requesterId: UUID,
 )

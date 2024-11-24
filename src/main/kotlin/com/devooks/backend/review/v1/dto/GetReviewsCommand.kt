@@ -1,7 +1,6 @@
 package com.devooks.backend.review.v1.dto
 
 import com.devooks.backend.common.dto.Paging
-import com.devooks.backend.wishlist.v1.error.validateEbookId
 import java.util.*
 
 class GetReviewsCommand(
@@ -9,11 +8,11 @@ class GetReviewsCommand(
     private val paging: Paging,
 ) {
     constructor(
-        ebookId: String,
+        ebookId: UUID,
         page: Int,
         count: Int,
     ) : this(
-        ebookId = ebookId.validateEbookId(),
+        ebookId = ebookId,
         paging = Paging(page, count)
     )
 

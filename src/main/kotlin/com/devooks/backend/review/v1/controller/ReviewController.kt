@@ -23,6 +23,7 @@ import com.devooks.backend.review.v1.dto.ReviewView.Companion.toReviewView
 import com.devooks.backend.review.v1.service.ReviewEventService
 import com.devooks.backend.review.v1.service.ReviewService
 import com.devooks.backend.transaciton.v1.service.TransactionService
+import jakarta.validation.Valid
 import java.util.*
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
@@ -51,6 +52,7 @@ class ReviewController(
     @Transactional
     @PostMapping
     override suspend fun createReview(
+        @Valid
         @RequestBody
         request: CreateReviewRequest,
         @RequestHeader(AUTHORIZATION)
@@ -68,7 +70,7 @@ class ReviewController(
     @GetMapping
     override suspend fun getReviews(
         @RequestParam
-        ebookId: String,
+        ebookId: UUID,
         @RequestParam
         page: Int,
         @RequestParam
@@ -82,8 +84,9 @@ class ReviewController(
     @Transactional
     @PatchMapping("/{reviewId}")
     override suspend fun modifyReview(
-        @PathVariable(name = "reviewId", required = false)
-        reviewId: String,
+        @PathVariable(name = "reviewId")
+        reviewId: UUID,
+        @Valid
         @RequestBody
         request: ModifyReviewRequest,
         @RequestHeader(AUTHORIZATION)
@@ -98,8 +101,8 @@ class ReviewController(
     @Transactional
     @DeleteMapping("/{reviewId}")
     override suspend fun deleteReview(
-        @PathVariable(name = "reviewId", required = false)
-        reviewId: String,
+        @PathVariable(name = "reviewId")
+        reviewId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteReviewResponse {

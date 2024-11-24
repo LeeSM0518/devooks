@@ -121,7 +121,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = createEbookResponse.ebook.id,
-                rating = "5",
+                rating = 5,
                 content = "content"
             )
         val createReviewResponse = webTestClient
@@ -184,7 +184,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewResponse = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
         val request = ModifyReviewRequest(
-            rating = "5",
+            rating = 5,
             content = "content"
         )
 
@@ -239,7 +239,7 @@ internal class ReviewControllerTest @Autowired constructor(
         postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
         val request = ModifyReviewRequest(
-            rating = "5",
+            rating = 5,
             content = "content"
         )
 
@@ -259,7 +259,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewResponse = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val request = ModifyReviewRequest(
-            rating = "5",
+            rating = 5,
             content = "content"
         )
 
@@ -281,28 +281,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = createEbookResponse.ebook.id,
-                rating = "6",
-                content = "content"
-            )
-        webTestClient
-            .post()
-            .uri("/api/v1/reviews")
-            .header(AUTHORIZATION, "Bearer $accessToken")
-            .contentType(APPLICATION_JSON)
-            .accept(APPLICATION_JSON)
-            .bodyValue(createReviewRequest)
-            .exchange()
-            .expectStatus().isBadRequest
-    }
-
-    @Test
-    fun `리뷰를 작성시 평점이 숫자가 아닐경우 예외가 발생한다`(): Unit = runBlocking {
-        val (createEbookResponse, accessToken) = postCreateEbookAndCreateTransaction()
-
-        val createReviewRequest =
-            CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id,
-                rating = "a",
+                rating = 6,
                 content = "content"
             )
         webTestClient
@@ -324,7 +303,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = createEbookResponse.ebook.id,
-                rating = "5",
+                rating = 5,
                 content = "content"
             )
         webTestClient
@@ -345,7 +324,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = UUID.randomUUID(),
-                rating = "5",
+                rating = 5,
                 content = "content"
             )
         webTestClient
@@ -366,7 +345,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = createEbookResponse.ebook.id,
-                rating = "5",
+                rating = 5,
                 content = "content"
             )
         webTestClient
@@ -396,7 +375,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = createEbookResponse.ebook.id,
-                rating = "5",
+                rating = 5,
                 content = "content"
             )
         val createReviewResponse = webTestClient

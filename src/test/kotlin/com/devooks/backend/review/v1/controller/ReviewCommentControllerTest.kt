@@ -310,7 +310,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
         val createReviewRequest =
             CreateReviewRequest(
                 ebookId = createEbookResponse.ebook.id,
-                rating = "5",
+                rating = 5,
                 content = "content"
             )
         val createReviewResponse = webTestClient

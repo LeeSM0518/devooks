@@ -1,7 +1,6 @@
 package com.devooks.backend.review.v1.dto
 
 import com.devooks.backend.common.dto.Paging
-import com.devooks.backend.review.v1.error.validateReviewId
 import java.util.*
 import org.springframework.data.domain.Pageable
 
@@ -10,11 +9,11 @@ data class GetReviewCommentsCommand(
     private val paging: Paging,
 ) {
     constructor(
-        reviewId: String,
+        reviewId: UUID,
         page: Int,
         count: Int,
     ) : this(
-        reviewId = reviewId.validateReviewId(),
+        reviewId = reviewId,
         paging = Paging(page, count)
     )
 
