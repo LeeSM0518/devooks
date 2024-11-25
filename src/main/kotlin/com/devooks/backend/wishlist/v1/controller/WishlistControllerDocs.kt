@@ -2,10 +2,10 @@ package com.devooks.backend.wishlist.v1.controller
 
 import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.exception.ErrorResponse
+import com.devooks.backend.ebook.v1.dto.EbookView
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistRequest
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
 import com.devooks.backend.wishlist.v1.dto.DeleteWishlistResponse
-import com.devooks.backend.wishlist.v1.dto.WishlistView
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -98,7 +98,7 @@ interface WishlistControllerDocs {
         count: Int,
         @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
         authorization: String,
-    ): PageResponse<WishlistView>
+    ): PageResponse<EbookView>
 
     @Operation(summary = "찜 취소")
     @ApiResponses(

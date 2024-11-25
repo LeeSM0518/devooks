@@ -1,6 +1,8 @@
 package com.devooks.backend.wishlist.v1.service
 
 import com.devooks.backend.ebook.v1.domain.Ebook
+import com.devooks.backend.ebook.v1.repository.EbookQueryRepository
+import com.devooks.backend.ebook.v1.repository.row.EbookRow
 import com.devooks.backend.wishlist.v1.domain.Wishlist
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistCommand
 import com.devooks.backend.wishlist.v1.dto.DeleteWishlistCommand
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service
 class WishlistService(
     private val wishlistCrudRepository: WishlistCrudRepository,
     private val wishlistQueryRepository: WishlistQueryRepository,
+    private val ebookQueryRepository: EbookQueryRepository,
 ) {
     suspend fun create(command: CreateWishlistCommand, ebook: Ebook): Wishlist {
         wishlistCrudRepository
@@ -28,8 +31,8 @@ class WishlistService(
         return wishlistCrudRepository.save(wishlistEntity).toDomain()
     }
 
-    suspend fun get(command: GetWishlistCommand): Page<Wishlist> {
-        val wishlists = wishlistQueryRepository.findBy(command)
+    suspend fun get(command: GetWishlistCommand): Page<EbookRow> {
+        val wishlists = ebookQueryRepository.findWishlistBy(command)
         val count = wishlistQueryRepository.countBy(command)
         return PageImpl(wishlists.toList(), command.pageable, count.first())
     }

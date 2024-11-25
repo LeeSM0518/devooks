@@ -75,13 +75,13 @@ class EbookService(
     }
 
     suspend fun get(command: GetEbookCommand): Page<EbookRow> {
-        val ebooks = ebookQueryRepository.findBy(command)
+        val ebooks = ebookQueryRepository.findEbooksBy(command)
         val count = ebookQueryRepository.count(command)
         return PageImpl(ebooks.toList(), command.pageable, count.first())
     }
 
     suspend fun get(command: GetDetailOfEbookCommand): EbookDetailRow =
-        ebookQueryRepository.findBy(command)
+        ebookQueryRepository.findEbooksBy(command)
             ?: throw EbookError.NOT_FOUND_EBOOK.exception
 
     suspend fun modify(command: ModifyEbookCommand): Ebook {
