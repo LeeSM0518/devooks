@@ -107,7 +107,7 @@ internal class EbookImageControllerTest @Autowired constructor(
 
         descriptionImageList.forEachIndexed { index, image ->
             assertThat(image.order).isEqualTo(index)
-            assertThat(File(image.imagePath).exists()).isTrue()
+            assertThat(File(image.imagePath.substring(1)).exists()).isTrue()
         }
     }
 
@@ -141,6 +141,6 @@ internal class EbookImageControllerTest @Autowired constructor(
             .responseBody!!
             .mainImage
 
-        assertThat(File(mainImage.imagePath).exists()).isTrue()
+        assertThat(File(mainImage.imagePath.substring(1)).exists()).isTrue()
     }
 }

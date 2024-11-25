@@ -105,7 +105,7 @@ internal class ServiceInquiryImagesControllerTest @Autowired constructor(
 
         imageList.forEachIndexed { index, image ->
             assertThat(image.order).isEqualTo(index)
-            assertThat(File(image.imagePath).exists()).isTrue()
+            assertThat(File(image.imagePath.substring(1)).exists()).isTrue()
         }
     }
 }

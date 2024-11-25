@@ -4,7 +4,6 @@ import com.devooks.backend.pdf.v1.domain.PreviewImage
 import com.devooks.backend.pdf.v1.domain.PreviewImageInfo
 import java.util.*
 import kotlin.io.path.Path
-import kotlin.io.path.pathString
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Persistable
 import org.springframework.data.relational.core.mapping.Column
@@ -35,7 +34,7 @@ data class PreviewImageEntity(
 
     companion object {
         fun PreviewImageInfo.toEntity(pdfId: UUID) = PreviewImageEntity(
-            imagePath = this.imagePath.pathString,
+            imagePath = "/${this.imagePath}",
             previewOrder = this.order,
             pdfId = pdfId
         )

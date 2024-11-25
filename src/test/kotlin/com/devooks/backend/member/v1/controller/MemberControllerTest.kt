@@ -33,10 +33,8 @@ import com.devooks.backend.member.v1.repository.FavoriteCategoryRepository
 import com.devooks.backend.member.v1.repository.MemberInfoRepository
 import com.devooks.backend.member.v1.repository.MemberRepository
 import java.io.File
-import java.nio.file.Files
 import java.time.Instant
 import java.util.*
-import kotlin.io.path.Path
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -418,9 +416,7 @@ internal class MemberControllerTest @Autowired constructor(
         val member = response.member
         assertThat(member.id).isEqualTo(signUpResponse.member.id)
         assertThat(member.nickname).isEqualTo(signUpResponse.member.nickname)
-        assertThat(File(member.profileImagePath).canRead()).isEqualTo(true)
-
-        Files.delete(Path(member.profileImagePath))
+        assertThat(File(member.profileImagePath.substring(1)).exists()).isEqualTo(true)
     }
 
     @Test

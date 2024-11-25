@@ -8,6 +8,7 @@ import com.devooks.backend.pdf.v1.domain.PdfInfo
 import com.devooks.backend.pdf.v1.error.PdfError
 import java.io.File
 import kotlin.io.path.exists
+import kotlin.io.path.pathString
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -43,7 +44,7 @@ internal class PdfResolverTest {
 
         val savedPdf = pdfResolver.savePdf(filePart)
 
-        assertThat(savedPdf.filePath.exists()).isEqualTo(true)
+        assertThat(File(savedPdf.filePath.pathString.substring(1)).exists()).isEqualTo(true)
         assertThat(savedPdf.pageCount).isEqualTo(9)
     }
 
@@ -74,7 +75,7 @@ internal class PdfResolverTest {
 
         val savedPdf: PdfInfo = pdfResolver.savePdf(filePart)
 
-        assertThat(savedPdf.filePath.exists()).isTrue()
+        assertThat(File(savedPdf.filePath.pathString.substring(1)).exists()).isTrue()
         assertThat(savedPdf.pageCount).isEqualTo(9)
 
         val images = pdfResolver.savePreviewImages(savedPdf)

@@ -74,13 +74,13 @@ internal class PdfControllerTest @Autowired constructor(
     fun `PDF 파일을 저장할 수 있다`(): Unit = runBlocking {
         val pdf = postUploadPdfFile()
 
-        val pdfPath = Path(pdf.pdfInfo.filePath)
+        val pdfPath = Path(pdf.pdfInfo.filePath.substring(1))
 
         assertThat(pdf.uploadMemberId).isEqualTo(expectedMember.id)
         assertThat(pdfPath.exists()).isTrue()
         assertThat(pdf.pdfInfo.pageCount).isEqualTo(9)
         pdf.previewImageList.forEach { previewImage ->
-            val imagePath = Path(previewImage.imagePath)
+            val imagePath = Path(previewImage.imagePath.substring(1))
             assertThat(imagePath.exists()).isTrue()
             assertThat(previewImage.pdfId).isEqualTo(pdf.id)
             assertThat(previewImage.previewOrder).isNotZero()
@@ -102,7 +102,7 @@ internal class PdfControllerTest @Autowired constructor(
             .previewImageList
 
         previewImageList.forEach {
-            assertThat(Path(it.imagePath).exists()).isTrue()
+            assertThat(Path(it.imagePath.substring(1)).exists()).isTrue()
             assertThat(it.pdfId).isEqualTo(pdf.id)
             assertThat(it.previewOrder).isNotZero()
         }
