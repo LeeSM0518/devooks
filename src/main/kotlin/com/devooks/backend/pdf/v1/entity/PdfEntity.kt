@@ -5,7 +5,7 @@ import com.devooks.backend.pdf.v1.domain.PdfInfo
 import java.time.Instant
 import java.util.*
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
+import kotlin.io.path.pathString
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Persistable
 import org.springframework.data.relational.core.mapping.Column
@@ -40,7 +40,7 @@ data class PdfEntity(
     companion object {
         fun PdfInfo.toEntity(uploadMemberId: UUID): PdfEntity =
             PdfEntity(
-                filePath = this.filePath.absolutePathString(),
+                filePath = this.filePath.pathString,
                 pageCount = this.pageCount,
                 uploadMemberId = uploadMemberId
             )

@@ -144,13 +144,13 @@ internal class EbookControllerTest @Autowired constructor(
 
         val descriptionImage1 = response.ebook.descriptionImageList[0]
         val foundDescriptionImage1 = descriptionImageEntityList.find { it.id == descriptionImage1.id }
-        assertThat(Path(descriptionImage1.imagePath).exists()).isTrue()
+        assertThat(Path(descriptionImage1.imagePath.substring(1)).exists()).isTrue()
         assertThat(descriptionImage1.imagePath).isEqualTo(foundDescriptionImage1!!.imagePath)
 
 
         val descriptionImage2 = response.ebook.descriptionImageList[1]
         val foundDescriptionImage2 = descriptionImageEntityList.find { it.id == descriptionImage2.id }
-        assertThat(Path(descriptionImage2.imagePath).exists()).isTrue()
+        assertThat(Path(descriptionImage2.imagePath.substring(1)).exists()).isTrue()
         assertThat(descriptionImage2.imagePath).isEqualTo(foundDescriptionImage2!!.imagePath)
     }
 
@@ -176,7 +176,7 @@ internal class EbookControllerTest @Autowired constructor(
         assertThat(pageable.totalElements).isEqualTo(1)
         assertThat(ebookViewList.size).isEqualTo(1)
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.price).isEqualTo(response.ebook.price)
         assertThat(ebookView.seller.id).isEqualTo(expectedMember1.id)
@@ -279,7 +279,7 @@ internal class EbookControllerTest @Autowired constructor(
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.price).isEqualTo(response.ebook.price)
         assertThat(ebookView.seller.id).isEqualTo(expectedMember1.id)
@@ -309,7 +309,7 @@ internal class EbookControllerTest @Autowired constructor(
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.price).isEqualTo(response.ebook.price)
         assertThat(ebookView.seller.id).isEqualTo(expectedMember1.id)
@@ -339,7 +339,7 @@ internal class EbookControllerTest @Autowired constructor(
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.price).isEqualTo(response.ebook.price)
         assertThat(ebookView.seller.id).isEqualTo(expectedMember1.id)
@@ -371,7 +371,7 @@ internal class EbookControllerTest @Autowired constructor(
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.price).isEqualTo(response.ebook.price)
         assertThat(ebookView.seller.id).isEqualTo(expectedMember1.id)
@@ -401,7 +401,7 @@ internal class EbookControllerTest @Autowired constructor(
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.price).isEqualTo(response.ebook.price)
         assertThat(ebookView.seller.id).isEqualTo(expectedMember1.id)
@@ -440,7 +440,7 @@ internal class EbookControllerTest @Autowired constructor(
         val ebookView = ebookViewList[0]
         assertThat(ebookViewList.size).isEqualTo(1)
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.price).isEqualTo(response.ebook.price)
         assertThat(ebookView.seller.id).isEqualTo(expectedMember1.id)
@@ -487,7 +487,7 @@ internal class EbookControllerTest @Autowired constructor(
             .data[0]
 
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.wishlistId).isNull()
         assertThat(ebookView.review.rating).isEqualTo(createReviewResponse.review.rating.toDouble())
@@ -527,7 +527,7 @@ internal class EbookControllerTest @Autowired constructor(
             .data[0]
 
         assertThat(ebookView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookView.title).isEqualTo(response.ebook.title)
         assertThat(ebookView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookView.review.rating).isZero()
@@ -567,7 +567,7 @@ internal class EbookControllerTest @Autowired constructor(
             .ebook
 
         assertThat(ebookDetailView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookDetailView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookDetailView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookDetailView.title).isEqualTo(response.ebook.title)
         assertThat(ebookDetailView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookDetailView.review.rating).isZero()
@@ -640,7 +640,7 @@ internal class EbookControllerTest @Autowired constructor(
             .ebook
 
         assertThat(ebookDetailView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookDetailView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookDetailView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookDetailView.title).isEqualTo(response.ebook.title)
         assertThat(ebookDetailView.wishlistId).isEqualTo(wishlistId)
         assertThat(ebookDetailView.review.rating).isZero()
@@ -695,7 +695,7 @@ internal class EbookControllerTest @Autowired constructor(
             .ebook
 
         assertThat(ebookDetailView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookDetailView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookDetailView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookDetailView.title).isEqualTo(response.ebook.title)
         assertThat(ebookDetailView.wishlistId).isNull()
         assertThat(ebookDetailView.review.rating).isEqualTo(createReviewResponse.review.rating.toDouble())
@@ -730,7 +730,7 @@ internal class EbookControllerTest @Autowired constructor(
             .ebook
 
         assertThat(ebookDetailView.id).isEqualTo(response.ebook.id)
-        assertThat(File(ebookDetailView.mainImage.imagePath).exists()).isTrue()
+        assertThat(File(ebookDetailView.mainImage.imagePath.substring(1)).exists()).isTrue()
         assertThat(ebookDetailView.title).isEqualTo(response.ebook.title)
         assertThat(ebookDetailView.wishlistId).isNull()
         assertThat(ebookDetailView.review.rating).isZero()

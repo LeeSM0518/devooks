@@ -18,7 +18,8 @@ suspend inline fun saveImage(image: Image, rootPath: String): String =
         rootPath = rootPath,
         content = image.convertDecodedImage()
     ).await()
-        ?.absolutePath
+        ?.path
+        ?.let { "/$it" }
         ?: throw CommonError.FAIL_SAVE_FILE.exception
 
 fun saveFileOrNull(
