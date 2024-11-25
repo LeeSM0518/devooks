@@ -21,7 +21,7 @@ class BackendApplication(
     }
 
     companion object {
-        const val STATIC_ROOT_PATH = "/static"
+        const val STATIC_ROOT_PATH = "static"
         const val PROFILE_IMAGE_ROOT_PATH = "$STATIC_ROOT_PATH/profile-image"
         const val MAIN_IMAGE_ROOT_PATH = "$STATIC_ROOT_PATH/main-image"
         const val PDF_ROOT_PATH = "$STATIC_ROOT_PATH/pdf"
