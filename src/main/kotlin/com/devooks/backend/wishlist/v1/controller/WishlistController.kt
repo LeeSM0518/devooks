@@ -5,6 +5,8 @@ import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.domain.Ebook
+import com.devooks.backend.ebook.v1.dto.EbookView
+import com.devooks.backend.ebook.v1.dto.EbookView.Companion.toEbookView
 import com.devooks.backend.ebook.v1.service.EbookService
 import com.devooks.backend.wishlist.v1.domain.Wishlist
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistCommand
@@ -13,8 +15,6 @@ import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
 import com.devooks.backend.wishlist.v1.dto.DeleteWishlistCommand
 import com.devooks.backend.wishlist.v1.dto.DeleteWishlistResponse
 import com.devooks.backend.wishlist.v1.dto.GetWishlistCommand
-import com.devooks.backend.wishlist.v1.dto.WishlistView
-import com.devooks.backend.wishlist.v1.dto.WishlistView.Companion.toWishlistView
 import com.devooks.backend.wishlist.v1.service.WishlistService
 import jakarta.validation.Valid
 import java.util.*
@@ -64,11 +64,11 @@ class WishlistController(
         count: Int,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
-    ): PageResponse<WishlistView> {
+    ): PageResponse<EbookView> {
         val memberId = tokenService.getMemberId(Authorization(authorization))
         val command = GetWishlistCommand(memberId, categoryIdList, page, count)
-        val wishlists = wishlistService.get(command)
-        return wishlists.map { it.toWishlistView() }.toResponse()
+        val ebooks = wishlistService.get(command)
+        return ebooks.map { it.toEbookView() }.toResponse()
     }
 
     @Transactional
