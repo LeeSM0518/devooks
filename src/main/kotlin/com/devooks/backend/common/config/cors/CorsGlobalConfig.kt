@@ -11,8 +11,8 @@ class CorsGlobalConfig : WebFluxConfigurer {
         registry
             .addMapping("/**")
             .allowedOrigins("http://localhost:3000", "http://localhost:3001")
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .allowedHeaders("Authorization", "Content-Type", "X-Requested-With")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+            .allowedHeaders("Authorization", "Content-Type", "X-Requested-With", "Accepts")
             .allowCredentials(true)
     }
 }
