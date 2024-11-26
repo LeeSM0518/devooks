@@ -73,8 +73,9 @@ class NotificationRouter(
     ): CheckNotificationResponse {
         val memberId = tokenService.getMemberId(Authorization(authorization))
         val request = CheckNotificationsRequest(memberId, notificationId)
-        val size: Int = modifyNotificationUseCase.check(request)
-        return CheckNotificationResponse(size)
+        modifyNotificationUseCase.check(request)
+        val count = getNotificationUseCase.getCountOfUnchecked(memberId)
+        return CheckNotificationResponse(count)
     }
 
     private suspend fun getCountOfUncheckedNotifications(memberId: UUID): ServerSentEvent<StreamCountResponse> {

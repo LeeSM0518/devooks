@@ -125,10 +125,10 @@ internal class NotificationRouterTest @Autowired constructor(
             .expectBody<CheckNotificationResponse>()
             .returnResult()
             .responseBody!!
-            .count
+            .countOfUncheckedNotification
 
         // then
-        assertThat(count).isOne()
+        assertThat(count).isZero()
     }
 
     @Test
@@ -147,9 +147,9 @@ internal class NotificationRouterTest @Autowired constructor(
             .expectBody<CheckNotificationResponse>()
             .returnResult()
             .responseBody!!
-            .count
+            .countOfUncheckedNotification
 
         // then
-        assertThat(count).isOne()
+        assertThat(count).isZero()
     }
 }
