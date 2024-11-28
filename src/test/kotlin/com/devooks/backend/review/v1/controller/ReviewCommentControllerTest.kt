@@ -144,12 +144,13 @@ internal class ReviewCommentControllerTest @Autowired constructor(
         assertThat(reviewComment.content).isEqualTo(request.content)
 
         delay(100)
-        val notification = notificationRepository.findAll().toList().find { it.receiverId == review.writerMemberId }!!
+        val notification = notificationRepository.findAll().toList()
+            .find { it.receiverId == review.writer.memberId }!!
         assertThat(notification.type).isEqualTo(NotificationType.REVIEW_COMMENT)
-        assertThat(notification.receiverId).isEqualTo(review.writerMemberId)
+        assertThat(notification.receiverId).isEqualTo(review.writer.memberId)
         assertThat(notification.note["ebookId"]).isEqualTo(review.ebookId.toString())
         assertThat(notification.note["reviewId"]).isEqualTo(review.id.toString())
-        assertThat(notification.note["receiverId"]).isEqualTo(review.writerMemberId.toString())
+        assertThat(notification.note["receiverId"]).isEqualTo(review.writer.memberId.toString())
         assertThat(notification.note["commenterName"]).isEqualTo(expectedMember2.nickname)
     }
 

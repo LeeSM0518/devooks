@@ -141,7 +141,7 @@ internal class ReviewControllerTest @Autowired constructor(
         assertThat(review.rating).isEqualTo(createReviewRequest.rating)
         assertThat(review.content).isEqualTo(createReviewRequest.content)
         assertThat(review.ebookId).isEqualTo(createReviewRequest.ebookId)
-        assertThat(review.writerMemberId).isEqualTo(expectedMember2.id)
+        assertThat(review.writer.memberId).isEqualTo(expectedMember2.id)
 
         delay(100)
         val notification = notificationRepository.findAll().toList()[0]
@@ -174,7 +174,7 @@ internal class ReviewControllerTest @Autowired constructor(
         assertThat(review.ebookId).isEqualTo(createReviewResponse.ebookId)
         assertThat(review.content).isEqualTo(createReviewResponse.content)
         assertThat(review.rating).isEqualTo(createReviewResponse.rating)
-        assertThat(review.writerMemberId).isEqualTo(createReviewResponse.writerMemberId)
+        assertThat(review.writer).isEqualTo(createReviewResponse.writer)
         assertThat(review.writtenDate.toEpochMilli()).isEqualTo(createReviewResponse.writtenDate.toEpochMilli())
         assertThat(review.modifiedDate.toEpochMilli()).isEqualTo(createReviewResponse.modifiedDate.toEpochMilli())
     }

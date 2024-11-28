@@ -5,6 +5,8 @@ import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.service.EbookService
+import com.devooks.backend.member.v1.domain.Member
+import com.devooks.backend.member.v1.service.MemberService
 import com.devooks.backend.review.v1.controller.docs.ReviewControllerDocs
 import com.devooks.backend.review.v1.domain.Review
 import com.devooks.backend.review.v1.dto.CreateReviewCommand
@@ -18,6 +20,7 @@ import com.devooks.backend.review.v1.dto.ModifyReviewCommand
 import com.devooks.backend.review.v1.dto.ModifyReviewRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse.Companion.toModifyReviewResponse
+import com.devooks.backend.review.v1.dto.ReviewRow
 import com.devooks.backend.review.v1.dto.ReviewView
 import com.devooks.backend.review.v1.dto.ReviewView.Companion.toReviewView
 import com.devooks.backend.review.v1.service.ReviewEventService
@@ -47,6 +50,7 @@ class ReviewController(
     private val transactionService: TransactionService,
     private val ebookService: EbookService,
     private val reviewEventService: ReviewEventService,
+    private val memberService: MemberService,
 ) : ReviewControllerDocs {
 
     @Transactional
@@ -63,8 +67,9 @@ class ReviewController(
         ebookService.validate(command)
         transactionService.validate(command)
         val review: Review = reviewService.create(command)
+        val member: Member = memberService.findById(review.writerMemberId)
         reviewEventService.publish(review)
-        return review.toCreateReviewResponse()
+        return review.toCreateReviewResponse(member)
     }
 
     @GetMapping
@@ -77,7 +82,7 @@ class ReviewController(
         count: Int,
     ): PageResponse<ReviewView> {
         val command = GetReviewsCommand(ebookId, page, count)
-        val reviewList: Page<Review> = reviewService.get(command)
+        val reviewList: Page<ReviewRow> = reviewService.get(command)
         return reviewList.map { it.toReviewView() }.toResponse()
     }
 
@@ -95,7 +100,8 @@ class ReviewController(
         val requesterId = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyReviewCommand = request.toCommand(reviewId, requesterId)
         val review: Review = reviewService.modify(command)
-        return review.toModifyReviewResponse()
+        val member: Member = memberService.findById(review.writerMemberId)
+        return review.toModifyReviewResponse(member)
     }
 
     @Transactional

@@ -6,6 +6,7 @@ import com.devooks.backend.review.v1.dto.CreateReviewCommentCommand
 import com.devooks.backend.review.v1.dto.DeleteReviewCommand
 import com.devooks.backend.review.v1.dto.GetReviewsCommand
 import com.devooks.backend.review.v1.dto.ModifyReviewCommand
+import com.devooks.backend.review.v1.dto.ReviewRow
 import com.devooks.backend.review.v1.entity.ReviewEntity
 import com.devooks.backend.review.v1.error.ReviewError
 import com.devooks.backend.review.v1.repository.ReviewQueryRepository
@@ -33,7 +34,7 @@ class ReviewService(
         return reviewRepository.save(entity).toDomain()
     }
 
-    suspend fun get(command: GetReviewsCommand): Page<Review> {
+    suspend fun get(command: GetReviewsCommand): Page<ReviewRow> {
         val reviews = reviewQueryRepository.findBy(command)
         val count = reviewQueryRepository.countBy(command)
         return PageImpl(reviews.toList(), command.pageable, count.first())
