@@ -17,7 +17,7 @@ data class EbookView(
     @Schema(description = "판매자 정보")
     val seller: EbookSellerView,
     @Schema(description = "리뷰 정보")
-    val review: ReviewView,
+    val review: EbookReviewView,
     @Schema(description = "생성 날짜")
     val createdDate: Instant,
     @Schema(description = "수정 날짜")
@@ -39,7 +39,7 @@ data class EbookView(
                     nickname = this.sellerNickname,
                     profileImagePath = this.sellerProfileImagePath ?: "",
                 ),
-                review = ReviewView(
+                review = EbookReviewView(
                     rating = this.reviewRating,
                     count = this.reviewCount,
                 ),

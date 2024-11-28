@@ -23,7 +23,7 @@ data class EbookDetailView(
     @Schema(description = "판매자 정보")
     val seller: EbookSellerView,
     @Schema(description = "리뷰 정보")
-    val review: ReviewView,
+    val review: EbookReviewView,
     @Schema(description = "페이지 개수")
     val pageCount: Int,
     @Schema(description = "PDF 식별자")
@@ -45,7 +45,7 @@ data class EbookDetailView(
                 descriptionImageList = this.descriptionImageList,
                 wishlistId = this.wishlistId,
                 title = this.title,
-                review = ReviewView(
+                review = EbookReviewView(
                     rating = this.reviewRating,
                     count = this.reviewCount,
                 ),
