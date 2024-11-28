@@ -1,17 +1,20 @@
 package com.devooks.backend.review.v1.dto
 
-import com.devooks.backend.review.v1.error.validateReviewContent
-import com.devooks.backend.review.v1.error.validateReviewId
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotBlank
 import java.util.*
 
 data class CreateReviewCommentRequest(
-    val reviewId: String?,
-    val content: String?,
+    @Schema(description = "리뷰 식별자", required = true, implementation = UUID::class)
+    val reviewId: UUID,
+    @field:NotBlank
+    @Schema(description = "내용", required = true)
+    val content: String,
 ) {
     fun toCommand(requesterId: UUID): CreateReviewCommentCommand =
         CreateReviewCommentCommand(
-            reviewId = reviewId.validateReviewId(),
-            content = content.validateReviewContent(),
+            reviewId = reviewId,
+            content = content,
             requesterId = requesterId,
         )
 }

@@ -12,6 +12,8 @@ import java.time.Instant
 import java.util.*
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.stereotype.Service
 
 @Service
@@ -27,11 +29,13 @@ class ReviewCommentService(
         return reviewCommentRepository.save(entity).toDomain()
     }
 
-    suspend fun get(command: GetReviewCommentsCommand): List<ReviewComment> =
-        reviewCommentRepository
+    suspend fun get(command: GetReviewCommentsCommand): Page<ReviewComment> {
+        val reviewComments = reviewCommentRepository
             .findAllByReviewId(command.reviewId, command.pageable)
             .map { it.toDomain() }
-            .toList()
+        val count = reviewCommentRepository.countByReviewId(command.reviewId)
+        return PageImpl(reviewComments.toList(), command.pageable, count)
+    }
 
     suspend fun modify(command: ModifyReviewCommentCommand): ReviewComment =
         findBy(command.commentId)

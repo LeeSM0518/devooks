@@ -1,6 +1,7 @@
 package com.devooks.backend.review.v1.entity
 
 import com.devooks.backend.review.v1.domain.Review
+import com.devooks.backend.review.v1.dto.ModifyReviewCommand
 import java.time.Instant
 import java.util.*
 import org.springframework.data.annotation.Id
@@ -34,5 +35,12 @@ data class ReviewEntity(
             writerMemberId = this.writerMemberId,
             writtenDate = this.writtenDate,
             modifiedDate = this.modifiedDate,
+        )
+
+    fun update(command: ModifyReviewCommand) =
+        copy(
+            rating = command.rating ?: this.rating,
+            content = command.content ?: this.content,
+            modifiedDate = Instant.now(),
         )
 }

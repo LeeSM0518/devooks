@@ -1,14 +1,13 @@
 package com.devooks.backend.auth.v1.dto
 
-import com.devooks.backend.auth.v1.error.validateRefreshToken
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotBlank
 
 data class LogoutRequest(
-    @Schema(description = "Refresh 토큰", required = true, nullable = false)
-    val refreshToken: String?,
+    @field:NotBlank
+    @Schema(description = "Refresh 토큰", required = true)
+    val refreshToken: String,
 ) {
     fun toCommand(): LogoutCommand =
-        LogoutCommand(
-            refreshToken = refreshToken.validateRefreshToken()
-        )
+        LogoutCommand(refreshToken = refreshToken)
 }

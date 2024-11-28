@@ -59,42 +59,28 @@ class EbookImageService(
         val mainImageId = command.mainImageId
         return if (mainImageId != null) {
             ebookImageRepository
-                .findAllByEbookIdAndImageType(command.ebookId, MAIN)
-                .firstOrNull()
-                ?.let { ebookImageRepository.save(it.copy(ebookId = null)) }
+                .findByEbookIdAndImageType(command.ebookId, MAIN)
+                .also { ebookImage -> ebookImageRepository.delete(ebookImage) }
             save(listOf(command.mainImageId), ebook).first()
         } else {
-            ebookImageRepository.findAllByEbookIdAndImageType(command.ebookId, MAIN).first().toDomain()
+            ebookImageRepository.findByEbookIdAndImageType(command.ebookId, MAIN).toDomain()
         }
     }
 
     suspend fun modifyDescriptionImageList(command: ModifyEbookCommand, ebook: Ebook): List<EbookImage> {
-        val descriptionImageList = ebookImageRepository
+        val existingImageList = ebookImageRepository
             .findAllByEbookIdAndImageType(command.ebookId, DESCRIPTION)
 
-        val ebookImageList =
-            if (command.isChangedDescriptionImageList && command.descriptionImageIdList != null) {
-                val changeDescriptionImageIdList = command.descriptionImageIdList
-
-                val (deletedImages, existImages) =
-                    descriptionImageList
-                        .partition { image ->
-                            changeDescriptionImageIdList.all { descriptionImageId ->
-                                image.id != descriptionImageId
-                            }
-                        }
-
-                val newImageList =
-                    changeDescriptionImageIdList.filter { change -> existImages.none { it.id == change } }
-                val newEbookImageList = save(newImageList, ebook)
-
-                ebookImageRepository.deleteAll(deletedImages)
-
-                newEbookImageList.plus(existImages.map { it.toDomain() })
-            } else {
-                descriptionImageList.map { it.toDomain() }
-            }
-        return ebookImageList.sortedBy { it.order }
+        return command.descriptionImageIdList?.let { descriptionImageIdList ->
+            val (imagesToDelete, imageToKeep) =
+                partitionImages(existingImageList, descriptionImageIdList)
+            val newImageIdList = descriptionImageIdList.filterNot { id -> imageToKeep.any { it.id == id } }
+            save(newImageIdList, ebook)
+            ebookImageRepository.deleteAll(imagesToDelete)
+            updateImageOrder(descriptionImageIdList)
+        } ?: existingImageList
+            .map { it.toDomain() }
+            .sortedBy { it.order }
     }
 
     suspend fun validate(command: CreateEbookCommand) {
@@ -117,6 +103,23 @@ class EbookImageService(
         val savedImagePath = saveImage(image, rootPath)
         return savedImagePath
     }
+
+    private suspend fun updateImageOrder(descriptionImageIdList: List<UUID>): List<EbookImage> =
+        ebookImageRepository
+            .findAllById(descriptionImageIdList)
+            .map { it.copy(imageOrder = descriptionImageIdList.indexOf(it.id)) }
+            .let { ebookImageRepository.saveAll(it) }
+            .map { it.toDomain() }
+            .toList()
+            .sortedBy { it.order }
+
+    private fun partitionImages(
+        existingImageList: List<EbookImageEntity>,
+        imageIdList: List<UUID>,
+    ): Pair<List<EbookImageEntity>, List<EbookImageEntity>> =
+        existingImageList.partition { image ->
+            image.id !in imageIdList
+        }
 
     private suspend fun validateEbookImageList(
         ebookImageList: Flow<EbookImageEntity>,

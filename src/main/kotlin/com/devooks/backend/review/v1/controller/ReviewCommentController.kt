@@ -2,6 +2,9 @@ package com.devooks.backend.review.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
+import com.devooks.backend.review.v1.controller.docs.ReviewCommentControllerDocs
 import com.devooks.backend.review.v1.domain.ReviewComment
 import com.devooks.backend.review.v1.dto.CreateReviewCommentCommand
 import com.devooks.backend.review.v1.dto.CreateReviewCommentRequest
@@ -10,15 +13,18 @@ import com.devooks.backend.review.v1.dto.CreateReviewCommentResponse.Companion.t
 import com.devooks.backend.review.v1.dto.DeleteReviewCommentCommand
 import com.devooks.backend.review.v1.dto.DeleteReviewCommentResponse
 import com.devooks.backend.review.v1.dto.GetReviewCommentsCommand
-import com.devooks.backend.review.v1.dto.GetReviewCommentsResponse
-import com.devooks.backend.review.v1.dto.GetReviewCommentsResponse.Companion.toGetReviewCommentsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentCommand
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse.Companion.toModifyReviewCommentResponse
+import com.devooks.backend.review.v1.dto.ReviewCommentView
+import com.devooks.backend.review.v1.dto.ReviewCommentView.Companion.toReviewCommentView
 import com.devooks.backend.review.v1.service.ReviewCommentEventService
 import com.devooks.backend.review.v1.service.ReviewCommentService
 import com.devooks.backend.review.v1.service.ReviewService
+import jakarta.validation.Valid
+import java.util.UUID
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -39,11 +45,12 @@ class ReviewCommentController(
     private val reviewCommentEventService: ReviewCommentEventService,
     private val tokenService: TokenService,
     private val reviewService: ReviewService,
-) {
+): ReviewCommentControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createReviewComment(
+    override suspend fun createReviewComment(
+        @Valid
         @RequestBody
         request: CreateReviewCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -58,24 +65,25 @@ class ReviewCommentController(
     }
 
     @GetMapping
-    suspend fun getReviewComments(
-        @RequestParam(required = false, defaultValue = "")
-        reviewId: String,
-        @RequestParam(required = false, defaultValue = "")
-        page: String,
-        @RequestParam(required = false, defaultValue = "")
-        count: String,
-    ): GetReviewCommentsResponse {
+    override suspend fun getReviewComments(
+        @RequestParam
+        reviewId: UUID,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
+    ): PageResponse<ReviewCommentView> {
         val command = GetReviewCommentsCommand(reviewId, page, count)
-        val reviewCommentList: List<ReviewComment> = reviewCommentService.get(command)
-        return reviewCommentList.toGetReviewCommentsResponse()
+        val reviewCommentList: Page<ReviewComment> = reviewCommentService.get(command)
+        return reviewCommentList.map { it.toReviewCommentView() }.toResponse()
     }
 
     @Transactional
     @PatchMapping("/{commentId}")
-    suspend fun modifyReviewComment(
-        @PathVariable(name = "commentId", required = false)
-        commentId: String,
+    override suspend fun modifyReviewComment(
+        @PathVariable(name = "commentId")
+        commentId: UUID,
+        @Valid
         @RequestBody
         request: ModifyReviewCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -89,9 +97,9 @@ class ReviewCommentController(
 
     @Transactional
     @DeleteMapping("/{commentId}")
-    suspend fun deleteReviewComment(
-        @PathVariable(name = "commentId", required = false)
-        commentId: String,
+    override suspend fun deleteReviewComment(
+        @PathVariable(name = "commentId")
+        commentId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteReviewCommentResponse {

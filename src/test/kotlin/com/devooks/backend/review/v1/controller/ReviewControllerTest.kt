@@ -5,7 +5,9 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
@@ -28,10 +30,9 @@ import com.devooks.backend.pdf.v1.repository.PdfRepository
 import com.devooks.backend.pdf.v1.repository.PreviewImageRepository
 import com.devooks.backend.review.v1.dto.CreateReviewRequest
 import com.devooks.backend.review.v1.dto.CreateReviewResponse
-import com.devooks.backend.review.v1.dto.GetReviewsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse
-import com.devooks.backend.review.v1.dto.ReviewDto
+import com.devooks.backend.review.v1.dto.ReviewView
 import com.devooks.backend.review.v1.repository.ReviewRepository
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionRequest
@@ -119,8 +120,8 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
-                rating = "5",
+                ebookId = createEbookResponse.ebook.id,
+                rating = 5,
                 content = "content"
             )
         val createReviewResponse = webTestClient
@@ -137,9 +138,9 @@ internal class ReviewControllerTest @Autowired constructor(
             .responseBody!!
 
         val review = createReviewResponse.review
-        assertThat(review.rating.toString()).isEqualTo(createReviewRequest.rating)
+        assertThat(review.rating).isEqualTo(createReviewRequest.rating)
         assertThat(review.content).isEqualTo(createReviewRequest.content)
-        assertThat(review.ebookId.toString()).isEqualTo(createReviewRequest.ebookId)
+        assertThat(review.ebookId).isEqualTo(createReviewRequest.ebookId)
         assertThat(review.writerMemberId).isEqualTo(expectedMember2.id)
 
         delay(100)
@@ -162,35 +163,13 @@ internal class ReviewControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetReviewsResponse>()
+            .expectBody<PageResponse<ReviewView>>()
             .returnResult()
             .responseBody!!
 
-        val review = getReviewsResponse.reviews[0]
-        assertThat(review.id).isEqualTo(createReviewResponse.id)
-        assertThat(review.ebookId).isEqualTo(createReviewResponse.ebookId)
-        assertThat(review.content).isEqualTo(createReviewResponse.content)
-        assertThat(review.rating).isEqualTo(createReviewResponse.rating)
-        assertThat(review.writerMemberId).isEqualTo(createReviewResponse.writerMemberId)
-        assertThat(review.writtenDate.toEpochMilli()).isEqualTo(createReviewResponse.writtenDate.toEpochMilli())
-        assertThat(review.modifiedDate.toEpochMilli()).isEqualTo(createReviewResponse.modifiedDate.toEpochMilli())
-    }
-
-    @Test
-    fun `회원에 대한 리뷰를 조회할 수 있다`(): Unit = runBlocking {
-        val createReviewResponse = postCreateReview()
-
-        val getReviewsResponse = webTestClient
-            .get()
-            .uri("/api/v1/reviews?page=1&count=10&memberId=${expectedMember1.id}")
-            .accept(APPLICATION_JSON)
-            .exchange()
-            .expectStatus().isOk
-            .expectBody<GetReviewsResponse>()
-            .returnResult()
-            .responseBody!!
-
-        val review = getReviewsResponse.reviews[0]
+        val review = getReviewsResponse.data[0]
+        assertThat(getReviewsResponse.pageable.totalPages).isEqualTo(1)
+        assertThat(getReviewsResponse.pageable.totalElements).isEqualTo(1)
         assertThat(review.id).isEqualTo(createReviewResponse.id)
         assertThat(review.ebookId).isEqualTo(createReviewResponse.ebookId)
         assertThat(review.content).isEqualTo(createReviewResponse.content)
@@ -205,7 +184,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewResponse = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
         val request = ModifyReviewRequest(
-            rating = "5",
+            rating = 5,
             content = "content"
         )
 
@@ -224,7 +203,7 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val review = modifyReviewsResponse.review
         assertThat(review.content).isEqualTo(request.content)
-        assertThat(review.rating.toString()).isEqualTo(request.rating)
+        assertThat(review.rating).isEqualTo(request.rating)
     }
 
     @Test
@@ -260,7 +239,7 @@ internal class ReviewControllerTest @Autowired constructor(
         postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
         val request = ModifyReviewRequest(
-            rating = "5",
+            rating = 5,
             content = "content"
         )
 
@@ -280,7 +259,7 @@ internal class ReviewControllerTest @Autowired constructor(
         val createReviewResponse = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val request = ModifyReviewRequest(
-            rating = "5",
+            rating = 5,
             content = "content"
         )
 
@@ -301,29 +280,8 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
-                rating = "6",
-                content = "content"
-            )
-        webTestClient
-            .post()
-            .uri("/api/v1/reviews")
-            .header(AUTHORIZATION, "Bearer $accessToken")
-            .contentType(APPLICATION_JSON)
-            .accept(APPLICATION_JSON)
-            .bodyValue(createReviewRequest)
-            .exchange()
-            .expectStatus().isBadRequest
-    }
-
-    @Test
-    fun `리뷰를 작성시 평점이 숫자가 아닐경우 예외가 발생한다`(): Unit = runBlocking {
-        val (createEbookResponse, accessToken) = postCreateEbookAndCreateTransaction()
-
-        val createReviewRequest =
-            CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
-                rating = "a",
+                ebookId = createEbookResponse.ebook.id,
+                rating = 6,
                 content = "content"
             )
         webTestClient
@@ -344,8 +302,8 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
-                rating = "5",
+                ebookId = createEbookResponse.ebook.id,
+                rating = 5,
                 content = "content"
             )
         webTestClient
@@ -365,8 +323,8 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = UUID.randomUUID().toString(),
-                rating = "5",
+                ebookId = UUID.randomUUID(),
+                rating = 5,
                 content = "content"
             )
         webTestClient
@@ -386,8 +344,8 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
-                rating = "5",
+                ebookId = createEbookResponse.ebook.id,
+                rating = 5,
                 content = "content"
             )
         webTestClient
@@ -411,13 +369,13 @@ internal class ReviewControllerTest @Autowired constructor(
             .expectStatus().isEqualTo(CONFLICT.code())
     }
 
-    private suspend fun postCreateReview(): ReviewDto {
+    private suspend fun postCreateReview(): ReviewView {
         val (createEbookResponse, accessToken) = postCreateEbookAndCreateTransaction()
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
-                rating = "5",
+                ebookId = createEbookResponse.ebook.id,
+                rating = 5,
                 content = "content"
             )
         val createReviewResponse = webTestClient
@@ -438,8 +396,8 @@ internal class ReviewControllerTest @Autowired constructor(
     private suspend fun postCreateEbookAndCreateTransaction(): Pair<CreateEbookResponse, AccessToken> {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            ebookId = createEbookResponse.ebook.id,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -471,14 +429,14 @@ internal class ReviewControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -499,7 +457,7 @@ internal class ReviewControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -507,15 +465,13 @@ internal class ReviewControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -537,15 +493,15 @@ internal class ReviewControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
-    ): SaveMainImageResponse.MainImageDto {
+    ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

@@ -5,9 +5,12 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
+import com.devooks.backend.ebook.v1.dto.EbookView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveMainImageRequest
@@ -26,7 +29,6 @@ import com.devooks.backend.pdf.v1.repository.PdfRepository
 import com.devooks.backend.pdf.v1.repository.PreviewImageRepository
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistRequest
 import com.devooks.backend.wishlist.v1.dto.CreateWishlistResponse
-import com.devooks.backend.wishlist.v1.dto.GetWishlistResponse
 import com.devooks.backend.wishlist.v1.repository.WishlistCrudRepository
 import io.netty.handler.codec.http.HttpResponseStatus.CONFLICT
 import java.io.File
@@ -111,7 +113,7 @@ internal class WishlistControllerTest @Autowired constructor(
     fun `존재하지 않는 전자책을 찜할 경우 예외가 발생한다`(): Unit = runBlocking {
         val accessToken = tokenService.createTokenGroup(expectedMember).accessToken
         val request = CreateWishlistRequest(
-            ebookId = UUID.randomUUID().toString()
+            ebookId = UUID.randomUUID()
         )
 
         webTestClient
@@ -130,7 +132,7 @@ internal class WishlistControllerTest @Autowired constructor(
         val (accessToken, createEbookResponse) = postCreateEbook()
 
         val request = CreateWishlistRequest(
-            ebookId = createEbookResponse.ebook.id.toString()
+            ebookId = createEbookResponse.ebook.id
         )
 
         webTestClient
@@ -160,21 +162,24 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val response = postCreateWishlist(createEbookResponse, accessToken)
 
-        val wishlist = webTestClient
+        val pageEbookList = webTestClient
             .get()
             .uri("/api/v1/wishlist?page=1&count=10")
             .header(AUTHORIZATION, "Bearer $accessToken")
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetWishlistResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .wishlist
 
-        assertThat(wishlist[0].id).isEqualTo(response.wishlistId)
-        assertThat(wishlist[0].ebookId).isEqualTo(response.ebookId)
-        assertThat(wishlist[0].memberId).isEqualTo(response.memberId)
+        val ebookList = pageEbookList.data
+
+        assertThat(pageEbookList.pageable.totalPages).isEqualTo(1)
+        assertThat(pageEbookList.pageable.totalElements).isEqualTo(1)
+        assertThat(ebookList.size).isEqualTo(1)
+        assertThat(ebookList[0].id).isEqualTo(response.ebookId)
+        assertThat(ebookList[0].wishlistId).isEqualTo(response.wishlistId)
     }
 
     @Test
@@ -183,7 +188,7 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val response = postCreateWishlist(createEbookResponse, accessToken)
 
-        val wishlist = webTestClient
+        val pageEbookList = webTestClient
             .get()
             .uri(
                 "/api/v1/wishlist?page=1&count=10&" +
@@ -194,14 +199,17 @@ internal class WishlistControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetWishlistResponse>()
+            .expectBody<PageResponse<EbookView>>()
             .returnResult()
             .responseBody!!
-            .wishlist
 
-        assertThat(wishlist[0].id).isEqualTo(response.wishlistId)
-        assertThat(wishlist[0].ebookId).isEqualTo(response.ebookId)
-        assertThat(wishlist[0].memberId).isEqualTo(response.memberId)
+        val ebookList = pageEbookList.data
+
+        assertThat(pageEbookList.pageable.totalPages).isEqualTo(1)
+        assertThat(pageEbookList.pageable.totalElements).isEqualTo(1)
+        assertThat(ebookList.size).isEqualTo(1)
+        assertThat(ebookList[0].id).isEqualTo(response.ebookId)
+        assertThat(ebookList[0].wishlistId).isEqualTo(response.wishlistId)
     }
 
     @Test
@@ -255,7 +263,7 @@ internal class WishlistControllerTest @Autowired constructor(
 
         webTestClient
             .delete()
-            .uri("/api/v1/wishlist/ ")
+            .uri("/api/v1/wishlist/asd")
             .accept(APPLICATION_JSON)
             .header(AUTHORIZATION, "Bearer $accessToken")
             .exchange()
@@ -267,7 +275,7 @@ internal class WishlistControllerTest @Autowired constructor(
         accessToken: AccessToken,
     ): CreateWishlistResponse {
         val request = CreateWishlistRequest(
-            ebookId = createEbookResponse.ebook.id.toString()
+            ebookId = createEbookResponse.ebook.id
         )
 
         val response = webTestClient
@@ -295,14 +303,14 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -323,7 +331,7 @@ internal class WishlistControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -331,15 +339,13 @@ internal class WishlistControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -361,15 +367,15 @@ internal class WishlistControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
-    ): SaveMainImageResponse.MainImageDto {
+    ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

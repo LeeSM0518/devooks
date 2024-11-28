@@ -60,33 +60,37 @@ class ServiceInquiryImageService(
         command: ModifyServiceInquiryCommand,
         serviceInquiry: ServiceInquiry,
     ): List<ServiceInquiryImage> {
-        val serviceInquiryImageList =
-            serviceInquiryImageCrudRepository
-                .findAllByServiceInquiryId(command.serviceInquiryId)
+        val existingImageList = serviceInquiryImageCrudRepository
+            .findAllByServiceInquiryId(command.serviceInquiryId)
 
-        val changedServiceInquiryImageList =
-            if (command.isChangedImageList) {
-                val changeImageIdList = command.imageIdList!!
-
-                val (deletedImageList, existImageList) =
-                    serviceInquiryImageList
-                        .partition { image ->
-                            changeImageIdList.all { imageId ->
-                                image.id != imageId
-                            }
-                        }
-
-                val newImageList = changeImageIdList.filter { change -> existImageList.none { it.id == change } }
-                val newServiceInquiryImageList = save(newImageList, serviceInquiry)
-
-                serviceInquiryImageCrudRepository.deleteAll(deletedImageList)
-
-                newServiceInquiryImageList.plus(existImageList.map { it.toDomain() })
-            } else {
-                serviceInquiryImageList.map { it.toDomain() }
-            }
-        return changedServiceInquiryImageList.sortedBy { it.order }
+        return command.imageIdList?.let { imageIdList ->
+            val (imagesToDelete, imageToKeep) =
+                partitionImages(existingImageList, imageIdList)
+            val newImageIdList = imageIdList.filterNot { id -> imageToKeep.any { it.id == id } }
+            save(newImageIdList, serviceInquiry)
+            serviceInquiryImageCrudRepository.deleteAll(imagesToDelete)
+            updateImageOrder(imageIdList)
+        } ?: existingImageList
+            .map { it.toDomain() }
+            .sortedBy { it.order }
     }
+
+    private suspend fun updateImageOrder(imageIdList: List<UUID>): List<ServiceInquiryImage> =
+        serviceInquiryImageCrudRepository
+            .findAllById(imageIdList)
+            .map { it.copy(imageOrder = imageIdList.indexOf(it.id)) }
+            .let { serviceInquiryImageCrudRepository.saveAll(it) }
+            .map { it.toDomain() }
+            .toList()
+            .sortedBy { it.order }
+
+    private fun partitionImages(
+        existingImageList: List<ServiceInquiryImageEntity>,
+        imageIdList: List<UUID>,
+    ): Pair<List<ServiceInquiryImageEntity>, List<ServiceInquiryImageEntity>> =
+        existingImageList.partition { image ->
+            image.id !in imageIdList
+        }
 
 
 }

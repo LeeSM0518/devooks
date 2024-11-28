@@ -4,9 +4,14 @@ import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.domain.Category
 import com.devooks.backend.category.v1.service.CategoryService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.controller.docs.EbookControllerDocs
 import com.devooks.backend.ebook.v1.domain.Ebook
 import com.devooks.backend.ebook.v1.domain.EbookImage
+import com.devooks.backend.ebook.v1.domain.EbookOrder
+import com.devooks.backend.ebook.v1.dto.EbookView
+import com.devooks.backend.ebook.v1.dto.EbookView.Companion.toEbookView
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.DeleteEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.GetDetailOfEbookCommand
@@ -19,13 +24,12 @@ import com.devooks.backend.ebook.v1.dto.response.DeleteEbookResponse
 import com.devooks.backend.ebook.v1.dto.response.EbookResponse
 import com.devooks.backend.ebook.v1.dto.response.GetDetailOfEbookResponse
 import com.devooks.backend.ebook.v1.dto.response.GetDetailOfEbookResponse.Companion.toGetDetailOfEbookResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbooksResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbooksResponse.Companion.toGetEbooksResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookResponse
 import com.devooks.backend.ebook.v1.service.EbookImageService
 import com.devooks.backend.ebook.v1.service.EbookService
 import com.devooks.backend.ebook.v1.service.RelatedCategoryService
 import com.devooks.backend.pdf.v1.service.PdfService
+import jakarta.validation.Valid
 import java.util.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -54,6 +58,7 @@ class EbookController(
     @Transactional
     @PostMapping
     override suspend fun createEbook(
+        @Valid
         @RequestBody
         request: CreateEbookRequest,
         @RequestHeader(AUTHORIZATION)
@@ -75,29 +80,27 @@ class EbookController(
 
     @GetMapping
     override suspend fun getEbooks(
-        @RequestParam(required = false, defaultValue = "")
-        page: String,
-        @RequestParam(required = false, defaultValue = "")
-        count: String,
-        @RequestParam(required = false, defaultValue = "")
-        title: String,
-        @RequestParam(required = false, defaultValue = "")
-        sellingMemberId: String,
-        @RequestParam(required = false, defaultValue = "")
-        ebookIdList: List<String>,
-        @RequestParam(required = false, defaultValue = "")
-        categoryIdList: List<String>,
-        @RequestParam(required = false, defaultValue = "")
-        orderBy: String,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
-        authorization: String,
-    ): GetEbooksResponse {
-        val requesterId = authorization
-            .takeIf { it.isNotBlank() }
-            ?.let { tokenService.getMemberId(Authorization(it)) }
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
+        @RequestParam(required = false)
+        title: String?,
+        @RequestParam(required = false)
+        sellerMemberId: UUID?,
+        @RequestParam(required = false)
+        ebookIdList: List<UUID>?,
+        @RequestParam(required = false)
+        categoryIdList: List<UUID>?,
+        @RequestParam(required = false)
+        orderBy: EbookOrder?,
+        @RequestHeader(AUTHORIZATION)
+        authorization: String?,
+    ): PageResponse<EbookView> {
+        val requesterId = authorization?.let { tokenService.getMemberId(Authorization(it)) }
         val command = GetEbookCommand(
             title = title,
-            sellingMemberId = sellingMemberId,
+            sellerMemberId = sellerMemberId,
             ebookIdList = ebookIdList,
             categoryIdList = categoryIdList,
             orderBy = orderBy,
@@ -105,19 +108,18 @@ class EbookController(
             page = page,
             count = count
         )
-        return ebookService.get(command).toGetEbooksResponse()
+        val ebooks = ebookService.get(command)
+        return ebooks.map { it.toEbookView() }.toResponse()
     }
 
     @GetMapping("/{ebookId}")
     override suspend fun getDetailOfEbook(
-        @PathVariable("ebookId", required = true)
-        ebookId: String,
-        @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
-        authorization: String,
+        @PathVariable("ebookId")
+        ebookId: UUID,
+        @RequestHeader(AUTHORIZATION, required = false)
+        authorization: String?,
     ): GetDetailOfEbookResponse {
-        val requesterId = authorization
-            .takeIf { it.isNotBlank() }
-            ?.let { tokenService.getMemberId(Authorization(it)) }
+        val requesterId = authorization?.let { tokenService.getMemberId(Authorization(it)) }
         val command = GetDetailOfEbookCommand(ebookId, requesterId)
         return ebookService.get(command).toGetDetailOfEbookResponse()
     }
@@ -125,8 +127,9 @@ class EbookController(
     @Transactional
     @PatchMapping("/{ebookId}")
     override suspend fun modifyEbook(
-        @PathVariable("ebookId", required = true)
-        ebookId: String,
+        @PathVariable("ebookId")
+        ebookId: UUID,
+        @Valid
         @RequestBody
         request: ModifyEbookRequest,
         @RequestHeader(AUTHORIZATION)
@@ -144,8 +147,8 @@ class EbookController(
     @Transactional
     @DeleteMapping("/{ebookId}")
     override suspend fun deleteEbook(
-        @PathVariable("ebookId", required = true)
-        ebookId: String,
+        @PathVariable("ebookId")
+        ebookId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteEbookResponse {

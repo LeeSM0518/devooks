@@ -4,7 +4,6 @@ import com.devooks.backend.transaciton.v1.domain.PaymentMethod.BANK_DEPOSIT
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod.CREDIT_CARD
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod.MOBILE_PHONE
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod.REAL_TIME_BANK_TRANSFER
-import com.devooks.backend.transaciton.v1.error.TransactionError
 
 /**
  * 결제 방법
@@ -17,13 +16,4 @@ import com.devooks.backend.transaciton.v1.error.TransactionError
  */
 enum class PaymentMethod {
     CREDIT_CARD, REAL_TIME_BANK_TRANSFER, BANK_DEPOSIT, MOBILE_PHONE;
-
-    companion object {
-        fun String.toPaymentMethod(): PaymentMethod =
-            runCatching {
-                PaymentMethod.valueOf(this)
-            }.getOrElse {
-                throw TransactionError.INVALID_PAYMENT_METHOD.exception
-            }
-    }
 }

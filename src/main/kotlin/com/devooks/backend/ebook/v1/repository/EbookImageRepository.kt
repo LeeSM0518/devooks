@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface EbookImageRepository : CoroutineCrudRepository<EbookImageEntity, UUID> {
     suspend fun findAllByEbookIdAndImageType(ebookId: UUID, imageType: EbookImageType): List<EbookImageEntity>
+    suspend fun findByEbookIdAndImageType(ebookId: UUID, imageType: EbookImageType): EbookImageEntity
 }

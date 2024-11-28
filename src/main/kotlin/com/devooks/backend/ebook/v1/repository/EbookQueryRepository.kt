@@ -14,12 +14,18 @@ import com.devooks.backend.jooq.tables.references.PDF
 import com.devooks.backend.jooq.tables.references.RELATED_CATEGORY
 import com.devooks.backend.jooq.tables.references.REVIEW
 import com.devooks.backend.jooq.tables.references.WISHLIST
+import com.devooks.backend.wishlist.v1.dto.GetWishlistCommand
+import java.math.BigDecimal
 import java.util.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.jooq.Condition
 import org.jooq.DSLContext
+import org.jooq.JSON
+import org.jooq.Record2
+import org.jooq.Record3
+import org.jooq.Table
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.key
@@ -29,31 +35,63 @@ import org.springframework.stereotype.Repository
 @Repository
 class EbookQueryRepository : JooqR2dbcRepository() {
 
-    suspend fun findBy(command: GetEbookCommand): Flow<EbookRow> =
+    suspend fun count(command: GetEbookCommand): Flow<Long> =
         query {
-            val reviewSubQuery = getReviewSubQuery()
-            val mainImageSubQuery = getMainImageSubQuery()
             val relatedCategorySubQuery = getRelatedCategorySubQuery()
 
             select(
-                EBOOK.EBOOK_ID,
-                EBOOK.TITLE,
-                EBOOK.PRICE,
-                MEMBER.MEMBER_ID.`as`("seller_member_id"),
-                MEMBER.NICKNAME.`as`("seller_nickname"),
-                MEMBER.PROFILE_IMAGE_PATH.`as`("seller_profile_image_path"),
-                DSL.coalesce(reviewSubQuery.field("review_rating"), 0.0)
-                    .`as`("review_rating"),
-                DSL.coalesce(reviewSubQuery.field("review_count"), 0)
-                    .`as`("review_count"),
-                EBOOK.CREATED_DATE,
-                EBOOK.MODIFIED_DATE,
-                DSL.coalesce(
-                    relatedCategorySubQuery.field("related_category_id_list"),
-                    DSL.inline("{}")
-                ).`as`("related_category_id_list"),
-                WISHLIST.WISHLIST_ID,
-                mainImageSubQuery.field("main_image_json_data"),
+                DSL.count()
+            ).from(
+                EBOOK
+                    .leftJoin(relatedCategorySubQuery).on(
+                        EBOOK.EBOOK_ID.eq(relatedCategorySubQuery.field("ebook_id", UUID::class.java))
+                    )
+            ).where(
+                buildConditionsToGetEbooks(
+                    title = command.title,
+                    sellerMemberId = command.sellerMemberId,
+                    ebookIdList = command.ebookIdList,
+                    categoryIdList = command.categoryIdList
+                )
+            )
+        }.map { it.into(Long::class.java) }
+
+    suspend fun findWishlistBy(command: GetWishlistCommand): Flow<EbookRow> =
+        query {
+            val (reviewSubQuery, mainImageSubQuery, relatedCategorySubQuery) = getSubQueries()
+
+            getEbookRowSelectQuery(
+                reviewSubQuery, relatedCategorySubQuery, mainImageSubQuery
+            ).from(
+                EBOOK
+                    .join(MEMBER).on(EBOOK.SELLING_MEMBER_ID.eq(MEMBER.MEMBER_ID))
+                    .join(WISHLIST).on(
+                        EBOOK.EBOOK_ID.eq(WISHLIST.EBOOK_ID).and(WISHLIST.MEMBER_ID.eq(command.memberId))
+                    )
+                    .leftJoin(reviewSubQuery).on(
+                        EBOOK.EBOOK_ID.eq(reviewSubQuery.field("ebook_id", UUID::class.java))
+                    )
+                    .leftJoin(mainImageSubQuery).on(
+                        EBOOK.EBOOK_ID.eq(mainImageSubQuery.field("ebook_id", UUID::class.java))
+                    )
+                    .leftJoin(relatedCategorySubQuery).on(
+                        EBOOK.EBOOK_ID.eq(relatedCategorySubQuery.field("ebook_id", UUID::class.java))
+                    )
+            ).where(
+                buildConditionsToGetEbooks(categoryIdList = command.categoryIdList)
+            ).orderBy(
+                WISHLIST.CREATED_DATE.desc()
+            ).offset(command.offset).limit(command.limit)
+        }.map {
+            it.into(EbookRow::class.java)
+        }
+
+    suspend fun findEbooksBy(command: GetEbookCommand): Flow<EbookRow> =
+        query {
+            val (reviewSubQuery, mainImageSubQuery, relatedCategorySubQuery) = getSubQueries()
+
+            getEbookRowSelectQuery(
+                reviewSubQuery, relatedCategorySubQuery, mainImageSubQuery
             ).from(
                 EBOOK
                     .join(MEMBER).on(EBOOK.SELLING_MEMBER_ID.eq(MEMBER.MEMBER_ID))
@@ -70,7 +108,12 @@ class EbookQueryRepository : JooqR2dbcRepository() {
                         EBOOK.EBOOK_ID.eq(relatedCategorySubQuery.field("ebook_id", UUID::class.java))
                     )
             ).where(
-                buildConditionsToGetEbooks(command)
+                buildConditionsToGetEbooks(
+                    title = command.title,
+                    sellerMemberId = command.sellerMemberId,
+                    ebookIdList = command.ebookIdList,
+                    categoryIdList = command.categoryIdList
+                )
             ).run {
                 when (command.orderBy) {
                     EbookOrder.LATEST -> orderBy(EBOOK.CREATED_DATE.desc())
@@ -81,7 +124,7 @@ class EbookQueryRepository : JooqR2dbcRepository() {
             it.into(EbookRow::class.java)
         }
 
-    suspend fun findBy(command: GetDetailOfEbookCommand): EbookDetailRow? =
+    suspend fun findEbooksBy(command: GetDetailOfEbookCommand): EbookDetailRow? =
         query {
             val reviewSubQuery = getReviewSubQuery()
             val mainImageSubQuery = getMainImageSubQuery()
@@ -141,6 +184,38 @@ class EbookQueryRepository : JooqR2dbcRepository() {
             it.into(EbookDetailRow::class.java)
         }.firstOrNull()
 
+    private fun DSLContext.getEbookRowSelectQuery(
+        reviewSubQuery: Table<Record3<UUID?, BigDecimal, Int>>,
+        relatedCategorySubQuery: Table<Record2<UUID?, Array<UUID?>>>,
+        mainImageSubQuery: Table<Record2<UUID?, JSON>>,
+    ) = select(
+        EBOOK.EBOOK_ID,
+        EBOOK.TITLE,
+        EBOOK.PRICE,
+        MEMBER.MEMBER_ID.`as`("seller_member_id"),
+        MEMBER.NICKNAME.`as`("seller_nickname"),
+        MEMBER.PROFILE_IMAGE_PATH.`as`("seller_profile_image_path"),
+        DSL.coalesce(reviewSubQuery.field("review_rating"), 0.0)
+            .`as`("review_rating"),
+        DSL.coalesce(reviewSubQuery.field("review_count"), 0)
+            .`as`("review_count"),
+        EBOOK.CREATED_DATE,
+        EBOOK.MODIFIED_DATE,
+        DSL.coalesce(
+            relatedCategorySubQuery.field("related_category_id_list"),
+            DSL.inline("{}")
+        ).`as`("related_category_id_list"),
+        WISHLIST.WISHLIST_ID,
+        mainImageSubQuery.field("main_image_json_data"),
+    )
+
+    private fun DSLContext.getSubQueries(): Triple<Table<Record3<UUID?, BigDecimal, Int>>, Table<Record2<UUID?, JSON>>, Table<Record2<UUID?, Array<UUID?>>>> {
+        val reviewSubQuery = getReviewSubQuery()
+        val mainImageSubQuery = getMainImageSubQuery()
+        val relatedCategorySubQuery = getRelatedCategorySubQuery()
+        return Triple(reviewSubQuery, mainImageSubQuery, relatedCategorySubQuery)
+    }
+
     private fun DSLContext.getDescriptionImageSubQuery() =
         select(
             EBOOK_IMAGE.EBOOK_ID,
@@ -194,24 +269,29 @@ class EbookQueryRepository : JooqR2dbcRepository() {
             EBOOK_IMAGE.IMAGE_TYPE.eq(EbookImageType.MAIN.name)
         ).asTable("ebook_main_image")
 
-    private fun buildConditionsToGetEbooks(command: GetEbookCommand): List<Condition> {
+    private fun buildConditionsToGetEbooks(
+        title: String? = null,
+        sellerMemberId: UUID? = null,
+        ebookIdList: List<UUID>? = null,
+        categoryIdList: List<UUID>? = null,
+    ): List<Condition> {
         val conditions = mutableListOf<Condition>()
 
         conditions.add(EBOOK.DELETED_DATE.isNull)
 
-        command.title?.also {
+        title?.also {
             conditions.add(EBOOK.TITLE.likeIgnoreCase(it))
         }
 
-        command.sellingMemberId?.also {
+        sellerMemberId?.also {
             conditions.add(EBOOK.SELLING_MEMBER_ID.eq(it))
         }
 
-        command.ebookIdList?.also {
+        ebookIdList?.also {
             conditions.add(EBOOK.EBOOK_ID.`in`(it))
         }
 
-        command.categoryIdList?.also {
+        categoryIdList?.also {
             conditions.add(
                 field("related_category_id_list", SQLDataType.UUID.arrayDataType)
                     .contains(it.toTypedArray())

@@ -2,7 +2,10 @@ package com.devooks.backend.review.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
 import com.devooks.backend.ebook.v1.service.EbookService
+import com.devooks.backend.review.v1.controller.docs.ReviewControllerDocs
 import com.devooks.backend.review.v1.domain.Review
 import com.devooks.backend.review.v1.dto.CreateReviewCommand
 import com.devooks.backend.review.v1.dto.CreateReviewRequest
@@ -11,16 +14,18 @@ import com.devooks.backend.review.v1.dto.CreateReviewResponse.Companion.toCreate
 import com.devooks.backend.review.v1.dto.DeleteReviewCommand
 import com.devooks.backend.review.v1.dto.DeleteReviewResponse
 import com.devooks.backend.review.v1.dto.GetReviewsCommand
-import com.devooks.backend.review.v1.dto.GetReviewsResponse
-import com.devooks.backend.review.v1.dto.GetReviewsResponse.Companion.toGetReviewsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommand
 import com.devooks.backend.review.v1.dto.ModifyReviewRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewResponse.Companion.toModifyReviewResponse
+import com.devooks.backend.review.v1.dto.ReviewView
+import com.devooks.backend.review.v1.dto.ReviewView.Companion.toReviewView
 import com.devooks.backend.review.v1.service.ReviewEventService
 import com.devooks.backend.review.v1.service.ReviewService
 import com.devooks.backend.transaciton.v1.service.TransactionService
+import jakarta.validation.Valid
 import java.util.*
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -42,11 +47,12 @@ class ReviewController(
     private val transactionService: TransactionService,
     private val ebookService: EbookService,
     private val reviewEventService: ReviewEventService,
-) {
+) : ReviewControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createReview(
+    override suspend fun createReview(
+        @Valid
         @RequestBody
         request: CreateReviewRequest,
         @RequestHeader(AUTHORIZATION)
@@ -62,26 +68,25 @@ class ReviewController(
     }
 
     @GetMapping
-    suspend fun getReviews(
-        @RequestParam(required = false, defaultValue = "")
-        ebookId: String,
-        @RequestParam(required = false, defaultValue = "")
-        memberId: String,
-        @RequestParam(required = false, defaultValue = "")
-        page: String,
-        @RequestParam(required = false, defaultValue = "")
-        count: String,
-    ): GetReviewsResponse {
-        val command = GetReviewsCommand(ebookId, memberId, page, count)
-        val reviewList: List<Review> = reviewService.get(command)
-        return reviewList.toGetReviewsResponse()
+    override suspend fun getReviews(
+        @RequestParam
+        ebookId: UUID,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
+    ): PageResponse<ReviewView> {
+        val command = GetReviewsCommand(ebookId, page, count)
+        val reviewList: Page<Review> = reviewService.get(command)
+        return reviewList.map { it.toReviewView() }.toResponse()
     }
 
     @Transactional
     @PatchMapping("/{reviewId}")
-    suspend fun modifyReview(
-        @PathVariable(name = "reviewId", required = false)
-        reviewId: String,
+    override suspend fun modifyReview(
+        @PathVariable(name = "reviewId")
+        reviewId: UUID,
+        @Valid
         @RequestBody
         request: ModifyReviewRequest,
         @RequestHeader(AUTHORIZATION)
@@ -95,9 +100,9 @@ class ReviewController(
 
     @Transactional
     @DeleteMapping("/{reviewId}")
-    suspend fun deleteReview(
-        @PathVariable(name = "reviewId", required = false)
-        reviewId: String,
+    override suspend fun deleteReview(
+        @PathVariable(name = "reviewId")
+        reviewId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteReviewResponse {

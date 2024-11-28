@@ -1,7 +1,6 @@
 package com.devooks.backend.ebook.v1.dto.command
 
 import com.devooks.backend.common.dto.Paging
-import com.devooks.backend.ebook.v1.error.validateEbookInquiryId
 import java.util.*
 import org.springframework.data.domain.Pageable
 
@@ -10,11 +9,11 @@ class GetEbookInquireCommentsCommand(
     private val paging: Paging,
 ) {
     constructor(
-        inquiryId: String,
-        page: String,
-        count: String,
+        inquiryId: UUID,
+        page: Int,
+        count: Int,
     ) : this(
-        inquiryId = inquiryId.validateEbookInquiryId(),
+        inquiryId = inquiryId,
         paging = Paging(page, count),
     )
 

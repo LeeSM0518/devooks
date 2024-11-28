@@ -12,6 +12,7 @@ import java.nio.file.Paths
 import java.util.*
 import javax.imageio.ImageIO
 import kotlin.io.path.fileSize
+import kotlin.io.path.pathString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -37,7 +38,7 @@ class PdfResolver {
             val pdfFilePath = savePdfFile(filePart)
             validatePdfFile(pdfFilePath)
             val numberOfPages = getNumberOfPages(pdfFilePath)
-            PdfInfo(filePath = pdfFilePath, pageCount = numberOfPages)
+            PdfInfo(filePath = Path.of("/", pdfFilePath.pathString), pageCount = numberOfPages)
         }.getOrElse { exception ->
             throw when (exception) {
                 is GeneralException -> exception
@@ -51,7 +52,7 @@ class PdfResolver {
 
     suspend fun savePreviewImages(pdf: PdfInfo): List<PreviewImageInfo> =
         runCatching {
-            val pdfFile = pdf.filePath.toFile()
+            val pdfFile = pdf.systemFile
 
             PDDocument
                 .load(pdfFile)

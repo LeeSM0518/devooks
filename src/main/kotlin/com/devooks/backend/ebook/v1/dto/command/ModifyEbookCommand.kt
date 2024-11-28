@@ -15,6 +15,5 @@ class ModifyEbookCommand(
 ) {
     val isChangedEbook: Boolean =
         title != null || mainImageId != null || introduction != null || tableOfContents != null || price != null
-    val isChangedDescriptionImageList: Boolean = descriptionImageIdList != null
     val isChangedRelatedCategoryIdList: Boolean = relatedCategoryIdList != null
 }

@@ -2,7 +2,12 @@ package com.devooks.backend.ebook.v1.controller
 
 import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.dto.PageResponse
+import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
+import com.devooks.backend.ebook.v1.controller.docs.EbookInquiryCommentControllerDocs
 import com.devooks.backend.ebook.v1.domain.EbookInquiryComment
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView.Companion.toEbookInquiryCommentView
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookInquiryCommentCommand
 import com.devooks.backend.ebook.v1.dto.command.DeleteEbookInquiryCommentCommand
 import com.devooks.backend.ebook.v1.dto.command.GetEbookInquireCommentsCommand
@@ -12,13 +17,14 @@ import com.devooks.backend.ebook.v1.dto.request.ModifyEbookInquiryCommentRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryCommentResponse.Companion.toCreateEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.DeleteEbookInquiryCommentResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiryCommentsResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiryCommentsResponse.Companion.toGetEbookInquiryCommentsResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryCommentResponse.Companion.toModifyEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.service.EbookInquiryCommentEventService
 import com.devooks.backend.ebook.v1.service.EbookInquiryCommentService
 import com.devooks.backend.ebook.v1.service.EbookInquiryService
+import jakarta.validation.Valid
+import java.util.*
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -39,11 +45,12 @@ class EbookInquiryCommentController(
     private val tokenService: TokenService,
     private val ebookInquiryCommentService: EbookInquiryCommentService,
     private val ebookInquiryCommentEventService: EbookInquiryCommentEventService,
-) {
+) : EbookInquiryCommentControllerDocs {
 
     @Transactional
     @PostMapping
-    suspend fun createEbookInquiryComment(
+    override suspend fun createEbookInquiryComment(
+        @Valid
         @RequestBody
         request: CreateEbookInquiryCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -58,24 +65,25 @@ class EbookInquiryCommentController(
     }
 
     @GetMapping
-    suspend fun getEbookInquiryComments(
-        @RequestParam(required = false, defaultValue = "")
-        inquiryId: String,
-        @RequestParam(required = false, defaultValue = "")
-        page: String,
-        @RequestParam(required = false, defaultValue = "")
-        count: String,
-    ): GetEbookInquiryCommentsResponse {
+    override suspend fun getEbookInquiryComments(
+        @RequestParam
+        inquiryId: UUID,
+        @RequestParam
+        page: Int,
+        @RequestParam
+        count: Int,
+    ): PageResponse<EbookInquiryCommentView> {
         val command = GetEbookInquireCommentsCommand(inquiryId, page, count)
-        val inquiryCommentList: List<EbookInquiryComment> = ebookInquiryCommentService.get(command)
-        return inquiryCommentList.toGetEbookInquiryCommentsResponse()
+        val inquiryCommentList: Page<EbookInquiryComment> = ebookInquiryCommentService.get(command)
+        return inquiryCommentList.map { it.toEbookInquiryCommentView() }.toResponse()
     }
 
     @Transactional
     @PatchMapping("/{commentId}")
-    suspend fun modifyEbookInquiryComment(
-        @PathVariable(name = "commentId", required = false)
-        commentId: String,
+    override suspend fun modifyEbookInquiryComment(
+        @PathVariable(name = "commentId")
+        commentId: UUID,
+        @Valid
         @RequestBody
         request: ModifyEbookInquiryCommentRequest,
         @RequestHeader(AUTHORIZATION)
@@ -89,9 +97,9 @@ class EbookInquiryCommentController(
 
     @Transactional
     @DeleteMapping("/{commentId}")
-    suspend fun deleteEbookInquiryComment(
-        @PathVariable(name = "commentId", required = false)
-        commentId: String,
+    override suspend fun deleteEbookInquiryComment(
+        @PathVariable(name = "commentId")
+        commentId: UUID,
         @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): DeleteEbookInquiryCommentResponse {

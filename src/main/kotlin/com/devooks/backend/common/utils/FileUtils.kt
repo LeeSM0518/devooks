@@ -19,6 +19,7 @@ suspend inline fun saveImage(image: Image, rootPath: String): String =
         content = image.convertDecodedImage()
     ).await()
         ?.path
+        ?.let { "/$it" }
         ?: throw CommonError.FAIL_SAVE_FILE.exception
 
 fun saveFileOrNull(
@@ -28,7 +29,7 @@ fun saveFileOrNull(
 ): Deferred<File?> =
     CoroutineScope(Dispatchers.IO)
         .async {
-            val fileName = UUID.randomUUID().toString()
+            val fileName = UUID.randomUUID()
             val targetLocation = Path.of(rootPath, "$fileName.$extension")
             runCatching {
                 Files.write(targetLocation, content).toFile()

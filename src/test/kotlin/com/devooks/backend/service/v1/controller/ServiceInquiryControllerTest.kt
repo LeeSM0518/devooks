@@ -4,7 +4,9 @@ import com.devooks.backend.BackendApplication.Companion.STATIC_ROOT_PATH
 import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.domain.Member.Companion.toDomain
@@ -12,11 +14,11 @@ import com.devooks.backend.member.v1.entity.MemberEntity
 import com.devooks.backend.member.v1.repository.MemberRepository
 import com.devooks.backend.service.v1.domain.InquiryProcessingStatus
 import com.devooks.backend.service.v1.dto.ServiceInquiryImageDto
+import com.devooks.backend.service.v1.dto.ServiceInquiryView
 import com.devooks.backend.service.v1.dto.request.CreateServiceInquiryRequest
 import com.devooks.backend.service.v1.dto.request.ModifyServiceInquiryRequest
 import com.devooks.backend.service.v1.dto.request.SaveServiceInquiryImagesRequest
 import com.devooks.backend.service.v1.dto.response.CreateServiceInquiryResponse
-import com.devooks.backend.service.v1.dto.response.GetServiceInquiriesResponse
 import com.devooks.backend.service.v1.dto.response.ModifyServiceInquiryResponse
 import com.devooks.backend.service.v1.dto.response.SaveServiceInquiryImagesResponse
 import com.devooks.backend.service.v1.repository.ServiceInquiryCrudRepository
@@ -85,7 +87,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList.map { it.id.toString() }
+            imageIdList = imageList.map { it.id }
         )
 
         val serviceInquiry = webTestClient
@@ -110,14 +112,14 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
     }
 
     @Test
-    fun `서비스 문의 생성시 이미지가 자신이 업로드한 경우가 아닐 경우 예외가 발생한다`(): Unit = runBlocking {
+    fun `서비스 문의 생성시 사진이 자신이 업로드한 경우가 아닐 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, imageList) = postSaveServiceInquiryImages()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
 
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList.map { it.id.toString() }
+            imageIdList = imageList.map { it.id }
         )
 
         webTestClient
@@ -138,7 +140,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList.map { it.id.toString() }
+            imageIdList = imageList.map { it.id }
         )
 
         val serviceInquiry = webTestClient
@@ -155,26 +157,29 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             .responseBody!!
             .serviceInquiry
 
-        val serviceInquiryDto = webTestClient
+        val pageServiceInquiry = webTestClient
             .get()
             .uri("/api/v1/service-inquiries?page=1&count=10")
             .accept(APPLICATION_JSON)
             .header(AUTHORIZATION, "Bearer $accessToken")
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetServiceInquiriesResponse>()
+            .expectBody<PageResponse<ServiceInquiryView>>()
             .returnResult()
             .responseBody!!
-            .serviceInquiryList[0]
 
-        assertThat(serviceInquiryDto.id).isEqualTo(serviceInquiry.id)
-        assertThat(serviceInquiryDto.title).isEqualTo(serviceInquiry.title)
-        assertThat(serviceInquiryDto.imageList).containsAll(serviceInquiry.imageList)
-        assertThat(serviceInquiryDto.content).isEqualTo(serviceInquiry.content)
-        assertThat(serviceInquiryDto.inquiryProcessingStatus).isEqualTo(serviceInquiry.inquiryProcessingStatus)
-        assertThat(serviceInquiryDto.createdDate.toEpochMilli()).isEqualTo(serviceInquiry.createdDate.toEpochMilli())
-        assertThat(serviceInquiryDto.modifiedDate.toEpochMilli()).isEqualTo(serviceInquiry.modifiedDate.toEpochMilli())
-        assertThat(serviceInquiryDto.writerMemberId).isEqualTo(serviceInquiry.writerMemberId)
+        val serviceInquiryView = pageServiceInquiry.data[0]
+
+        assertThat(pageServiceInquiry.pageable.totalPages).isEqualTo(1)
+        assertThat(pageServiceInquiry.pageable.totalElements).isEqualTo(1)
+        assertThat(serviceInquiryView.id).isEqualTo(serviceInquiry.id)
+        assertThat(serviceInquiryView.title).isEqualTo(serviceInquiry.title)
+        assertThat(serviceInquiryView.imageList).containsAll(serviceInquiry.imageList)
+        assertThat(serviceInquiryView.content).isEqualTo(serviceInquiry.content)
+        assertThat(serviceInquiryView.inquiryProcessingStatus).isEqualTo(serviceInquiry.inquiryProcessingStatus)
+        assertThat(serviceInquiryView.createdDate.toEpochMilli()).isEqualTo(serviceInquiry.createdDate.toEpochMilli())
+        assertThat(serviceInquiryView.modifiedDate.toEpochMilli()).isEqualTo(serviceInquiry.modifiedDate.toEpochMilli())
+        assertThat(serviceInquiryView.writerMemberId).isEqualTo(serviceInquiry.writerMemberId)
     }
 
     @Test
@@ -184,7 +189,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList1.map { it.id.toString() }
+            imageIdList = imageList1.map { it.id }
         )
 
         val createdServiceInquiry = webTestClient
@@ -203,16 +208,9 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
 
         val (_, imageList2) = postSaveServiceInquiryImages()
         val modifyServiceInquiryRequest = ModifyServiceInquiryRequest(
-            serviceInquiry = ModifyServiceInquiryRequest.ServiceInquiry(
-                title = "title2",
-                content = "content2",
-                imageIdList = listOf(imageList1.map { it.id.toString() }.first(), imageList2.first().id.toString())
-            ),
-            isChanged = ModifyServiceInquiryRequest.IsChanged(
-                title = true,
-                content = true,
-                imageIdList = true
-            )
+            title = "title2",
+            content = "content2",
+            imageIdList = listOf(imageList1.map { it.id }.first(), imageList2.first().id)
         )
 
         val updatedServiceInquiry = webTestClient
@@ -230,9 +228,9 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             .serviceInquiry
 
         assertThat(updatedServiceInquiry.id).isEqualTo(createdServiceInquiry.id)
-        assertThat(updatedServiceInquiry.title).isEqualTo(modifyServiceInquiryRequest.serviceInquiry!!.title)
-        assertThat(updatedServiceInquiry.content).isEqualTo(modifyServiceInquiryRequest.serviceInquiry!!.content)
-        assertThat(updatedServiceInquiry.imageList.map { it.id.toString() }).containsAll(modifyServiceInquiryRequest.serviceInquiry!!.imageIdList)
+        assertThat(updatedServiceInquiry.title).isEqualTo(modifyServiceInquiryRequest.title)
+        assertThat(updatedServiceInquiry.content).isEqualTo(modifyServiceInquiryRequest.content)
+        assertThat(updatedServiceInquiry.imageList.map { it.id }).containsAll(modifyServiceInquiryRequest.imageIdList)
         assertThat(updatedServiceInquiry.writerMemberId).isEqualTo(createdServiceInquiry.writerMemberId)
         assertThat(updatedServiceInquiry.inquiryProcessingStatus).isEqualTo(createdServiceInquiry.inquiryProcessingStatus)
     }
@@ -245,7 +243,7 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val createServiceInquiryRequest = CreateServiceInquiryRequest(
             title = "title",
             content = "content",
-            imageIdList = imageList1.map { it.id.toString() }
+            imageIdList = imageList1.map { it.id }
         )
 
         val createdServiceInquiry = webTestClient
@@ -264,16 +262,9 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
 
         val (_, imageList2) = postSaveServiceInquiryImages()
         val modifyServiceInquiryRequest = ModifyServiceInquiryRequest(
-            serviceInquiry = ModifyServiceInquiryRequest.ServiceInquiry(
-                title = "title2",
-                content = "content2",
-                imageIdList = listOf(imageList1.map { it.id.toString() }.first(), imageList2.first().id.toString())
-            ),
-            isChanged = ModifyServiceInquiryRequest.IsChanged(
-                title = true,
-                content = true,
-                imageIdList = true
-            )
+            title = "title2",
+            content = "content2",
+            imageIdList = listOf(imageList1.map { it.id }.first(), imageList2.first().id)
         )
 
         webTestClient
@@ -292,14 +283,9 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
         val (accessToken, _) = postSaveServiceInquiryImages()
 
         val modifyServiceInquiryRequest = ModifyServiceInquiryRequest(
-            serviceInquiry = ModifyServiceInquiryRequest.ServiceInquiry(
-                title = "title2",
-                content = "content2",
-            ),
-            isChanged = ModifyServiceInquiryRequest.IsChanged(
-                title = true,
-                content = true,
-            )
+            title = "title2",
+            content = "content2",
+            imageIdList = null
         )
 
         webTestClient
@@ -324,15 +310,13 @@ internal class ServiceInquiryControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )

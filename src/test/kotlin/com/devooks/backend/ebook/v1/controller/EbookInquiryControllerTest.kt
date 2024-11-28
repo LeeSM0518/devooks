@@ -5,10 +5,12 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
-import com.devooks.backend.ebook.v1.dto.EbookInquiryDto
+import com.devooks.backend.ebook.v1.dto.EbookInquiryView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryRequest
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
 import com.devooks.backend.ebook.v1.dto.request.ModifyEbookInquiryRequest
@@ -16,7 +18,6 @@ import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
 import com.devooks.backend.ebook.v1.dto.request.SaveMainImageRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiriesResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveDescriptionImagesResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveMainImageResponse
@@ -112,7 +113,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
         val (_, createEbookResponse) = postCreateEbook()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             content = "content"
         )
 
@@ -130,7 +131,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
             .responseBody!!
             .ebookInquiry
 
-        assertThat(ebookInquiry.ebookId.toString()).isEqualTo(createEbookInquiryRequest.ebookId)
+        assertThat(ebookInquiry.ebookId).isEqualTo(createEbookInquiryRequest.ebookId)
         assertThat(ebookInquiry.content).isEqualTo(createEbookInquiryRequest.content)
         assertThat(ebookInquiry.writerMemberId).isEqualTo(expectedMember1.id)
 
@@ -149,18 +150,21 @@ internal class EbookInquiryControllerTest @Autowired constructor(
     fun `전자책 문의를 조회할 수 있다`(): Unit = runBlocking {
         val createdEbookInquiry = postCreateEbookInquiry()
 
-        val foundEbookInquiry =
+        val pageEbookInquiry =
             webTestClient
                 .get()
                 .uri("/api/v1/ebook-inquiries?ebookId=${createdEbookInquiry.ebookId}&page=1&count=10")
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk
-                .expectBody<GetEbookInquiriesResponse>()
+                .expectBody<PageResponse<EbookInquiryView>>()
                 .returnResult()
                 .responseBody!!
-                .ebookInquiryList[0]
 
+        val foundEbookInquiry = pageEbookInquiry.data[0]
+
+        assertThat(pageEbookInquiry.pageable.totalPages).isEqualTo(1)
+        assertThat(pageEbookInquiry.pageable.totalElements).isEqualTo(1)
         assertThat(foundEbookInquiry.id).isEqualTo(createdEbookInquiry.id)
         assertThat(foundEbookInquiry.content).isEqualTo(createdEbookInquiry.content)
         assertThat(foundEbookInquiry.ebookId).isEqualTo(createdEbookInquiry.ebookId)
@@ -273,7 +277,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
     fun `전자책 문의 작성시 전자책이 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(
-            ebookId = UUID.randomUUID().toString(),
+            ebookId = UUID.randomUUID(),
             content = "content"
         )
 
@@ -288,11 +292,11 @@ internal class EbookInquiryControllerTest @Autowired constructor(
             .expectStatus().isNotFound
     }
 
-    private suspend fun EbookInquiryControllerTest.postCreateEbookInquiry(): EbookInquiryDto {
+    private suspend fun EbookInquiryControllerTest.postCreateEbookInquiry(): EbookInquiryView {
         val (_, createEbookResponse) = postCreateEbook()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             content = "content"
         )
 
@@ -323,14 +327,14 @@ internal class EbookInquiryControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -351,7 +355,7 @@ internal class EbookInquiryControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -359,15 +363,13 @@ internal class EbookInquiryControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -389,15 +391,15 @@ internal class EbookInquiryControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
-    ): SaveMainImageResponse.MainImageDto {
+    ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

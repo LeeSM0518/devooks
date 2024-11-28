@@ -189,3 +189,4 @@ gradle-app.setting
 docker/data
 src/main/resources/application.yml
 
+dev.application.yml

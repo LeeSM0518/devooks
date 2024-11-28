@@ -5,11 +5,13 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
-import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentDto
-import com.devooks.backend.ebook.v1.dto.EbookInquiryDto
+import com.devooks.backend.ebook.v1.dto.EbookInquiryCommentView
+import com.devooks.backend.ebook.v1.dto.EbookInquiryView
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryCommentRequest
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookInquiryRequest
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
@@ -19,7 +21,6 @@ import com.devooks.backend.ebook.v1.dto.request.SaveMainImageRequest
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookInquiryResponse
 import com.devooks.backend.ebook.v1.dto.response.CreateEbookResponse
-import com.devooks.backend.ebook.v1.dto.response.GetEbookInquiryCommentsResponse
 import com.devooks.backend.ebook.v1.dto.response.ModifyEbookInquiryCommentResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveDescriptionImagesResponse
 import com.devooks.backend.ebook.v1.dto.response.SaveMainImageResponse
@@ -117,7 +118,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         val (accessToken, ebookInquiry) = postCreateEbookInquiry()
 
         val createEbookInquiryCommentRequest = CreateEbookInquiryCommentRequest(
-            inquiryId = ebookInquiry.id.toString(),
+            inquiryId = ebookInquiry.id,
             content = "content"
         )
 
@@ -135,7 +136,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
             .responseBody!!
             .comment
 
-        assertThat(ebookInquiryComment.inquiryId.toString()).isEqualTo(createEbookInquiryCommentRequest.inquiryId)
+        assertThat(ebookInquiryComment.inquiryId).isEqualTo(createEbookInquiryCommentRequest.inquiryId)
         assertThat(ebookInquiryComment.content).isEqualTo(createEbookInquiryCommentRequest.content)
         assertThat(ebookInquiryComment.writerMemberId).isEqualTo(expectedMember1.id)
 
@@ -156,17 +157,20 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
     fun `전자책 문의 댓글을 조회할 수 있다`(): Unit = runBlocking {
         val ebookInquiryComment = postCreateEbookInquiryComment()
 
-        val foundEbookInquiryComment = webTestClient
+        val pageEbookInquiryComment = webTestClient
             .get()
             .uri("/api/v1/ebook-inquiry-comments?inquiryId=${ebookInquiryComment.inquiryId}&page=1&count=10")
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetEbookInquiryCommentsResponse>()
+            .expectBody<PageResponse<EbookInquiryCommentView>>()
             .returnResult()
             .responseBody!!
-            .comments[0]
 
+        val foundEbookInquiryComment = pageEbookInquiryComment.data[0]
+
+        assertThat(pageEbookInquiryComment.pageable.totalPages).isEqualTo(1)
+        assertThat(pageEbookInquiryComment.pageable.totalPages).isEqualTo(1)
         assertThat(foundEbookInquiryComment.id).isEqualTo(ebookInquiryComment.id)
         assertThat(foundEbookInquiryComment.content).isEqualTo(ebookInquiryComment.content)
         assertThat(foundEbookInquiryComment.inquiryId).isEqualTo(ebookInquiryComment.inquiryId)
@@ -272,7 +276,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         val (accessToken, _) = postCreateEbookInquiry()
 
         val createEbookInquiryCommentRequest = CreateEbookInquiryCommentRequest(
-            inquiryId = UUID.randomUUID().toString(),
+            inquiryId = UUID.randomUUID(),
             content = "content"
         )
 
@@ -287,11 +291,11 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
             .expectStatus().isNotFound
     }
 
-    private suspend fun EbookInquiryCommentControllerTest.postCreateEbookInquiryComment(): EbookInquiryCommentDto {
+    private suspend fun EbookInquiryCommentControllerTest.postCreateEbookInquiryComment(): EbookInquiryCommentView {
         val (accessToken, ebookInquiry) = postCreateEbookInquiry()
 
         val createEbookInquiryCommentRequest = CreateEbookInquiryCommentRequest(
-            inquiryId = ebookInquiry.id.toString(),
+            inquiryId = ebookInquiry.id,
             content = "content"
         )
 
@@ -311,11 +315,11 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
         return ebookInquiryComment
     }
 
-    private suspend fun EbookInquiryCommentControllerTest.postCreateEbookInquiry(): Pair<AccessToken, EbookInquiryDto> {
+    private suspend fun EbookInquiryCommentControllerTest.postCreateEbookInquiry(): Pair<AccessToken, EbookInquiryView> {
         val (_, createEbookResponse) = postCreateEbook()
         val accessToken = tokenService.createTokenGroup(expectedMember1).accessToken
         val createEbookInquiryRequest = CreateEbookInquiryRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
+            ebookId = createEbookResponse.ebook.id,
             content = "content"
         )
 
@@ -345,14 +349,14 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -373,7 +377,7 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -381,15 +385,13 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -411,15 +413,15 @@ internal class EbookInquiryCommentControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
-    ): SaveMainImageResponse.MainImageDto {
+    ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

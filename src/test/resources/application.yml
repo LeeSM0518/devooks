@@ -26,6 +26,9 @@ spring:
     tls: true
     debug: true
 
+  flyway:
+    enabled: false
+
 jwt:
   secretKey: testtesttesttesttesttesttesttesttesttesttesttesttesttesttest
   accessTokenExpirationHour: 1

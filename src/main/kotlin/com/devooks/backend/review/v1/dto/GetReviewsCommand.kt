@@ -1,23 +1,18 @@
 package com.devooks.backend.review.v1.dto
 
 import com.devooks.backend.common.dto.Paging
-import com.devooks.backend.member.v1.error.validateMemberId
-import com.devooks.backend.wishlist.v1.error.validateEbookId
 import java.util.*
 
 class GetReviewsCommand(
-    val ebookId: UUID?,
-    val memberId: UUID?,
+    val ebookId: UUID,
     private val paging: Paging,
 ) {
     constructor(
-        ebookId: String,
-        memberId: String,
-        page: String,
-        count: String,
+        ebookId: UUID,
+        page: Int,
+        count: Int,
     ) : this(
-        ebookId = ebookId.takeIf { it.isNotBlank() }?.validateEbookId(),
-        memberId = memberId.takeIf { it.isNotBlank() }?.validateMemberId(),
+        ebookId = ebookId,
         paging = Paging(page, count)
     )
 
@@ -26,4 +21,6 @@ class GetReviewsCommand(
 
     val limit: Int
         get() = paging.limit
+
+    val pageable = paging.value
 }

@@ -1,17 +1,17 @@
 package com.devooks.backend.ebook.v1.dto.request
 
 import com.devooks.backend.ebook.v1.dto.command.ModifyEbookInquiryCommand
-import com.devooks.backend.ebook.v1.error.validateEbookInquiryContent
-import com.devooks.backend.ebook.v1.error.validateEbookInquiryId
+import io.swagger.v3.oas.annotations.media.Schema
 import java.util.*
 
 data class ModifyEbookInquiryRequest(
-    val content: String?,
+    @Schema(description = "내용", required = true)
+    val content: String,
 ) {
-    fun toCommand(inquiryId: String, requesterId: UUID) =
+    fun toCommand(inquiryId: UUID, requesterId: UUID) =
         ModifyEbookInquiryCommand(
-            content = content.validateEbookInquiryContent(),
-            inquiryId = inquiryId.validateEbookInquiryId(),
+            content = content,
+            inquiryId = inquiryId,
             requesterId = requesterId,
         )
 }

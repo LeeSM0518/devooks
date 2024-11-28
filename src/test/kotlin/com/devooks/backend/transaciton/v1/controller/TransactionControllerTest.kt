@@ -5,6 +5,7 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
@@ -105,8 +106,8 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 수 있다`(): Unit = runBlocking {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            ebookId = createEbookResponse.ebook.id,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -134,8 +135,8 @@ internal class TransactionControllerTest @Autowired constructor(
     @Test
     fun `전자책을 구매할 때 전자책이 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = UUID.randomUUID().toString(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            ebookId = UUID.randomUUID(),
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = 1000
         )
 
@@ -157,8 +158,8 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 때 가격이 다를 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            ebookId = createEbookResponse.ebook.id,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = 1000
         )
 
@@ -180,8 +181,8 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 때 자신의 책을 구매할 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            ebookId = createEbookResponse.ebook.id,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -203,8 +204,8 @@ internal class TransactionControllerTest @Autowired constructor(
     fun `전자책을 구매할 때 이미 구매했을 경우 예외가 발생한다`(): Unit = runBlocking {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            ebookId = createEbookResponse.ebook.id,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -306,8 +307,8 @@ internal class TransactionControllerTest @Autowired constructor(
     private suspend fun TransactionControllerTest.postCreateTransaction(): Triple<CreateEbookResponse, AccessToken, CreateTransactionResponse> {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            ebookId = createEbookResponse.ebook.id,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -339,14 +340,14 @@ internal class TransactionControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
 
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -367,7 +368,7 @@ internal class TransactionControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -375,15 +376,13 @@ internal class TransactionControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -405,15 +404,15 @@ internal class TransactionControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
-    ): SaveMainImageResponse.MainImageDto {
+    ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

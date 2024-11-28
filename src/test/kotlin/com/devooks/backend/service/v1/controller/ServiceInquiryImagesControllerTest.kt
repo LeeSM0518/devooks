@@ -3,6 +3,7 @@ package com.devooks.backend.service.v1.controller
 import com.devooks.backend.BackendApplication.Companion.STATIC_ROOT_PATH
 import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.member.v1.domain.Member
@@ -77,15 +78,13 @@ internal class ServiceInquiryImagesControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -105,9 +104,8 @@ internal class ServiceInquiryImagesControllerTest @Autowired constructor(
             .imageList
 
         imageList.forEachIndexed { index, image ->
-            val expected = request.imageList!![index]
-            assertThat(image.order).isEqualTo(expected.order)
-            assertThat(File(image.imagePath).exists()).isTrue()
+            assertThat(image.order).isEqualTo(index)
+            assertThat(File(image.imagePath.substring(1)).exists()).isTrue()
         }
     }
 }

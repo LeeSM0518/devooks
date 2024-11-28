@@ -1,8 +1,6 @@
 package com.devooks.backend.ebook.v1.service
 
 import com.devooks.backend.ebook.v1.domain.Ebook
-import com.devooks.backend.ebook.v1.repository.row.EbookDetailRow
-import com.devooks.backend.ebook.v1.repository.row.EbookRow
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookCommand
 import com.devooks.backend.ebook.v1.dto.command.CreateEbookInquiryCommand
 import com.devooks.backend.ebook.v1.dto.command.DeleteEbookCommand
@@ -14,11 +12,16 @@ import com.devooks.backend.ebook.v1.entity.EbookEntity.Companion.toEntity
 import com.devooks.backend.ebook.v1.error.EbookError
 import com.devooks.backend.ebook.v1.repository.EbookQueryRepository
 import com.devooks.backend.ebook.v1.repository.EbookRepository
+import com.devooks.backend.ebook.v1.repository.row.EbookDetailRow
+import com.devooks.backend.ebook.v1.repository.row.EbookRow
 import com.devooks.backend.review.v1.dto.CreateReviewCommand
 import com.devooks.backend.transaciton.v1.dto.CreateTransactionCommand
 import java.time.Instant.now
 import java.util.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.stereotype.Service
 
 @Service
@@ -71,11 +74,14 @@ class EbookService(
         findById(command.ebookId)
     }
 
-    suspend fun get(command: GetEbookCommand): List<EbookRow> =
-        ebookQueryRepository.findBy(command).toList()
+    suspend fun get(command: GetEbookCommand): Page<EbookRow> {
+        val ebooks = ebookQueryRepository.findEbooksBy(command)
+        val count = ebookQueryRepository.count(command)
+        return PageImpl(ebooks.toList(), command.pageable, count.first())
+    }
 
     suspend fun get(command: GetDetailOfEbookCommand): EbookDetailRow =
-        ebookQueryRepository.findBy(command)
+        ebookQueryRepository.findEbooksBy(command)
             ?: throw EbookError.NOT_FOUND_EBOOK.exception
 
     suspend fun modify(command: ModifyEbookCommand): Ebook {

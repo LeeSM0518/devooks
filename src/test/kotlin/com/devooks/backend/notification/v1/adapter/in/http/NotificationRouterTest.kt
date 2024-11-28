@@ -88,7 +88,7 @@ internal class NotificationRouterTest @Autowired constructor(
         // when
         val notificationsResponse = webTestClient
             .get()
-            .uri("/api/v1/notifications?page=1&size=10")
+            .uri("/api/v1/notifications?page=1&count=10")
             .accept(APPLICATION_JSON)
             .header(AUTHORIZATION, accessToken)
             .exchange()
@@ -125,10 +125,10 @@ internal class NotificationRouterTest @Autowired constructor(
             .expectBody<CheckNotificationResponse>()
             .returnResult()
             .responseBody!!
-            .count
+            .countOfUncheckedNotification
 
         // then
-        assertThat(count).isOne()
+        assertThat(count).isZero()
     }
 
     @Test
@@ -147,9 +147,9 @@ internal class NotificationRouterTest @Autowired constructor(
             .expectBody<CheckNotificationResponse>()
             .returnResult()
             .responseBody!!
-            .count
+            .countOfUncheckedNotification
 
         // then
-        assertThat(count).isOne()
+        assertThat(count).isZero()
     }
 }

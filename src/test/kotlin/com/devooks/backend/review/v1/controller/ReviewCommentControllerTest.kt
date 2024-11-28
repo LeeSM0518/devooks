@@ -5,7 +5,9 @@ import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.domain.AccessToken
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.category.v1.repository.CategoryRepository
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
+import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.EbookImageDto
 import com.devooks.backend.ebook.v1.dto.request.CreateEbookRequest
@@ -30,11 +32,10 @@ import com.devooks.backend.review.v1.dto.CreateReviewCommentRequest
 import com.devooks.backend.review.v1.dto.CreateReviewCommentResponse
 import com.devooks.backend.review.v1.dto.CreateReviewRequest
 import com.devooks.backend.review.v1.dto.CreateReviewResponse
-import com.devooks.backend.review.v1.dto.GetReviewCommentsResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse
-import com.devooks.backend.review.v1.dto.ReviewCommentDto
-import com.devooks.backend.review.v1.dto.ReviewDto
+import com.devooks.backend.review.v1.dto.ReviewCommentView
+import com.devooks.backend.review.v1.dto.ReviewView
 import com.devooks.backend.review.v1.repository.ReviewCommentRepository
 import com.devooks.backend.review.v1.repository.ReviewRepository
 import com.devooks.backend.transaciton.v1.domain.PaymentMethod
@@ -123,7 +124,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     fun `리뷰 댓글을 작성할 수 있다`(): Unit = runBlocking {
         val review = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
-        val request = CreateReviewCommentRequest(review.id.toString(), review.content)
+        val request = CreateReviewCommentRequest(review.id, review.content)
 
         val reviewComment = webTestClient
             .post()
@@ -139,7 +140,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
             .responseBody!!
             .reviewComment
 
-        assertThat(reviewComment.reviewId.toString()).isEqualTo(request.reviewId)
+        assertThat(reviewComment.reviewId).isEqualTo(request.reviewId)
         assertThat(reviewComment.content).isEqualTo(request.content)
 
         delay(100)
@@ -156,7 +157,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     fun `리뷰 댓글 작성시 리뷰가 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
         val review = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
-        val request = CreateReviewCommentRequest(UUID.randomUUID().toString(), review.content)
+        val request = CreateReviewCommentRequest(UUID.randomUUID(), review.content)
 
         webTestClient
             .post()
@@ -269,10 +270,10 @@ internal class ReviewCommentControllerTest @Autowired constructor(
             .expectStatus().isNotFound
     }
 
-    private suspend fun postCreateReviewComment(): Pair<ReviewCommentDto, ReviewCommentDto> {
+    private suspend fun postCreateReviewComment(): Pair<ReviewCommentView, ReviewCommentView> {
         val review = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
-        val createReviewCommentRequest = CreateReviewCommentRequest(review.id.toString(), review.content)
+        val createReviewCommentRequest = CreateReviewCommentRequest(review.id, review.content)
 
         val reviewComment = webTestClient
             .post()
@@ -294,20 +295,22 @@ internal class ReviewCommentControllerTest @Autowired constructor(
             .accept(APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
-            .expectBody<GetReviewCommentsResponse>()
+            .expectBody<PageResponse<ReviewCommentView>>()
             .returnResult()
             .responseBody!!
-            .reviewComments[0]
-        return Pair(reviewComment, response)
+
+        assertThat(response.pageable.totalElements).isEqualTo(1)
+        assertThat(response.pageable.totalPages).isEqualTo(1)
+        return Pair(reviewComment, response.data[0])
     }
 
-    private suspend fun postCreateReview(): ReviewDto {
+    private suspend fun postCreateReview(): ReviewView {
         val (createEbookResponse, accessToken) = postCreateEbookAndCreateTransaction()
 
         val createReviewRequest =
             CreateReviewRequest(
-                ebookId = createEbookResponse.ebook.id.toString(),
-                rating = "5",
+                ebookId = createEbookResponse.ebook.id,
+                rating = 5,
                 content = "content"
             )
         val createReviewResponse = webTestClient
@@ -328,8 +331,8 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     private suspend fun postCreateEbookAndCreateTransaction(): Pair<CreateEbookResponse, AccessToken> {
         val (_, createEbookResponse) = postCreateEbook()
         val createTransactionRequest = CreateTransactionRequest(
-            ebookId = createEbookResponse.ebook.id.toString(),
-            paymentMethod = PaymentMethod.CREDIT_CARD.name,
+            ebookId = createEbookResponse.ebook.id,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
             price = createEbookResponse.ebook.price
         )
 
@@ -362,13 +365,13 @@ internal class ReviewCommentControllerTest @Autowired constructor(
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
 
-        val categoryId = categoryRepository.findAll().toList()[0].id!!.toString()
+        val categoryId = categoryRepository.findAll().toList()[0].id!!
         val request = CreateEbookRequest(
-            pdfId = pdf.id.toString(),
+            pdfId = pdf.id,
             title = "title",
             relatedCategoryIdList = listOf(categoryId),
-            mainImageId = mainImage.id.toString(),
-            descriptionImageIdList = descriptionImageList.map { it.id.toString() },
+            mainImageId = mainImage.id,
+            descriptionImageIdList = descriptionImageList.map { it.id },
             10000,
             "introduction",
             "tableOfContent"
@@ -389,7 +392,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     }
 
     fun postSaveDescriptionImages(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
     ): List<EbookImageDto> {
@@ -397,15 +400,13 @@ internal class ReviewCommentControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -427,15 +428,15 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     }
 
     private fun postSaveMainImage(
-        imageBase64Raw: String?,
+        imageBase64Raw: String,
         imagePath: Path,
         accessToken: AccessToken,
-    ): SaveMainImageResponse.MainImageDto {
+    ): EbookImageDto {
         val saveMainImageRequest = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 

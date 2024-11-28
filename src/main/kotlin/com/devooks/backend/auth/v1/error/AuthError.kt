@@ -2,19 +2,12 @@ package com.devooks.backend.auth.v1.error
 
 import com.devooks.backend.common.exception.GeneralException
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 
 enum class AuthError(val exception: GeneralException) {
-    // 400
-    REQUIRED_AUTHORIZATION_CODE(GeneralException("AUTH-400-1", BAD_REQUEST, "인증 코드가 반드시 필요합니다.")),
-    INVALID_OAUTH_TYPE(GeneralException("AUTH-400-2", BAD_REQUEST, "인증 유형은 NAVER, KAKAO, GOOGLE 만 가능합니다.")),
-    REQUIRED_TOKEN(GeneralException("AUTH-400-3", BAD_REQUEST, "토큰이 반드시 필요합니다.")),
-    REQUIRED_OAUTH_ID(GeneralException("AUTH-400-4", BAD_REQUEST, "인증 식별자는 반드시 필요합니다.")),
-
     // 401
     EXPIRED_TOKEN(GeneralException("AUTH-401-1", UNAUTHORIZED, "만료된 토큰입니다.")),
     INVALID_REFRESH_TOKEN(GeneralException("AUTH-401-2", UNAUTHORIZED, "유효하지 않는 리프래시 토큰입니다.")),

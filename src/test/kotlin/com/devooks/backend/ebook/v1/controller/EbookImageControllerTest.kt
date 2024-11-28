@@ -3,6 +3,7 @@ package com.devooks.backend.ebook.v1.controller
 import com.devooks.backend.BackendApplication.Companion.STATIC_ROOT_PATH
 import com.devooks.backend.BackendApplication.Companion.createDirectories
 import com.devooks.backend.auth.v1.service.TokenService
+import com.devooks.backend.common.domain.ImageExtension
 import com.devooks.backend.common.dto.ImageDto
 import com.devooks.backend.config.IntegrationTest
 import com.devooks.backend.ebook.v1.dto.request.SaveDescriptionImagesRequest
@@ -79,15 +80,13 @@ internal class EbookImageControllerTest @Autowired constructor(
             imageList = listOf(
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    1
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
                 ImageDto(
                     imageBase64Raw,
-                    imagePath.extension,
-                    imagePath.fileSize(),
-                    2
+                    ImageExtension.valueOf(imagePath.extension.uppercase()),
+                    imagePath.fileSize().toInt(),
                 ),
             )
         )
@@ -107,9 +106,8 @@ internal class EbookImageControllerTest @Autowired constructor(
             .descriptionImageList
 
         descriptionImageList.forEachIndexed { index, image ->
-            val expected = request.imageList!![index]
-            assertThat(image.order).isEqualTo(expected.order)
-            assertThat(File(image.imagePath).exists()).isTrue()
+            assertThat(image.order).isEqualTo(index)
+            assertThat(File(image.imagePath.substring(1)).exists()).isTrue()
         }
     }
 
@@ -122,10 +120,10 @@ internal class EbookImageControllerTest @Autowired constructor(
         val imageBase64Raw = Base64.getEncoder().encodeToString(imageBytes)
 
         val request = SaveMainImageRequest(
-            SaveMainImageRequest.MainImageDto(
+            ImageDto(
                 imageBase64Raw,
-                imagePath.extension,
-                imagePath.fileSize(),
+                ImageExtension.valueOf(imagePath.extension.uppercase()),
+                imagePath.fileSize().toInt(),
             )
         )
 
@@ -143,6 +141,6 @@ internal class EbookImageControllerTest @Autowired constructor(
             .responseBody!!
             .mainImage
 
-        assertThat(File(mainImage.imagePath).exists()).isTrue()
+        assertThat(File(mainImage.imagePath.substring(1)).exists()).isTrue()
     }
 }

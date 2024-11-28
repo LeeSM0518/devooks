@@ -24,6 +24,7 @@ import com.devooks.backend.member.v1.dto.WithdrawMemberResponse
 import com.devooks.backend.member.v1.service.FavoriteCategoryService
 import com.devooks.backend.member.v1.service.MemberInfoService
 import com.devooks.backend.member.v1.service.MemberService
+import jakarta.validation.Valid
 import java.util.*
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -49,6 +50,7 @@ class MemberController(
     @Transactional
     @PostMapping("/signup")
     override suspend fun signUp(
+        @Valid
         @RequestBody
         request: SignUpRequest,
     ): SignUpResponse {
@@ -67,6 +69,7 @@ class MemberController(
     @Transactional
     @PatchMapping("/account")
     override suspend fun modifyAccountInfo(
+        @Valid
         @RequestBody
         request: ModifyAccountInfoRequest,
         @RequestHeader(AUTHORIZATION)
@@ -81,6 +84,7 @@ class MemberController(
     @Transactional
     @PatchMapping("/image")
     override suspend fun modifyProfileImage(
+        @Valid
         @RequestBody
         request: ModifyProfileImageRequest,
         @RequestHeader(AUTHORIZATION)
@@ -95,9 +99,10 @@ class MemberController(
     @Transactional
     @PatchMapping("/profile")
     override suspend fun modifyProfile(
+        @Valid
         @RequestBody
         request: ModifyProfileRequest,
-        @RequestHeader(AUTHORIZATION, required = true)
+        @RequestHeader(AUTHORIZATION)
         authorization: String,
     ): ModifyProfileResponse {
         val requesterId: UUID = tokenService.getMemberId(Authorization(authorization))
@@ -117,7 +122,7 @@ class MemberController(
 
     @GetMapping("/{memberId}/profile")
     override suspend fun getProfile(
-        @PathVariable(required = true)
+        @PathVariable
         memberId: UUID,
         @RequestHeader(AUTHORIZATION, required = false, defaultValue = "")
         authorization: String,
@@ -135,6 +140,7 @@ class MemberController(
     @Transactional
     @PatchMapping("/withdrawal")
     override suspend fun withdrawMember(
+        @Valid
         @RequestBody
         request: WithdrawMemberRequest,
         @RequestHeader(AUTHORIZATION)

@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface EbookInquiryCommentRepository : CoroutineCrudRepository<EbookInquiryCommentEntity, UUID> {
     suspend fun findAllByInquiryId(inquiryId: UUID, pageable: Pageable): Flow<EbookInquiryCommentEntity>
+    suspend fun countByInquiryId(inquiryId: UUID): Flow<Long>
 }

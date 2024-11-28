@@ -20,6 +20,7 @@ import com.devooks.backend.auth.v1.service.OauthService
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.member.v1.domain.Member
 import com.devooks.backend.member.v1.service.MemberService
+import jakarta.validation.Valid
 import java.util.*
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.PostMapping
@@ -38,6 +39,7 @@ class AuthController(
 
     @PostMapping("/login")
     override suspend fun login(
+        @Valid
         @RequestBody
         request: LoginRequest,
     ): LoginResponse {
@@ -51,6 +53,7 @@ class AuthController(
     @Transactional
     @PostMapping("/logout")
     override suspend fun logout(
+        @Valid
         @RequestBody
         request: LogoutRequest,
     ): LogoutResponse {
@@ -62,6 +65,7 @@ class AuthController(
 
     @PostMapping("/reissue")
     override suspend fun reissue(
+        @Valid
         @RequestBody
         request: ReissueRequest,
     ): ReissueResponse {
@@ -72,6 +76,7 @@ class AuthController(
 
     @PostMapping("/check/email")
     override suspend fun checkEmail(
+        @Valid
         @RequestBody
         request: CheckEmailRequest,
     ): CheckEmailResponse {
