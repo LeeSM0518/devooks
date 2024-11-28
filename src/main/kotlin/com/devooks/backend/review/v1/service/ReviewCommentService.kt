@@ -5,12 +5,13 @@ import com.devooks.backend.review.v1.dto.CreateReviewCommentCommand
 import com.devooks.backend.review.v1.dto.DeleteReviewCommentCommand
 import com.devooks.backend.review.v1.dto.GetReviewCommentsCommand
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentCommand
+import com.devooks.backend.review.v1.dto.ReviewCommentRow
 import com.devooks.backend.review.v1.entity.ReviewCommentEntity
 import com.devooks.backend.review.v1.error.ReviewError
+import com.devooks.backend.review.v1.repository.ReviewCommentQueryRepository
 import com.devooks.backend.review.v1.repository.ReviewCommentRepository
 import java.time.Instant
 import java.util.*
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service
 @Service
 class ReviewCommentService(
     private val reviewCommentRepository: ReviewCommentRepository,
+    private val reviewCommentQueryRepository: ReviewCommentQueryRepository,
 ) {
     suspend fun create(command: CreateReviewCommentCommand): ReviewComment {
         val entity = ReviewCommentEntity(
@@ -29,10 +31,8 @@ class ReviewCommentService(
         return reviewCommentRepository.save(entity).toDomain()
     }
 
-    suspend fun get(command: GetReviewCommentsCommand): Page<ReviewComment> {
-        val reviewComments = reviewCommentRepository
-            .findAllByReviewId(command.reviewId, command.pageable)
-            .map { it.toDomain() }
+    suspend fun get(command: GetReviewCommentsCommand): Page<ReviewCommentRow> {
+        val reviewComments = reviewCommentQueryRepository.findBy(command)
         val count = reviewCommentRepository.countByReviewId(command.reviewId)
         return PageImpl(reviewComments.toList(), command.pageable, count)
     }

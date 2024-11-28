@@ -19,4 +19,10 @@ data class GetReviewCommentsCommand(
 
     val pageable: Pageable
         get() = paging.value
+
+    val offset: Int
+        get() = paging.offset
+
+    val limit: Int
+        get() = paging.limit
 }

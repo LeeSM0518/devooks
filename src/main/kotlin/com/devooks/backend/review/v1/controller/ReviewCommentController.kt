@@ -4,6 +4,8 @@ import com.devooks.backend.auth.v1.domain.Authorization
 import com.devooks.backend.auth.v1.service.TokenService
 import com.devooks.backend.common.dto.PageResponse
 import com.devooks.backend.common.dto.PageResponse.Companion.toResponse
+import com.devooks.backend.member.v1.domain.Member
+import com.devooks.backend.member.v1.service.MemberService
 import com.devooks.backend.review.v1.controller.docs.ReviewCommentControllerDocs
 import com.devooks.backend.review.v1.domain.ReviewComment
 import com.devooks.backend.review.v1.dto.CreateReviewCommentCommand
@@ -17,13 +19,14 @@ import com.devooks.backend.review.v1.dto.ModifyReviewCommentCommand
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentRequest
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse
 import com.devooks.backend.review.v1.dto.ModifyReviewCommentResponse.Companion.toModifyReviewCommentResponse
+import com.devooks.backend.review.v1.dto.ReviewCommentRow
 import com.devooks.backend.review.v1.dto.ReviewCommentView
 import com.devooks.backend.review.v1.dto.ReviewCommentView.Companion.toReviewCommentView
 import com.devooks.backend.review.v1.service.ReviewCommentEventService
 import com.devooks.backend.review.v1.service.ReviewCommentService
 import com.devooks.backend.review.v1.service.ReviewService
 import jakarta.validation.Valid
-import java.util.UUID
+import java.util.*
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.transaction.annotation.Transactional
@@ -45,7 +48,8 @@ class ReviewCommentController(
     private val reviewCommentEventService: ReviewCommentEventService,
     private val tokenService: TokenService,
     private val reviewService: ReviewService,
-): ReviewCommentControllerDocs {
+    private val memberService: MemberService,
+) : ReviewCommentControllerDocs {
 
     @Transactional
     @PostMapping
@@ -60,8 +64,9 @@ class ReviewCommentController(
         val command: CreateReviewCommentCommand = request.toCommand(requesterId)
         reviewService.validate(command)
         val reviewComment: ReviewComment = reviewCommentService.create(command)
+        val member: Member = memberService.findById(reviewComment.writerMemberId)
         reviewCommentEventService.publish(reviewComment)
-        return reviewComment.toCreateReviewCommentResponse()
+        return reviewComment.toCreateReviewCommentResponse(member)
     }
 
     @GetMapping
@@ -74,7 +79,7 @@ class ReviewCommentController(
         count: Int,
     ): PageResponse<ReviewCommentView> {
         val command = GetReviewCommentsCommand(reviewId, page, count)
-        val reviewCommentList: Page<ReviewComment> = reviewCommentService.get(command)
+        val reviewCommentList: Page<ReviewCommentRow> = reviewCommentService.get(command)
         return reviewCommentList.map { it.toReviewCommentView() }.toResponse()
     }
 
@@ -92,7 +97,8 @@ class ReviewCommentController(
         val requesterId = tokenService.getMemberId(Authorization(authorization))
         val command: ModifyReviewCommentCommand = request.toCommand(commentId, requesterId)
         val reviewComment: ReviewComment = reviewCommentService.modify(command)
-        return reviewComment.toModifyReviewCommentResponse()
+        val member: Member = memberService.findById(reviewComment.writerMemberId)
+        return reviewComment.toModifyReviewCommentResponse(member)
     }
 
     @Transactional
