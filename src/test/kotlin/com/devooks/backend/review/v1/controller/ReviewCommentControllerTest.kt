@@ -180,7 +180,7 @@ internal class ReviewCommentControllerTest @Autowired constructor(
         assertThat(response.reviewId).isEqualTo(request.reviewId)
         assertThat(response.writtenDate.toEpochMilli()).isEqualTo(request.writtenDate.toEpochMilli())
         assertThat(response.modifiedDate.toEpochMilli()).isEqualTo(request.modifiedDate.toEpochMilli())
-        assertThat(response.writerMemberId).isEqualTo(request.writerMemberId)
+        assertThat(response.writer).isEqualTo(request.writer)
     }
 
     @Test
