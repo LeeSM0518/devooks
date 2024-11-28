@@ -155,6 +155,52 @@ internal class ReviewCommentControllerTest @Autowired constructor(
     }
 
     @Test
+    fun `리뷰 댓글을 작성후 리뷰 조회시 증가된 개수를 조회할 수 있다`(): Unit = runBlocking {
+        val review = postCreateReview()
+        val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken
+        val request = CreateReviewCommentRequest(review.id, review.content)
+
+        val reviewComment = webTestClient
+            .post()
+            .uri("/api/v1/review-comments")
+            .accept(APPLICATION_JSON)
+            .contentType(APPLICATION_JSON)
+            .header(AUTHORIZATION, "Bearer $accessToken")
+            .bodyValue(request)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<CreateReviewCommentResponse>()
+            .returnResult()
+            .responseBody!!
+            .reviewComment
+
+        assertThat(reviewComment.reviewId).isEqualTo(request.reviewId)
+        assertThat(reviewComment.content).isEqualTo(request.content)
+
+        delay(100)
+        val notification = notificationRepository.findAll().toList()
+            .find { it.receiverId == review.writer.memberId }!!
+        assertThat(notification.type).isEqualTo(NotificationType.REVIEW_COMMENT)
+        assertThat(notification.receiverId).isEqualTo(review.writer.memberId)
+        assertThat(notification.note["ebookId"]).isEqualTo(review.ebookId.toString())
+        assertThat(notification.note["reviewId"]).isEqualTo(review.id.toString())
+        assertThat(notification.note["receiverId"]).isEqualTo(review.writer.memberId.toString())
+        assertThat(notification.note["commenterName"]).isEqualTo(expectedMember2.nickname)
+
+        val getReviewsResponse = webTestClient
+            .get()
+            .uri("/api/v1/reviews?page=1&count=10&ebookId=${review.ebookId}")
+            .accept(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<PageResponse<ReviewView>>()
+            .returnResult()
+            .responseBody!!
+
+        assertThat(getReviewsResponse.data[0].commentCount).isOne()
+    }
+
+    @Test
     fun `리뷰 댓글 작성시 리뷰가 존재하지 않을 경우 예외가 발생한다`(): Unit = runBlocking {
         val review = postCreateReview()
         val accessToken = tokenService.createTokenGroup(expectedMember2).accessToken

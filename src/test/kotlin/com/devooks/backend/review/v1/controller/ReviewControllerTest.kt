@@ -177,6 +177,7 @@ internal class ReviewControllerTest @Autowired constructor(
         assertThat(review.writer).isEqualTo(createReviewResponse.writer)
         assertThat(review.writtenDate.toEpochMilli()).isEqualTo(createReviewResponse.writtenDate.toEpochMilli())
         assertThat(review.modifiedDate.toEpochMilli()).isEqualTo(createReviewResponse.modifiedDate.toEpochMilli())
+        assertThat(review.commentCount).isZero()
     }
 
     @Test

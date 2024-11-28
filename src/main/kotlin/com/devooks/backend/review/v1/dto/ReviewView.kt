@@ -22,6 +22,8 @@ data class ReviewView(
     val writtenDate: Instant,
     @Schema(description = "수정 날짜")
     val modifiedDate: Instant,
+    @Schema(description = "리뷰 댓글 개수")
+    val commentCount: Int
 ) {
     companion object {
         fun ReviewRow.toReviewView(): ReviewView =
@@ -33,6 +35,7 @@ data class ReviewView(
                 writer = this.toWriterView(),
                 writtenDate = this.writtenDate,
                 modifiedDate = this.modifiedDate,
+                commentCount = this.commentCount
             )
 
         fun Review.toReviewView(writer: Member): ReviewView =
@@ -44,6 +47,7 @@ data class ReviewView(
                 writer = writer.toWriterView(),
                 writtenDate = this.writtenDate,
                 modifiedDate = this.modifiedDate,
+                commentCount = 0
             )
     }
 }
