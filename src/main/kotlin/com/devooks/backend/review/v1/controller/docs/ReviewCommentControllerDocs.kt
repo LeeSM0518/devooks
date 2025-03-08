@@ -57,7 +57,7 @@ interface ReviewCommentControllerDocs {
     )
     suspend fun createReviewComment(
         request: CreateReviewCommentRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): CreateReviewCommentResponse
 
@@ -138,7 +138,7 @@ interface ReviewCommentControllerDocs {
         @Schema(description = "리뷰 댓글 식별자", required = true, implementation = UUID::class)
         commentId: UUID,
         request: ModifyReviewCommentRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): ModifyReviewCommentResponse
 
@@ -190,7 +190,7 @@ interface ReviewCommentControllerDocs {
     suspend fun deleteReviewComment(
         @Schema(description = "리뷰 댓글 식별자", required = true, implementation = UUID::class)
         commentId: UUID,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): DeleteReviewCommentResponse
 }

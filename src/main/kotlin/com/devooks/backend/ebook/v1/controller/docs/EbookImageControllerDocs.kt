@@ -54,7 +54,7 @@ interface EbookImageControllerDocs {
     )
     suspend fun saveDescriptionImages(
         request: SaveDescriptionImagesRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): SaveDescriptionImagesResponse
 
@@ -96,7 +96,7 @@ interface EbookImageControllerDocs {
     )
     suspend fun saveMainImage(
         request: SaveMainImageRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): SaveMainImageResponse
 }

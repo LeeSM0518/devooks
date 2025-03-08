@@ -154,7 +154,7 @@ interface EbookControllerDocs {
     )
     suspend fun createEbook(
         request: CreateEbookRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): CreateEbookResponse
 
@@ -210,7 +210,7 @@ interface EbookControllerDocs {
         @Schema(description = "전자책 식별자", implementation = UUID::class, required = true)
         ebookId: UUID,
         request: ModifyEbookRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): ModifyEbookResponse
 
@@ -264,7 +264,7 @@ interface EbookControllerDocs {
     suspend fun deleteEbook(
         @Schema(description = "전자책 식별자", implementation = UUID::class, required = true)
         ebookId: UUID,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): DeleteEbookResponse
 }

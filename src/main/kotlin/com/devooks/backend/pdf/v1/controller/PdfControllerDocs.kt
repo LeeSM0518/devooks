@@ -59,7 +59,7 @@ interface PdfControllerDocs {
     suspend fun uploadPdf(
         @Schema(description = "PDF 파일", required = true)
         filePart: FilePart,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): UploadPdfResponse
 

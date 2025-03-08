@@ -57,7 +57,7 @@ interface EbookInquiryCommentControllerDocs {
     )
     suspend fun createEbookInquiryComment(
         request: CreateEbookInquiryCommentRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): CreateEbookInquiryCommentResponse
 
@@ -138,7 +138,7 @@ interface EbookInquiryCommentControllerDocs {
         @Schema(description = "전자책 문의 댓글 식별자", required = true, implementation = UUID::class)
         commentId: UUID,
         request: ModifyEbookInquiryCommentRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): ModifyEbookInquiryCommentResponse
 
@@ -190,7 +190,7 @@ interface EbookInquiryCommentControllerDocs {
     suspend fun deleteEbookInquiryComment(
         @Schema(description = "전자책 문의 댓글 식별자", required = true, implementation = UUID::class)
         commentId: UUID,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): DeleteEbookInquiryCommentResponse
 

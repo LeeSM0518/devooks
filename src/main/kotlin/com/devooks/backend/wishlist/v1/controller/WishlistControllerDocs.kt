@@ -66,7 +66,7 @@ interface WishlistControllerDocs {
     )
     suspend fun createWishlist(
         request: CreateWishlistRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): CreateWishlistResponse
 
@@ -96,7 +96,7 @@ interface WishlistControllerDocs {
         page: Int,
         @Schema(description = "개수", implementation = Int::class, required = true)
         count: Int,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): PageResponse<EbookView>
 
@@ -150,7 +150,7 @@ interface WishlistControllerDocs {
     suspend fun deleteWishlist(
         @Schema(description = "찜 식별자", required = true, implementation = UUID::class)
         wishlistId: UUID,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): DeleteWishlistResponse
 }
