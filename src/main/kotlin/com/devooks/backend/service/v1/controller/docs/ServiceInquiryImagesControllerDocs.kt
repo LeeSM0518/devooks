@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "서비스 문의 사진")
+@Tag(name = "ServiceInquiryImages", description = "서비스 문의 사진")
 interface ServiceInquiryImagesControllerDocs {
 
     @Operation(summary = "서비스 문의 사진 저장")

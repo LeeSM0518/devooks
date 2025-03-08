@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "카테고리")
+@Tag(name = "Category", description = "카테고리")
 interface CategoryControllerDocs {
 
     @Operation(summary = "카테고리 목록 조회")

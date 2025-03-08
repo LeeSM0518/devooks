@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "리뷰")
+@Tag(name = "Review", description = "리뷰")
 interface ReviewControllerDocs {
 
     @Operation(summary = "리뷰 작성")

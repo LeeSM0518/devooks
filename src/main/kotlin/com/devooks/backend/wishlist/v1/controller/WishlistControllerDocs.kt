@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "찜")
+@Tag(name = "Wishlist", description = "찜")
 interface WishlistControllerDocs {
 
     @Operation(summary = "찜 등록")

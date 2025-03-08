@@ -17,7 +17,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE
 import org.springframework.http.codec.ServerSentEvent
 
-@Tag(name = "알림")
+@Tag(name = "Notification", description = "알림")
 interface NotificationRouterDocs {
 
     @Operation(summary = "확인하지 않은 알림 개수 실시간 조회")

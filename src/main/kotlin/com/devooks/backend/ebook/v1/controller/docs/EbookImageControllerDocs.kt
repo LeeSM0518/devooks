@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "전자책 사진")
+@Tag(name = "EbookImage", description = "전자책 사진")
 interface EbookImageControllerDocs {
 
     @Operation(summary = "전자책 설명 사진 저장")

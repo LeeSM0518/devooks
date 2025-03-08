@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "전자책")
+@Tag(name = "Ebook", description = "전자책")
 interface EbookControllerDocs {
 
     @Operation(summary = "전자책 목록 조회")

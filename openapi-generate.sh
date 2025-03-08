@@ -149,6 +149,6 @@ docker run --rm \
   -o /local/src \
   --additional-properties=withSeparateModelsAndApi=true,apiPackage=apis,modelPackage=models,useSingleRequestParameter=true
 
-cd openapi-generator && npm i && npm run build && npm publish
+cd openapi-generator && npm i && npm run build
 
 echo "All steps completed successfully."

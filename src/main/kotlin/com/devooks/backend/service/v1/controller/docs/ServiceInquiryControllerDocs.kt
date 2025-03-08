@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "서비스 문의")
+@Tag(name = "ServiceInquiry", description = "서비스 문의")
 interface ServiceInquiryControllerDocs {
 
     @Operation(summary = "서비스 문의 작성")
