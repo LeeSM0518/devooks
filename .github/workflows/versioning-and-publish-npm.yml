@@ -14,6 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          ref: 'develop'
           fetch-depth: 0
 
       - name: Determine Version Bump Type And Bump version using git tags
@@ -69,10 +70,14 @@ jobs:
           git config user.name "LeeSM0518"
           git config user.email "nalsm98@naver.com"
           git tag "$NEW_TAG"
-          git push origin "$NEW_TAG"
 
           # 출력 변수를 GitHub Actions에 전달 (GITHUB_OUTPUT)
           echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
+      - name: Push Tag
+        uses: ad-m/github-push-action@master
+        with:
+          branch: develop
+          github_token: '${{ secrets.WORKFLOW_TOKEN }}'
 
   create_openapi:
     needs: versioning
