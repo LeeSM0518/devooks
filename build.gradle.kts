@@ -8,10 +8,18 @@ plugins {
     kotlin("plugin.spring") version "1.9.22"
     id("com.google.osdetector") version "1.7.0"
     id("org.jooq.jooq-codegen-gradle") version "3.19.14"
+    id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
+    id("pl.allegro.tech.build.axion-release") version "1.18.17"
+}
+
+scmVersion {
+    tag { prefix.set("") }
+    versionCreator { tag, _ -> tag }
+    snapshotCreator { _, _ -> "" }
 }
 
 group = "com.devooks"
-version = "0.0.1"
+version = scmVersion.version
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -33,6 +41,7 @@ dependencies {
         implementation("io.netty:netty-resolver-dns-native-macos:4.1.89.Final:osx-aarch_64")
     }
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:3.0.4")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // r2dbc
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:3.0.4")
@@ -100,7 +109,7 @@ dependencies {
 }
 
 jooq {
-    version ="$jooqVersion"  // the default (can be omitted)
+    version = "$jooqVersion"  // the default (can be omitted)
     configuration { }
 
     executions {
@@ -221,4 +230,15 @@ tasks.register("copyJar", Copy::class) {
 
 tasks.named("build") {
     dependsOn("copyJar")
+}
+
+openApi {
+    apiDocsUrl.set("http://localhost/v3/api-docs")
+}
+
+tasks.register<Exec>("publishTypeNpm") {
+    dependsOn("test")
+    val npmrcPassword = project.findProperty("password")?.toString()
+        ?: throw GradleException("Please provide a password using -Ppassword=<value>")
+    commandLine("./openapi-generate.sh", "-version", scmVersion.version, "-password", npmrcPassword)
 }

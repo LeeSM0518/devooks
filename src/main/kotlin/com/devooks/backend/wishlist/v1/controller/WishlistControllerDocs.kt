@@ -90,7 +90,7 @@ interface WishlistControllerDocs {
         ]
     )
     suspend fun getWishlist(
-        @Schema(description = "카테고리 식별자 목록", type = "array", format = "uuid", required = false)
+        @Schema(description = "카테고리 식별자 목록", format = "uuid", required = false)
         categoryIdList: List<UUID>?,
         @Schema(description = "페이지", implementation = Int::class, required = true)
         page: Int,

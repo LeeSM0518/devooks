@@ -50,9 +50,9 @@ interface EbookControllerDocs {
         title: String?,
         @Schema(description = "검색할 판매자 식별자", implementation = UUID::class, nullable = true)
         sellerMemberId: UUID?,
-        @Schema(description = "검색할 전자책 식별자 목록", type = "array", format = "uuid", nullable = true)
+        @Schema(description = "검색할 전자책 식별자 목록", format = "uuid", nullable = true)
         ebookIdList: List<UUID>?,
-        @Schema(description = "검색할 카테고리 식별자 목록", type = "array", format = "uuid", nullable = true)
+        @Schema(description = "검색할 카테고리 식별자 목록", format = "uuid", nullable = true)
         categoryIdList: List<UUID>?,
         @Schema(description = "정렬할 속성", implementation = EbookOrder::class, nullable = true)
         orderBy: EbookOrder?,
