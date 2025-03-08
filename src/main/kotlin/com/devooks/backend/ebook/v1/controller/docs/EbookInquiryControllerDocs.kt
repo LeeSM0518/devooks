@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "전자책 문의")
+@Tag(name = "EbookInquiry", description = "전자책 문의")
 interface EbookInquiryControllerDocs {
 
     @Operation(summary = "전자책 문의 작성")
@@ -57,7 +57,7 @@ interface EbookInquiryControllerDocs {
     )
     suspend fun createEbookInquiry(
         request: CreateEbookInquiryRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): CreateEbookInquiryResponse
 
@@ -138,7 +138,7 @@ interface EbookInquiryControllerDocs {
         @Schema(description = "전자책 문의 식별자", required = true, implementation = UUID::class)
         inquiryId: UUID,
         request: ModifyEbookInquiryRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): ModifyEbookInquiryResponse
 
@@ -190,7 +190,7 @@ interface EbookInquiryControllerDocs {
     suspend fun deleteEbookInquiry(
         @Schema(description = "전자책 문의 식별자", required = true, implementation = UUID::class)
         inquiryId: UUID,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): DeleteEbookInquiryResponse
 

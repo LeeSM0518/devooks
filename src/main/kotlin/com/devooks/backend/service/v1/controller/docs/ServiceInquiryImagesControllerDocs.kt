@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "서비스 문의 사진")
+@Tag(name = "ServiceInquiryImages", description = "서비스 문의 사진")
 interface ServiceInquiryImagesControllerDocs {
 
     @Operation(summary = "서비스 문의 사진 저장")
@@ -51,7 +51,7 @@ interface ServiceInquiryImagesControllerDocs {
     )
     suspend fun saveServiceInquiryImages(
         request: SaveServiceInquiryImagesRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String
     ): SaveServiceInquiryImagesResponse
 

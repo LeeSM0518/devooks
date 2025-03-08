@@ -13,7 +13,7 @@ import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.codec.multipart.FilePart
 
-@Tag(name = "PDF")
+@Tag(name = "pdf", description = "PDF")
 interface PdfControllerDocs {
 
     @Operation(summary = "PDF 파일 업로드")
@@ -59,7 +59,7 @@ interface PdfControllerDocs {
     suspend fun uploadPdf(
         @Schema(description = "PDF 파일", required = true)
         filePart: FilePart,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): UploadPdfResponse
 

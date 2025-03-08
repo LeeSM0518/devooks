@@ -190,3 +190,6 @@ docker/data
 src/main/resources/application.yml
 
 dev.application.yml
+
+openapi-generator/**
+openapi/data
