@@ -6,6 +6,7 @@ VERSION="0.0.0"
 
 echo "VERSION=$VERSION"
 
+# 인자 파싱: -password 와 -version 옵션 사용
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -password)
@@ -23,37 +24,39 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-# 1. sample.application.yml -> application.yml
+# 1. sample.application.yml -> application.yml 복사
 echo "Copying sample.application.yml -> application.yml ..."
 cp src/main/resources/sample.application.yml src/main/resources/application.yml
-
 if [ $? -ne 0 ]; then
   echo "[ERROR] Failed to copy sample.application.yml"
   exit 1
 fi
 echo "Successfully copied file."
 
-# 2. Run database container using docker run (instead of docker-compose)
-echo "Starting database container using docker run..."
-docker run -d \
-  --name devooks-database \
-  -e POSTGRES_DB=devooksdb \
-  -e POSTGRES_USER=devooks \
-  -e POSTGRES_PASSWORD=devooks \
-  -v "$(pwd)/data":/var/lib/postgresql/data \
-  -p 5432:5432 \
-  postgres:14
-
-if [ $? -ne 0 ]; then
-  echo "[ERROR] Failed to start database container via docker run"
-  exit 1
+# 2. 데이터베이스 컨테이너가 실행 중인지 확인하고, 실행 중이 아니면 실행
+echo "Checking if database container 'devooks-database' is already running..."
+if [ "$(docker ps -q -f name=devooks-database)" ]; then
+  echo "Database container 'devooks-database' is already running. Skipping docker run."
+else
+  echo "Starting database container using docker run..."
+  docker run -d \
+    --name devooks-database \
+    -e POSTGRES_DB=devooksdb \
+    -e POSTGRES_USER=devooks \
+    -e POSTGRES_PASSWORD=devooks \
+    -v "$(pwd)/data":/var/lib/postgresql/data \
+    -p 5432:5432 \
+    postgres:14
+  if [ $? -ne 0 ]; then
+    echo "[ERROR] Failed to start database container via docker run"
+    exit 1
+  fi
 fi
-echo "Database container is starting in the background."
+echo "Database container is running."
 
 # 3. Execute Gradle task: generateOpenApiDocs
 echo "Running './gradlew generateOpenApiDocs' ..."
 ./gradlew generateOpenApiDocs
-
 if [ $? -ne 0 ]; then
   echo "[ERROR] Gradle task generateOpenApiDocs failed"
   exit 1
@@ -157,5 +160,29 @@ docker run --rm \
   --additional-properties=withSeparateModelsAndApi=true,apiPackage=apis,modelPackage=models,useSingleRequestParameter=true
 
 cd openapi-generator && npm i && npm run build
+
+# 5. npm publish 시도 및 실패 시 버전 업데이트 후 재시도
+set +e
+npm publish -f
+PUBLISH_EXIT_CODE=$?
+set -e
+
+if [ $PUBLISH_EXIT_CODE -ne 0 ]; then
+  echo "npm publish failed, updating version..."
+  # 현재 날짜와 시간을 UTC 기준으로 YYYYMMDDHHmmss 형식으로 생성
+  CURRENT_DATE=$(date -u +"%Y%m%d%H%M%S")
+  NEW_VERSION="${VERSION}-${CURRENT_DATE}"
+  echo "Updating version to: $NEW_VERSION"
+
+  # OS별 sed 옵션 처리: macOS와 Linux 호환
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/\"version\": *\"$VERSION\"/\"version\": \"$NEW_VERSION\"/" package.json
+  else
+    sed -i.bak "s/\"version\": *\"$VERSION\"/\"version\": \"$NEW_VERSION\"/" package.json
+  fi
+
+  # 다시 npm publish 수행
+  npm publish -f
+fi
 
 echo "All steps completed successfully."
