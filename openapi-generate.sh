@@ -33,15 +33,22 @@ if [ $? -ne 0 ]; then
 fi
 echo "Successfully copied file."
 
-# 2. Run docker-compose in openapi/docker-compose.yml
-echo "Starting database via openapi/docker-compose.yml ..."
-docker-compose -f openapi/docker-compose.yml up -d
+# 2. Run database container using docker run (instead of docker-compose)
+echo "Starting database container using docker run..."
+docker run -d \
+  --name devooks-database \
+  -e POSTGRES_DB=devooksdb \
+  -e POSTGRES_USER=devooks \
+  -e POSTGRES_PASSWORD=devooks \
+  -v "$(pwd)/data":/var/lib/postgresql/data \
+  -p 5432:5432 \
+  postgres:14
 
 if [ $? -ne 0 ]; then
-  echo "[ERROR] Failed to start docker-compose"
+  echo "[ERROR] Failed to start database container via docker run"
   exit 1
 fi
-echo "Database containers are starting in the background."
+echo "Database container is starting in the background."
 
 # 3. Execute Gradle task: generateOpenApiDocs
 echo "Running './gradlew generateOpenApiDocs' ..."
