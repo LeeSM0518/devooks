@@ -56,6 +56,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
+import kotlin.random.Random
 
 @IntegrationTest
 internal class WishlistControllerTest @Autowired constructor(
@@ -202,6 +203,7 @@ internal class WishlistControllerTest @Autowired constructor(
 
         assertThat(result.data.size).isEqualTo(2)
         assertThat(result.pageable.totalPages).isEqualTo(3)
+        assertThat(result.pageable.totalElements.toInt()).isEqualTo(count)
         assertThat(result.data[0].id).isEqualTo(ebookList[1].second.ebook.id)
         assertThat(result.data[1].id).isEqualTo(ebookList[0].second.ebook.id)
     }
@@ -327,7 +329,8 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!
+        val categoryId =
+            categoryRepository.findAll().toList()[Random.nextInt(0, categoryRepository.count().toInt())].id!!
 
         val request = CreateEbookRequest(
             pdfId = pdf.id,
