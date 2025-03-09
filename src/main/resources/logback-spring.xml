@@ -39,4 +39,14 @@
         <appender-ref ref="Console"/>
     </root>
 
+    <logger name="io.r2dbc.postgresql.QUERY" level="debug" additivity="false">
+        <appender-ref ref="RollingFile"/>
+        <appender-ref ref="Console"/>
+    </logger>
+
+    <logger name="io.r2dbc.postgresql.PARAM" level="debug" additivity="false">
+        <appender-ref ref="RollingFile"/>
+        <appender-ref ref="Console"/>
+    </logger>
+
 </configuration>
