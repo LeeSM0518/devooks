@@ -40,6 +40,7 @@ import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -55,6 +56,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
+import kotlin.random.Random
 
 @IntegrationTest
 internal class WishlistControllerTest @Autowired constructor(
@@ -183,6 +185,30 @@ internal class WishlistControllerTest @Autowired constructor(
     }
 
     @Test
+    fun `찜 목록을 페이지로 조회할 수 있다`() = runTest {
+        val count = 8
+        val ebookList = (1..count).map { postCreateEbook() }
+        ebookList.map { (accessToken, createEbookResponse) -> postCreateWishlist(createEbookResponse, accessToken) }
+
+        val result = webTestClient
+            .get()
+            .uri("/api/v1/wishlist?page=3&count=3")
+            .header(AUTHORIZATION, "Bearer ${ebookList[0].first}")
+            .accept(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<PageResponse<EbookView>>()
+            .returnResult()
+            .responseBody!!
+
+        assertThat(result.data.size).isEqualTo(2)
+        assertThat(result.pageable.totalPages).isEqualTo(3)
+        assertThat(result.pageable.totalElements.toInt()).isEqualTo(count)
+        assertThat(result.data[0].id).isEqualTo(ebookList[1].second.ebook.id)
+        assertThat(result.data[1].id).isEqualTo(ebookList[0].second.ebook.id)
+    }
+
+    @Test
     fun `찜 목록을 카테고리로 조회할 수 있다`(): Unit = runBlocking {
         val (accessToken, createEbookResponse) = postCreateEbook()
 
@@ -303,7 +329,8 @@ internal class WishlistControllerTest @Autowired constructor(
 
         val mainImage = postSaveMainImage(imageBase64Raw, imagePath, accessToken)
         val descriptionImageList = postSaveDescriptionImages(imageBase64Raw, imagePath, accessToken)
-        val categoryId = categoryRepository.findAll().toList()[0].id!!
+        val categoryId =
+            categoryRepository.findAll().toList()[Random.nextInt(0, categoryRepository.count().toInt())].id!!
 
         val request = CreateEbookRequest(
             pdfId = pdf.id,
