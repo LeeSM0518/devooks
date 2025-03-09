@@ -40,6 +40,7 @@ import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -180,6 +181,29 @@ internal class WishlistControllerTest @Autowired constructor(
         assertThat(ebookList.size).isEqualTo(1)
         assertThat(ebookList[0].id).isEqualTo(response.ebookId)
         assertThat(ebookList[0].wishlistId).isEqualTo(response.wishlistId)
+    }
+
+    @Test
+    fun `찜 목록을 페이지로 조회할 수 있다`() = runTest {
+        val count = 8
+        val ebookList = (1..count).map { postCreateEbook() }
+        ebookList.map { (accessToken, createEbookResponse) -> postCreateWishlist(createEbookResponse, accessToken) }
+
+        val result = webTestClient
+            .get()
+            .uri("/api/v1/wishlist?page=3&count=3")
+            .header(AUTHORIZATION, "Bearer ${ebookList[0].first}")
+            .accept(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<PageResponse<EbookView>>()
+            .returnResult()
+            .responseBody!!
+
+        assertThat(result.data.size).isEqualTo(2)
+        assertThat(result.pageable.totalPages).isEqualTo(3)
+        assertThat(result.data[0].id).isEqualTo(ebookList[1].second.ebook.id)
+        assertThat(result.data[1].id).isEqualTo(ebookList[0].second.ebook.id)
     }
 
     @Test
