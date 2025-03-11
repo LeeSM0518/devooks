@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "리뷰 댓글")
+@Tag(name = "ReviewComment", description = "리뷰 댓글")
 interface ReviewCommentControllerDocs {
 
     @Operation(summary = "리뷰 댓글 작성")
@@ -57,7 +57,7 @@ interface ReviewCommentControllerDocs {
     )
     suspend fun createReviewComment(
         request: CreateReviewCommentRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): CreateReviewCommentResponse
 
@@ -138,7 +138,7 @@ interface ReviewCommentControllerDocs {
         @Schema(description = "리뷰 댓글 식별자", required = true, implementation = UUID::class)
         commentId: UUID,
         request: ModifyReviewCommentRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): ModifyReviewCommentResponse
 
@@ -190,7 +190,7 @@ interface ReviewCommentControllerDocs {
     suspend fun deleteReviewComment(
         @Schema(description = "리뷰 댓글 식별자", required = true, implementation = UUID::class)
         commentId: UUID,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): DeleteReviewCommentResponse
 }

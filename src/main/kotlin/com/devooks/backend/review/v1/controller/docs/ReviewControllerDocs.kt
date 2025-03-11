@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "리뷰")
+@Tag(name = "Review", description = "리뷰")
 interface ReviewControllerDocs {
 
     @Operation(summary = "리뷰 작성")
@@ -77,7 +77,7 @@ interface ReviewControllerDocs {
     )
     suspend fun createReview(
         request: CreateReviewRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): CreateReviewResponse
 
@@ -158,7 +158,7 @@ interface ReviewControllerDocs {
         @Schema(description = "리뷰 식별자", required = true, implementation = UUID::class)
         reviewId: UUID,
         request: ModifyReviewRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): ModifyReviewResponse
 
@@ -210,7 +210,7 @@ interface ReviewControllerDocs {
     suspend fun deleteReview(
         @Schema(description = "리뷰 식별자", required = true, implementation = UUID::class)
         reviewId: UUID,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): DeleteReviewResponse
 

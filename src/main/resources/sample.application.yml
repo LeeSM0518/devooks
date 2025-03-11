@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 8080
 
 spring:
   r2dbc:
@@ -47,8 +47,8 @@ naver:
   profileHost: https://openapi.naver.com
   tokenUrl: /oauth2.0/token
   profileUrl: /v1/nid/me
-  clientId:
-  clientSecret:
+  clientId: test
+  clientSecret: test
   state: test
 
 kakao:
@@ -56,18 +56,24 @@ kakao:
   profileHost: https://kapi.kakao.com
   tokenUrl: /oauth/token
   profileUrl: /v2/user/me
-  clientId:
-  redirectUri:
+  clientId: test
+  redirectUri: test
 
 google:
   oauthHost: https://oauth2.googleapis.com
   profileHost: https://www.googleapis.com
   tokenUrl: /token
   profileUrl: /userinfo/v2/me
-  clientId:
-  clientSecret:
-  redirectUri:
+  clientId: test
+  clientSecret: test
+  redirectUri: test
 
-springdoc:
-  swagger-ui:
-    path: api-docs
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health
+  datadog:
+    metrics:
+      export:
+        enabled: false

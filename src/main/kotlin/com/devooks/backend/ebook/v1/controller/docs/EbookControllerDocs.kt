@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.*
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
-@Tag(name = "전자책")
+@Tag(name = "Ebook", description = "전자책")
 interface EbookControllerDocs {
 
     @Operation(summary = "전자책 목록 조회")
@@ -50,9 +50,9 @@ interface EbookControllerDocs {
         title: String?,
         @Schema(description = "검색할 판매자 식별자", implementation = UUID::class, nullable = true)
         sellerMemberId: UUID?,
-        @Schema(description = "검색할 전자책 식별자 목록", type = "array", format = "uuid", nullable = true)
+        @Schema(description = "검색할 전자책 식별자 목록", format = "uuid", nullable = true)
         ebookIdList: List<UUID>?,
-        @Schema(description = "검색할 카테고리 식별자 목록", type = "array", format = "uuid", nullable = true)
+        @Schema(description = "검색할 카테고리 식별자 목록", format = "uuid", nullable = true)
         categoryIdList: List<UUID>?,
         @Schema(description = "정렬할 속성", implementation = EbookOrder::class, nullable = true)
         orderBy: EbookOrder?,
@@ -154,7 +154,7 @@ interface EbookControllerDocs {
     )
     suspend fun createEbook(
         request: CreateEbookRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): CreateEbookResponse
 
@@ -210,7 +210,7 @@ interface EbookControllerDocs {
         @Schema(description = "전자책 식별자", implementation = UUID::class, required = true)
         ebookId: UUID,
         request: ModifyEbookRequest,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): ModifyEbookResponse
 
@@ -264,7 +264,7 @@ interface EbookControllerDocs {
     suspend fun deleteEbook(
         @Schema(description = "전자책 식별자", implementation = UUID::class, required = true)
         ebookId: UUID,
-        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true)
+        @Schema(description = "액세스 토큰", example = "Bearer \${accessToken}", required = true, hidden = true)
         authorization: String,
     ): DeleteEbookResponse
 }

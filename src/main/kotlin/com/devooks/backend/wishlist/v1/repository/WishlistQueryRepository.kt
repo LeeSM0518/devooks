@@ -20,7 +20,6 @@ class WishlistQueryRepository : JooqR2dbcRepository() {
             ).from(
                 WISHLIST
                     .join(EBOOK).on(WISHLIST.EBOOK_ID.eq(EBOOK.EBOOK_ID))
-                    .join(RELATED_CATEGORY).on(EBOOK.EBOOK_ID.eq(RELATED_CATEGORY.EBOOK_ID))
             ).where(
                 WISHLIST.MEMBER_ID.eq(command.memberId).and(EBOOK.DELETED_DATE.isNull)
                     .let { where ->
