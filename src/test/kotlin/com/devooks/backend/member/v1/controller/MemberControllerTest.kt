@@ -443,7 +443,7 @@ internal class MemberControllerTest @Autowired constructor(
         val (signUpResponse, tokenGroup) = signUp()
         val modifyProfileRequest =
             ModifyProfileRequest(
-                nickname = signUpResponse.member.nickname,
+                nickname = signUpResponse.member.nickname + "1",
                 phoneNumber = "",
                 blogLink = "",
                 instagramLink = "",
