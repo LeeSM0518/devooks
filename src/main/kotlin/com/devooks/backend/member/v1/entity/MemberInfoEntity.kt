@@ -31,12 +31,12 @@ data class MemberInfoEntity(
 
     fun updateProfile(command: ModifyProfileCommand) =
         copy(
-            phoneNumber = command.phoneNumber ?: this.phoneNumber,
-            blogLink = command.blogLink ?: this.blogLink,
-            instagramLink = command.instagramLink ?: this.instagramLink,
-            youtubeLink = command.youtubeLink ?: this.youtubeLink,
-            introduction = command.introduction ?: this.introduction,
-            email = command.email ?: this.email,
+            phoneNumber = command.phoneNumber,
+            blogLink = command.blogLink,
+            instagramLink = command.instagramLink,
+            youtubeLink = command.youtubeLink,
+            introduction = command.introduction,
+            email = command.email,
         )
 
     fun updateAccount(command: ModifyAccountInfoCommand) =

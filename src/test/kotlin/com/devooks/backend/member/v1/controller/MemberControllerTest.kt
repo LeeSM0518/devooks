@@ -440,16 +440,16 @@ internal class MemberControllerTest @Autowired constructor(
 
     @Test
     fun `이메일만 수정할 수 있다`(): Unit = runBlocking {
-        val (_, tokenGroup) = signUp()
+        val (signUpResponse, tokenGroup) = signUp()
         val modifyProfileRequest =
             ModifyProfileRequest(
-                nickname = null,
-                phoneNumber = null,
-                blogLink = null,
-                instagramLink = null,
-                youtubeLink = null,
-                introduction = null,
-                favoriteCategoryIdList = null,
+                nickname = signUpResponse.member.nickname,
+                phoneNumber = "",
+                blogLink = "",
+                instagramLink = "",
+                youtubeLink = "",
+                introduction = "",
+                favoriteCategoryIdList = listOf(),
                 email = "asd@naver.com"
             )
 
